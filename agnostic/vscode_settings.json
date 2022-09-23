@@ -164,5 +164,5 @@
         "jupyter-notebook": "left"
     },
     "git.confirmSync": false,
-    "diffEditor.ignoreTrimWhitespace": false,
+    "diffEditor.ignoreTrimWhitespace": false
 } 
