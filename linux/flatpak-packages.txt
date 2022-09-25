@@ -1,0 +1,46 @@
+Bitwarden	com.bitwarden.desktop	2022.8.1	stable
+Discord	com.discordapp.Discord	0.0.20	stable
+Postman	com.getpostman.Postman	9.31.0	stable
+Android Studio	com.google.AndroidStudio	2021.3.1.16	stable
+PyCharm-Community	com.jetbrains.PyCharm-Community	2022.2.2	stable
+draw.io	com.jgraph.drawio.desktop	20.3.0	stable
+Logseq translations	com.logseq.Logseq.Locale		stable
+Slack	com.slack.Slack	4.27.156	stable
+Spotify	com.spotify.Client	1.1.84.716.gc5f8b819	stable
+Peek	com.uploadedlobster.peek	1.5.1	stable
+Atom	io.atom.Atom	1.60.0	stable
+DBeaver Community	io.dbeaver.DBeaverCommunity	22.2.0	stable
+Anki	net.ankiweb.Anki	2.1.54	stable
+Chromium Web Browser	org.chromium.Chromium	105.0.5195.125	stable
+Codecs	org.chromium.Chromium.Codecs		stable
+FileZilla	org.filezillaproject.Filezilla	3.60.1	stable
+Freedesktop Platform	org.freedesktop.Platform	21.08.15	21.08
+Freedesktop Platform	org.freedesktop.Platform	22.08.2.1	22.08
+Mesa	org.freedesktop.Platform.GL.default	21.1.8	20.08
+Mesa	org.freedesktop.Platform.GL.default	21.3.9	21.08
+Mesa	org.freedesktop.Platform.GL.default	mesa-22.1.7	22.08
+Intel	org.freedesktop.Platform.VAAPI.Intel		20.08
+Intel	org.freedesktop.Platform.VAAPI.Intel		21.08
+Intel	org.freedesktop.Platform.VAAPI.Intel		22.08
+ffmpeg-full	org.freedesktop.Platform.ffmpeg-full		21.08
+openh264	org.freedesktop.Platform.openh264	2.1.0	2.0
+openh264	org.freedesktop.Platform.openh264	2.1.0	2.2.0
+openh264	org.freedesktop.Platform.openh264	2.1.0	2.3.0
+Freedesktop SDK	org.freedesktop.Sdk	20.08.21	20.08
+Freedesktop SDK	org.freedesktop.Sdk	21.08.15	21.08
+Freedesktop SDK	org.freedesktop.Sdk	22.08.2.1	22.08
+Boxes	org.gnome.Boxes	42.3	stable
+GNOME Boxes Osinfo DB	org.gnome.Boxes.Extension.OsinfoDb	20220830	stable
+GNOME Application Platform version 41	org.gnome.Platform		41
+GNOME Application Platform version 42	org.gnome.Platform		42
+Pop Gtk theme	org.gtk.Gtk3theme.Pop-dark		3.22
+KDE Application Platform	org.kde.Platform		5.15-21.08
+QGnomePlatform	org.kde.PlatformTheme.QGnomePlatform		5.15-21.08
+QtSNI	org.kde.PlatformTheme.QtSNI		5.15-21.08
+QGnomePlatform-decoration	org.kde.WaylandDecoration.QGnomePlatform-decoration		5.15-21.08
+Thunderbird	org.mozilla.Thunderbird	102.3.0	stable
+Remmina	org.remmina.Remmina	1.4.27	stable
+Telegram Desktop	org.telegram.desktop	4.2	stable
+Telegram Desktop Webview Add-on	org.telegram.desktop.webview	2.38.0	stable
+VLC	org.videolan.VLC	3.0.17.4	stable
+Zotero	org.zotero.Zotero	6.0.13	stable
