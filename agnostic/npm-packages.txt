@@ -1,0 +1,6 @@
+corepack
+forever
+grunt-cli
+live-server
+nodemon
+npm
