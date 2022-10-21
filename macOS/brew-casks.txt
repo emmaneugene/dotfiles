@@ -18,9 +18,11 @@ intellij-idea-ce
 iterm2
 karabiner-elements
 krita
+lens
 macfuse
 mamp
 metasploit
+microsoft-edge
 microsoft-teams
 miniconda
 mongodb-compass
@@ -34,6 +36,7 @@ parsec
 pycharm-ce
 rectangle
 remnote
+shotcut
 signal
 sourcetree
 spotify

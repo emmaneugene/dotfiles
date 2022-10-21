@@ -13,6 +13,7 @@ Markdown
 matplotlib
 numpy
 pandas
+pipenv
 pytest
 tensorflow
 torch

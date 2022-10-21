@@ -108,6 +108,7 @@ minikube
 mpdecimal
 mpfr
 msgpack
+mysql-client
 nasm
 ncurses
 neofetch
@@ -140,6 +141,7 @@ rtmpdump
 rust
 scala
 screenresolution
+sevenzip
 six
 snappy
 sqlite
@@ -160,4 +162,5 @@ wireshark
 xorgproto
 xz
 youtube-dl
+zlib
 zstd
