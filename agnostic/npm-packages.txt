@@ -1,4 +1,5 @@
 corepack
+editorconfig
 forever
 grunt-cli
 live-server
@@ -6,3 +7,4 @@ nodemon
 npm-check-updates
 tldr
 uglify-js
+yarn
