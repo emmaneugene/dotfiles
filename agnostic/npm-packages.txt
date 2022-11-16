@@ -3,6 +3,6 @@ forever
 grunt-cli
 live-server
 nodemon
-npm
+npm-check-updates
 tldr
 uglify-js
