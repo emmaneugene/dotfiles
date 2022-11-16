@@ -13,7 +13,6 @@ Some of the *absolute essentials*:
 - **Chat**: Telegram
 - **Screen recorder**: Peek/Proprietary
 - **Package manager**: Homebrew, Chocolatey, Flatpak, etc.
-
 - **Container/virtualization runtime**: Docker
 - **Shell**: zsh (with oh-my-zsh and powerlevel10k) or WSL
 
