@@ -26,7 +26,6 @@ mamp
 mattermost
 metasploit
 microsoft-teams
-miniconda
 mongodb-compass
 ngrok
 notion

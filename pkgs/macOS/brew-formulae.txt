@@ -10,7 +10,6 @@ awscli
 bdw-gc
 brotli
 btop
-c-ares
 ca-certificates
 cairo
 capstone
@@ -24,6 +23,7 @@ fontconfig
 freetds
 freetype
 fribidi
+fzf
 gcc
 gd
 gdbm
@@ -77,7 +77,6 @@ libidn
 libidn2
 liblinear
 liblqr
-libmaxminddb
 libmpc
 libnghttp2
 libomp
@@ -86,7 +85,6 @@ libpq
 libpthread-stubs
 libraw
 libslirp
-libsmi
 libsodium
 libssh
 libssh2
