@@ -10,8 +10,6 @@ export ZSH="$HOME/.oh-my-zsh"
 
 ZSH_THEME="powerlevel10k/powerlevel10k"
 
-# Case-sensitive completion must be off. _ and - will be interchangeable.
-# HYPHEN_INSENSITIVE="true"
 
 # Uncomment the following line to display red dots whilst waiting for completion.
 # You can also set it to another string to have that shown instead of the default red dots.
@@ -81,16 +79,6 @@ source $ZSH/oh-my-zsh.sh
 
 eval $(thefuck --alias)
 
-# Aliases
-alias appupdate="brew update; brew upgrade; brew autoremove; brew cleanup;
-x86-brew update; x86-brew upgrade;
-x86-brew autoremove; x86-brew cleanup;"
-alias ohmyzsh="code ~/.oh-my-zsh"
-alias fk="fuck"
-alias x86-brew="arch -x86_64 /usr/local/Homebrew/bin/brew"
-alias x86-gcc="/usr/local/bin/gcc-12"
-alias zshconfig="nvim ~/.zshrc"
-
 # pyenv setup
 export PYENV_ROOT="$HOME/.pyenv"
 command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
@@ -101,6 +89,16 @@ HB_CNF_HANDLER="$(brew --repository)/Library/Taps/homebrew/homebrew-command-not-
 if [ -f "$HB_CNF_HANDLER" ]; then
 source "$HB_CNF_HANDLER";
 fi
+
+# Aliases
+alias appupdate="brew update; brew upgrade; brew autoremove; brew cleanup;
+x86-brew update; x86-brew upgrade;
+x86-brew autoremove; x86-brew cleanup;"
+alias ohmyzsh="code ~/.oh-my-zsh"
+alias fk="fuck"
+alias x86-brew="arch -x86_64 /usr/local/Homebrew/bin/brew"
+alias x86-gcc="/usr/local/bin/gcc-12"
+alias zshconfig="nvim ~/.zshrc"
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
