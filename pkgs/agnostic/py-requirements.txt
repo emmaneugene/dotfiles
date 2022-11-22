@@ -16,6 +16,7 @@ pandas
 pipenv
 pytest
 seaborn
+sphinx
 tensorflow
 torch
 regex
