@@ -92,8 +92,8 @@ export NVM_DIR="$HOME/.nvm"
 eval $(thefuck --alias)
 
 # Aliases
-alias appupdate="apt update; sudo apt dist-ugprade -y; sudo apt autoclean -y;
-sudo apt autoremove -y"
+alias appupdate="apt update && sudo apt upgrade \
+&& sudo apt autoclean -y && sudo apt autoremove -y"
 alias fk="fuck"
 alias zshconfig="nvim ~/.zshrc"
 
