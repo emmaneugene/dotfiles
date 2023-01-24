@@ -1,48 +1,40 @@
-AnyDesk
-Bitwarden
-calibre
-Discord
-Dropbox
-Tor Browser Launcher
-PulseEffects
-Mattermost
-OBS Studio
-Slack
-Spotify
-mGBA
-Obsidian
-Chromium Web Browser
-Codecs
-SWH
-Freedesktop Platform
-Freedesktop Platform
-Mesa
-Mesa
-Mesa (Extra)
-nvidia-525-60-11
-Intel
-Intel
-ffmpeg-full
-ffmpeg-full
-openh264
-openh264
-openh264
-Freedesktop SDK
-GNOME Application Platform version 42
-GNOME Application Platform version 43
-Adapta-Nokto Gtk+ theme
-Mint-Y Gtk Theme
-KDE Application Platform
-KDE Application Platform
-KDE Application Platform
-KDE Application Platform
-Krita
-LibreOffice
-Remmina
-Shotcut
-Signal Desktop
-Telegram Desktop
-Telegram Desktop Webview Add-on
-Zotero
-Insomnia
-Zoom
+com.anydesk.Anydesk
+com.bitwarden.desktop
+com.calibre_ebook.calibre
+com.github.hluk.copyq
+com.github.micahflee.torbrowser-launcher
+com.mattermost.Desktop
+com.slack.Slack
+com.spotify.Client
+io.dbeaver.DBeaverCommunity
+io.mgba.mGBA
+md.obsidian.Obsidian
+org.chromium.Chromium
+org.chromium.Chromium.Codecs
+org.freedesktop.LinuxAudio.Plugins.swh
+org.freedesktop.Platform
+org.freedesktop.Platform
+org.freedesktop.Platform.GL.default
+org.freedesktop.Platform.GL.default
+org.freedesktop.Platform.GL.default
+org.freedesktop.Platform.VAAPI.Intel
+org.freedesktop.Platform.VAAPI.Intel
+org.freedesktop.Platform.ffmpeg-full
+org.freedesktop.Platform.openh264
+org.freedesktop.Platform.openh264
+org.freedesktop.Sdk
+org.gimp.GIMP
+org.gnome.Platform
+org.gnome.Platform
+org.gtk.Gtk3theme.Mint-Y
+org.gtk.Gtk3theme.Mint-Y-Dark
+org.kde.Platform
+org.kde.Platform
+org.shotcut.Shotcut
+org.signal.Signal
+org.telegram.desktop
+org.telegram.desktop.webview
+org.videolan.VLC
+org.zotero.Zotero
+rest.insomnia.Insomnia
+us.zoom.Zoom
