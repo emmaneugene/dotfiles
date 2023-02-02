@@ -94,7 +94,7 @@ eval $(thefuck --alias)
 # Aliases
 alias appupdate="apt update && sudo apt upgrade \
 && sudo apt autoclean -y && sudo apt autoremove -y \
-&& flatpak update -y"
+&& sudo flatpak update -y"
 alias fk="fuck"
 alias zshconfig="nvim ~/.zshrc"
 
