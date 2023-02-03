@@ -92,7 +92,7 @@ export NVM_DIR="$HOME/.nvm"
 eval $(thefuck --alias)
 
 # Aliases
-alias appupdate="apt update && sudo apt upgrade \
+alias appupdate="apt update && sudo apt upgrade -y \
 && sudo apt autoclean -y && sudo apt autoremove -y \
 && sudo flatpak update -y"
 alias fk="fuck"
