@@ -3,6 +3,7 @@ editorconfig
 forever
 grunt-cli
 live-server
+minify
 nodemon
 npm-check-updates
 tldr
