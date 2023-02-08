@@ -10,7 +10,6 @@ export ZSH="$HOME/.oh-my-zsh"
 
 ZSH_THEME="powerlevel10k/powerlevel10k"
 
-
 # Uncomment the following line to display red dots whilst waiting for completion.
 # You can also set it to another string to have that shown instead of the default red dots.
 # e.g. COMPLETION_WAITING_DOTS="%F{yellow}waiting...%f"
@@ -30,15 +29,11 @@ DISABLE_UNTRACKED_FILES_DIRTY="true"
 # see 'man strftime' for details.
 # HIST_STAMPS="mm/dd/yyyy"
 
-# Which plugins would you like to load?
 # Standard plugins can be found in $ZSH/plugins/
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
-# Example format: plugins=(rails git textcode ruby lighthouse)
-# Add wisely, as too many plugins slow down shell startup.
 plugins=(
-  aws
   aliases
-  bundler
+  aws
   command-not-found
   colored-man-pages
   docker
@@ -53,31 +48,16 @@ plugins=(
   macos
   npm
   nvm
-  rake
   zsh-autosuggestions
   zsh-syntax-highlighting
 )
 
 source $ZSH/oh-my-zsh.sh
 
-# User configuration
-
-# export MANPATH="/usr/local/man:$MANPATH"
-
-# You may need to manually set your language environment
-# export LANG=en_US.UTF-8
-
-# Preferred editor for local and remote sessions
-# if [[ -n $SSH_CONNECTION ]]; then
-#   export EDITOR='vim'
-# else
-#   export EDITOR='mvim'
-# fi
-
-# Compilation flags
-# export ARCHFLAGS="-arch x86_64"
-
 eval $(thefuck --alias)
+
+# JAVA_HOME
+export JAVA_HOME="/opt/homebrew/opt/openjdk/libexec/openjdk.jdk/Contents/Home"
 
 # pyenv setup
 export PYENV_ROOT="$HOME/.pyenv"
@@ -90,7 +70,75 @@ if [ -f "$HB_CNF_HANDLER" ]; then
 source "$HB_CNF_HANDLER";
 fi
 
-# Aliases
+# PATH config
+export PATH="/opt/homebrew/coreutils/libexec/gnubin:/opt/homebrew/opt/openjdk/bin:$PATH:/Users/emman/.depot_tools"
+
+# Replace with GNU coreutils (https://github.com/darksonic37/linuxify)
+BREW_HOME=$(brew --prefix)
+# most programs
+export PATH="${BREW_HOME}/bin:$PATH"
+export MANPATH="${BREW_HOME}/share/man:$MANPATH"
+export INFOPATH="${BREW_HOME}/share/info:$INFOPATH"
+
+# coreutils
+export PATH="${BREW_HOME}/opt/coreutils/libexec/gnubin:$PATH"
+export MANPATH="${BREW_HOME}/opt/coreutils/libexec/gnuman:$MANPATH"
+
+# make
+export PATH="${BREW_HOME}/opt/make/libexec/gnubin:$PATH"
+export MANPATH="${BREW_HOME}/opt/make/libexec/gnuman:$MANPATH"
+
+# m4
+export PATH="${BREW_HOME}/opt/m4/bin:$PATH"
+
+# file-formula
+export PATH="${BREW_HOME}/opt/file-formula/bin:$PATH"
+
+# unzip
+export PATH="${BREW_HOME}/opt/unzip/bin:$PATH"
+
+# python
+export PATH="${BREW_HOME}/opt/python/libexec/bin:$PATH"
+
+# flex
+export PATH="${BREW_HOME}/opt/flex/bin:$PATH"
+export LDFLAGS="-L${BREW_HOME}/opt/flex/lib"
+export CPPFLAGS="-I${BREW_HOME}/opt/flex/include"
+
+# bison
+export PATH="${BREW_HOME}/opt/bison/bin:$PATH"
+export LDFLAGS="-L${BREW_HOME}/opt/bison/lib"
+
+# libressl
+export PATH="${BREW_HOME}/opt/libressl/bin:$PATH"
+export LDFLAGS="-L${BREW_HOME}/opt/libressl/lib"
+export CPPFLAGS="-I${BREW_HOME}/opt/libressl/include"
+export PKG_CONFIG_PATH="${BREW_HOME}/opt/libressl/lib/pkgconfig"
+
+# ed
+export PATH="${BREW_HOME}/opt/ed/libexec/gnubin:$PATH"
+
+# findutils
+export PATH="${BREW_HOME}/opt/findutils/libexec/gnubin:$PATH"
+
+# gnu-indent
+export PATH="${BREW_HOME}/opt/gnu-indent/libexec/gnubin:$PATH"
+
+# gnu-sed
+export PATH="${BREW_HOME}/opt/gnu-sed/libexec/gnubin:$PATH"
+
+# gnu-tar
+export PATH="${BREW_HOME}/opt/gnu-tar/libexec/gnubin:$PATH"
+
+# gnu-which
+export PATH="${BREW_HOME}/opt/gnu-which/libexec/gnubin:$PATH"
+
+# grep
+export PATH="${BREW_HOME}/opt/grep/libexec/gnubin:$PATH"
+
+unset BREW_HOME
+
+# Custom aliases
 alias appupdate="brew update; brew upgrade; brew autoremove; brew cleanup;
 x86-brew update; x86-brew upgrade;
 x86-brew autoremove; x86-brew cleanup;"
@@ -100,8 +148,7 @@ alias x86-brew="arch -x86_64 /usr/local/Homebrew/bin/brew"
 alias x86-gcc="/usr/local/bin/gcc-12"
 alias zshconfig="nvim ~/.zshrc"
 
+
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
-# PATH config
-export PATH="/opt/homebrew/opt/openjdk/bin:$PATH:/Users/emman/.depot_tools"
