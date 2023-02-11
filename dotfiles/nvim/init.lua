@@ -134,6 +134,7 @@ vim.o.smartindent = true
 vim.o.exrc = true
 vim.o.guicursor = ''
 vim.o.nu = true
+vim.o.relativenumber = true
 vim.o.noerrorbells = true
 vim.o.nowrap = true
 vim.o.incsearch = true
