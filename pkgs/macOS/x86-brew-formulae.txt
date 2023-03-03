@@ -2,6 +2,7 @@ ca-certificates
 freetype
 gcc
 gdb
+giflib
 gmp
 isl
 libmpc

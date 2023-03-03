@@ -54,6 +54,7 @@ gh
 ghc
 ghostscript
 giflib
+gifsicle
 git
 git-lfs
 glib
@@ -165,6 +166,7 @@ lzo
 m4
 make
 mbedtls
+miller
 minikube
 mpdecimal
 mpfr

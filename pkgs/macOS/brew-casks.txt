@@ -1,5 +1,4 @@
 adobe-acrobat-reader
-anki
 anydesk
 balenaetcher
 bettertouchtool
@@ -53,6 +52,7 @@ visual-studio-code
 vlc
 vnc-server
 vnc-viewer
+vscodium
 wireshark
 zoom
 zotero
