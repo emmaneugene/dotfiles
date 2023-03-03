@@ -56,6 +56,10 @@ source $ZSH/oh-my-zsh.sh
 
 eval $(thefuck --alias)
 
+function vidtogif() {
+  ffmpeg -i $1 -pix_fmt rgb8 -r 10 $2 && gifsicle -O3 $2 -o $2
+}
+
 # JAVA_HOME
 export JAVA_HOME="/opt/homebrew/opt/openjdk/libexec/openjdk.jdk/Contents/Home"
 
