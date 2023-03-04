@@ -91,6 +91,10 @@ export NVM_DIR="$HOME/.nvm"
 
 eval $(thefuck --alias)
 
+function vidtogif() {
+  gifski -r 10 $1 -o $1
+}
+
 # Aliases
 alias appupdate="apt update && sudo apt upgrade -y \
 && sudo apt autoclean -y && sudo apt autoremove -y \
