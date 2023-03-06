@@ -57,7 +57,7 @@ source $ZSH/oh-my-zsh.sh
 eval $(thefuck --alias)
 
 function vidtogif() {
-  gifski -r 10 $1 -o $1
+  gifski -r 10 $1 -o $2
 }
 
 # JAVA_HOME
