@@ -1,4 +1,5 @@
 adobe-acrobat-reader
+anki
 anydesk
 balenaetcher
 bettertouchtool
@@ -47,7 +48,6 @@ textmate
 transmission
 typora
 utm
-via
 visual-studio-code
 vlc
 vnc-server
