@@ -76,7 +76,7 @@ fi
 
 # PATH config
 export PATH="/opt/homebrew/coreutils/libexec/gnubin:/opt/homebrew/opt/openjdk/bin:$PATH:/Users/emman/.depot_tools"
-
+export PATH="/opt/homebrew/opt/curl/bin:$PATH"
 # Replace with GNU coreutils (https://github.com/darksonic37/linuxify)
 BREW_HOME=$(brew --prefix)
 # most programs
