@@ -6,6 +6,8 @@ live-server
 minify
 nodemon
 npm-check-updates
+npm
 tldr
+typescript
 uglify-js
 yarn
