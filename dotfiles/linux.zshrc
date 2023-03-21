@@ -108,3 +108,5 @@ alias zshconfig="nvim ~/.zshrc"
 if [ $TILIX_ID ] || [ $VTE_VERSION ]; then
   source /etc/profile.d/vte.sh
 fi
+
+if [ -e /home/emman/.nix-profile/etc/profile.d/nix.sh ]; then . /home/emman/.nix-profile/etc/profile.d/nix.sh; fi # added by Nix installer
