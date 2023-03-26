@@ -130,6 +130,7 @@ vim.o.completeopt = 'menuone,noselect'
 
 -- Personal configs
 vim.o.expandtab = true
+vim.o.shiftwidth = 4
 vim.o.smartindent = true
 vim.o.exrc = true
 vim.o.guicursor = ''
