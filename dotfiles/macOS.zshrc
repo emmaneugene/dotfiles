@@ -143,16 +143,15 @@ export PATH="${BREW_HOME}/opt/grep/libexec/gnubin:$PATH"
 unset BREW_HOME
 
 # Custom aliases
-alias appupdate="brew update; brew upgrade; brew autoremove; brew cleanup;
-x86-brew update; x86-brew upgrade;
-x86-brew autoremove; x86-brew cleanup;"
+alias appupdate="brew update && brew upgrade && brew autoremove && brew cleanup; 
+x86-brew update && x86-brew upgrade && x86-brew autoremove && x86-brew cleanup;
+command -v nix > /dev/null && nix-channel --update && nix-env -u \
+&& nix-collect-garbage -d && nix-store --optimise;"
 alias ohmyzsh="code ~/.oh-my-zsh"
 alias fk="fuck"
 alias x86-brew="arch -x86_64 /usr/local/Homebrew/bin/brew"
 alias x86-gcc="/usr/local/bin/gcc-12"
 alias zshconfig="nvim ~/.zshrc"
 
-
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
-

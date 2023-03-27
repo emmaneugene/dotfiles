@@ -97,8 +97,10 @@ function vidtogif() {
 
 # Aliases
 alias appupdate="apt update && sudo apt upgrade -y \
-&& sudo apt autoclean -y && sudo apt autoremove -y \
-&& sudo flatpak update -y"
+&& sudo apt autoclean -y && sudo apt autoremove -y;
+sudo flatpak update -y;
+command -v nix > /dev/null && nix-channel --update && nix-env -u \
+&& nix-collect-garbage -d && nix-store --optimise;"
 alias fk="fuck"
 alias zshconfig="nvim ~/.zshrc"
 
