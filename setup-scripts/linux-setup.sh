@@ -35,6 +35,9 @@ libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-d
 # nvm
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
 
+#rclone
+sudo -v ; curl https://rclone.org/install.sh | sudo bash
+
 # nix package manager
 bash <(curl -L https://nixos.org/nix/install) --daemon
 
