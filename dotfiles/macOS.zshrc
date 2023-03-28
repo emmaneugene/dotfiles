@@ -48,6 +48,7 @@ plugins=(
   macos
   npm
   nvm
+  yarn
   zsh-autosuggestions
   zsh-syntax-highlighting
 )
