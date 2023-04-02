@@ -1,4 +1,4 @@
-# Setup script for machines running Ubuntu/Mint
+# Setup script for Ubuntu-based distros
 
 # Install zsh
 sudo apt-get update; sudo apt-get install zsh
@@ -13,7 +13,7 @@ git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-m
 git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
 
 # Clone config repo
-git clone git@github.com:
+mkdir ~/config && git clone git@github.com:emmaneugene/config-public.git ~/config/public
 
 # Symlink dotfiles
 # .zshrc
@@ -24,7 +24,7 @@ mkdir -p ~/.config/nvim && rm ~/.config/nvim/init.lua && ln -s ~/config/public/d
 ln -s ~/config/public/dotfiles/git/global.gitignore ~/.gitignore
 ln -s ~/config/public/dotfiles/git/global.gitmessage ~/.gitmessage
 
-# Install software
+# Install development dependencies
 # pyenv
 curl https://pyenv.run | bash
 # refer to https://github.com/pyenv/pyenv/wiki#suggested-build-environment for build setup
@@ -34,13 +34,15 @@ libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-d
 
 # nvm
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
-
-#rclone
+# rclone
 sudo -v ; curl https://rclone.org/install.sh | sudo bash
-
+# rust
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+# haskell
+curl --proto '=https' --tlsv1.2 -sSf https://get-ghcup.haskell.org | sh
 # nix package manager
 bash <(curl -L https://nixos.org/nix/install) --daemon
 
-# Add apt repositories 
-# Docker 
-# Typora
+# Add apt repositories
+# TODO: Docker (install from .deb)
+# TODO: Typora
