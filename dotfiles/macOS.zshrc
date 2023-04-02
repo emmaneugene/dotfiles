@@ -102,9 +102,6 @@ export PATH="${BREW_HOME}/opt/file-formula/bin:$PATH"
 # unzip
 export PATH="${BREW_HOME}/opt/unzip/bin:$PATH"
 
-# python
-export PATH="${BREW_HOME}/opt/python/libexec/bin:$PATH"
-
 # flex
 export PATH="${BREW_HOME}/opt/flex/bin:$PATH"
 export LDFLAGS="-L${BREW_HOME}/opt/flex/lib"
@@ -145,9 +142,7 @@ unset BREW_HOME
 
 # Custom aliases
 alias appupdate="brew update && brew upgrade && brew autoremove && brew cleanup; 
-x86-brew update && x86-brew upgrade && x86-brew autoremove && x86-brew cleanup;
-command -v nix > /dev/null && nix-channel --update && nix-env -u \
-&& nix-collect-garbage -d && nix-store --optimise;"
+x86-brew update && x86-brew upgrade && x86-brew autoremove && x86-brew cleanup;"
 alias ohmyzsh="code ~/.oh-my-zsh"
 alias fk="fuck"
 alias x86-brew="arch -x86_64 /usr/local/Homebrew/bin/brew"
