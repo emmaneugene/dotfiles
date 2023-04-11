@@ -151,3 +151,5 @@ alias zshconfig="nvim ~/.zshrc"
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
+[ -f "/Users/emman/.ghcup/env" ] && source "/Users/emman/.ghcup/env" # ghcup-env
