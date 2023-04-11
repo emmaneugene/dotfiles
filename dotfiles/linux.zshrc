@@ -112,3 +112,5 @@ if [ $TILIX_ID ] || [ $VTE_VERSION ]; then
 fi
 
 if [ -e /home/emman/.nix-profile/etc/profile.d/nix.sh ]; then . /home/emman/.nix-profile/etc/profile.d/nix.sh; fi # added by Nix installer
+
+[ -f "/home/emman/.ghcup/env" ] && source "/home/emman/.ghcup/env" # ghcup-env
