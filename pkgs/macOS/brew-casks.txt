@@ -1,12 +1,14 @@
 adobe-acrobat-reader
 anki
 anydesk
+arduino-ide
 balenaetcher
 bettertouchtool
 calibre
 cheatsheet
 cyberduck
 dbeaver-community
+devtoys
 discord
 docker
 drawio
@@ -27,6 +29,7 @@ mamp
 mattermost
 microsoft-teams
 mongodb-compass
+mqttx
 ngrok
 notion
 ntfstool

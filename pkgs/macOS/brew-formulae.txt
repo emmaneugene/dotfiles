@@ -18,8 +18,8 @@ btop
 ca-certificates
 cairo
 capstone
+cffi
 cjson
-cmocka
 coreutils
 curl
 dav1d
@@ -51,7 +51,6 @@ gdbm
 gdk-pixbuf
 gettext
 gh
-ghc
 ghostscript
 giflib
 gifsicle
@@ -157,7 +156,7 @@ libyaml
 libzip
 links
 little-cms2
-llvm@12
+llvm
 lua
 lua@5.3
 luajit
@@ -202,6 +201,7 @@ perl
 php
 pixman
 pkg-config
+poetry
 popt
 postgresql@14
 protobuf
@@ -226,6 +226,7 @@ sdl2
 sevenzip
 shared-mime-info
 six
+sl
 snappy
 speex
 sqlite
@@ -247,6 +248,7 @@ unzip
 utf8proc
 vde
 vim
+virtualenv
 watch
 wdiff
 webp
@@ -259,6 +261,7 @@ xvid
 xxhash
 xz
 youtube-dl
+z3
 zeromq
 zimg
 zlib
