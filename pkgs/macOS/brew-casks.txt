@@ -27,6 +27,8 @@ linearmouse
 macfuse
 mamp
 mattermost
+microsoft-auto-update
+microsoft-outlook
 microsoft-teams
 mongodb-compass
 mqttx
