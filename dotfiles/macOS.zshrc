@@ -153,3 +153,6 @@ alias zshconfig="nvim ~/.zshrc"
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
 [ -f "/Users/emman/.ghcup/env" ] && source "/Users/emman/.ghcup/env" # ghcup-env
+
+# opam configuration
+[[ ! -r /Users/emman/.opam/opam-init/init.zsh ]] || source /Users/emman/.opam/opam-init/init.zsh  > /dev/null 2> /dev/null
