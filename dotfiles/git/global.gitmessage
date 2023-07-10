@@ -1,11 +1,12 @@
-## If applied this commit will...
-## Prefix: [feat/fix/docs/style/rf/test/chore/ci/revert]
+## ---TITLE---
+## Prefix: [feat/fix/docs/refactor/test/chore/ci/revert][optional scope]
 ## [Add/Fix/Remove/Update/Refactor/Document] [issue #id] [summary]
 
-
+## ---BODY---
 ## Why is it necessary? (Fix, feature, improvements?)
 
 ## How does the change address the issue? 
 
 ## What side effects does this change have? 
 
+## ---FOOTER---
