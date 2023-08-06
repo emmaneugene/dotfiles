@@ -141,7 +141,7 @@ export PATH="${BREW_HOME}/opt/grep/libexec/gnubin:$PATH"
 unset BREW_HOME
 
 # Custom aliases
-alias appupdate="brew update && brew upgrade && brew autoremove && brew cleanup; 
+alias appupdate="brew update && brew upgrade --greedy && brew autoremove && brew cleanup; 
 x86-brew update && x86-brew upgrade && x86-brew autoremove && x86-brew cleanup;"
 alias ohmyzsh="code ~/.oh-my-zsh"
 alias fk="fuck"
