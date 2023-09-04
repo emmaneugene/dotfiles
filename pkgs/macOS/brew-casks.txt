@@ -25,7 +25,6 @@ krita
 lens
 linearmouse
 macfuse
-mamp
 mattermost
 microsoft-auto-update
 microsoft-outlook
@@ -41,15 +40,14 @@ paintbrush
 parallels
 parsec
 postman
-pycharm-ce
 rectangle
 shotcut
 signal
 sourcetree
 spotify
 tailscale
-telegram-desktop
 textmate
+tor-browser
 transmission
 typora
 utm
@@ -57,7 +55,6 @@ visual-studio-code
 vlc
 vnc-server
 vnc-viewer
-vscodium
 wireshark
 zoom
 zotero
