@@ -91,10 +91,29 @@ export NVM_DIR="$HOME/.nvm"
 
 eval $(thefuck --alias)
 
+# Converts a video(.mp4) to GIF format
 function vidtogif() {
   gifski -r 10 $1 -o $2
 }
 
+function docs() {
+  # Check if the user provided a binary name as an argument
+  if [ $# -ne 1 ]; then
+    echo "Usage: $0 <binary>"
+    exit 1
+  fi
+
+  binary="$1"
+
+  # Check if the man page exists for the given binary
+  if man -w "$binary" >/dev/null 2>&1; then
+    # Man page exists, display it
+    man "$binary"
+  else
+    # Man page not found, display --help
+    "$binary" --help
+  fi
+}
 # Aliases
 alias appupdate="apt update && sudo apt upgrade -y \
 && sudo apt autoclean -y && sudo apt autoremove -y;
