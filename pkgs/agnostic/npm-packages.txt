@@ -7,6 +7,7 @@ minify
 nodemon
 npm-check-updates
 npm
+serverless
 tldr
 typescript
 uglify-js

@@ -17,6 +17,7 @@ firefox
 google-chrome
 google-cloud-sdk
 google-drive
+http-toolkit
 insomnia
 intellij-idea-ce
 iterm2

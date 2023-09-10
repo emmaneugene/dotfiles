@@ -16,13 +16,16 @@ bdw-gc
 berkeley-db
 binutils
 bison
+boost
 brotli
 btop
+bun
 ca-certificates
 cairo
 capstone
 cffi
 cjson
+cmake
 coreutils
 curl
 dav1d
@@ -32,6 +35,7 @@ docbook-xsl
 docker-credential-helper
 docutils
 dotnet@6
+dtc
 dua-cli
 ed
 emacs
@@ -193,6 +197,7 @@ oniguruma
 opencore-amr
 openexr
 openjdk
+openjdk@17
 openjpeg
 openldap
 openssh
@@ -246,6 +251,7 @@ sqlite
 srt
 svt-av1
 sysbench
+terraform
 tesseract
 thefuck
 theora
