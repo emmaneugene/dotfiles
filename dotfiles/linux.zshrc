@@ -96,7 +96,7 @@ function vidtogif() {
   gifski -r 10 $1 -o $2
 }
 
-function docs() {
+function doc() {
   # Check if the user provided a binary name as an argument
   if [ $# -ne 1 ]; then
     echo "Usage: $0 <binary>"
