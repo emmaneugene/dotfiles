@@ -4,8 +4,7 @@ cryptography
 Cython
 docker
 docutils
-Django
-flake8
+doit
 ipython
 Jinja2
 jupyter
@@ -13,7 +12,6 @@ Markdown
 matplotlib
 numpy
 pandas
-pipenv
 pytest
 seaborn
 sphinx
@@ -22,5 +20,3 @@ torch
 regex
 scikit-learn
 scipy
-SQLAlchemy
-virtualenv
