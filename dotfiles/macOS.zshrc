@@ -57,32 +57,11 @@ source $ZSH/oh-my-zsh.sh
 
 eval $(thefuck --alias)
 
-# Converts a video(.mp4) to GIF format
-function vidtogif() {
-  gifski -r 10 $1 -o $2
-}
-
-function doc() {
-  # Check if the user provided a binary name as an argument
-  if [ $# -ne 1 ]; then
-    echo "Usage: $0 <binary>"
-    exit 1
-  fi
-
-  binary="$1"
-
-  # Check if the man page exists for the given binary
-  if man -w "$binary" >/dev/null 2>&1; then
-    # Man page exists, display it
-    man "$binary"
-  else
-    # Man page not found, display --help
-    "$binary" --help
-  fi
-}
+# Helpers
+source $HOME/.config/helpers.sh
 
 # JAVA_HOME
-export JAVA_HOME="/opt/homebrew/opt/openjdk/libexec/openjdk.jdk/Contents/Home"
+export JAVA_HOME="/opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home"
 
 # pyenv setup
 export PYENV_ROOT="$HOME/.pyenv"
@@ -165,11 +144,8 @@ unset BREW_HOME
 # Custom aliases
 alias appupdate="brew update && brew upgrade --greedy && brew autoremove && brew cleanup; 
 x86-brew update && x86-brew upgrade && x86-brew autoremove && x86-brew cleanup;"
-alias ohmyzsh="code ~/.oh-my-zsh"
-alias fk="fuck"
 alias x86-brew="arch -x86_64 /usr/local/Homebrew/bin/brew"
 alias x86-gcc="/usr/local/bin/gcc-12"
-alias zshconfig="nvim ~/.zshrc"
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh

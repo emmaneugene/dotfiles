@@ -81,9 +81,6 @@ export PYENV_ROOT="$HOME/.pyenv"
 command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
 eval "$(pyenv init -)"
 
-# ROS setup
-source /opt/ros/humble/setup.zsh
-
 # nvm setup
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
@@ -91,37 +88,12 @@ export NVM_DIR="$HOME/.nvm"
 
 eval $(thefuck --alias)
 
-# Converts a video(.mp4) to GIF format
-function vidtogif() {
-  gifski -r 10 $1 -o $2
-}
-
-function doc() {
-  # Check if the user provided a binary name as an argument
-  if [ $# -ne 1 ]; then
-    echo "Usage: $0 <binary>"
-    exit 1
-  fi
-
-  binary="$1"
-
-  # Check if the man page exists for the given binary
-  if man -w "$binary" >/dev/null 2>&1; then
-    # Man page exists, display it
-    man "$binary"
-  else
-    # Man page not found, display --help
-    "$binary" --help
-  fi
-}
 # Aliases
 alias appupdate="apt update && sudo apt upgrade -y \
 && sudo apt autoclean -y && sudo apt autoremove -y;
 sudo flatpak update -y;
 command -v nix > /dev/null && nix-channel --update && nix-env -u \
 && nix-collect-garbage -d && nix-store --optimise;"
-alias fk="fuck"
-alias zshconfig="nvim ~/.zshrc"
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
