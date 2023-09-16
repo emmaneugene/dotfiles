@@ -59,6 +59,9 @@ plugins=(
 
 source $ZSH/oh-my-zsh.sh
 
+# Helpers
+source $HOME/.config/helpers.sh
+
 # User configuration
 
 # export MANPATH="/usr/local/man:$MANPATH"
