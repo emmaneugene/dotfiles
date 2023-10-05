@@ -1,5 +1,6 @@
 autopep8
 boto3
+black
 cryptography
 Cython
 docker
@@ -8,14 +9,13 @@ doit
 ipython
 Jinja2
 jupyter
+jupyter_contrib_nbextensions
 Markdown
 matplotlib
 numpy
 pandas
 pytest
 seaborn
-sphinx
-tensorflow
 torch
 regex
 scikit-learn
