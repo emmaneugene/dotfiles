@@ -77,69 +77,53 @@ source "$HB_CNF_HANDLER";
 fi
 
 # PATH config
-export PATH="/opt/homebrew/coreutils/libexec/gnubin:/opt/homebrew/opt/openjdk/bin:$PATH:/Users/emman/.depot_tools"
-export PATH="/opt/homebrew/opt/curl/bin:$PATH"
+export PATH="/opt/homebrew/opt/curl/bin:/opt/homebrew/opt/openjdk/bin:$PATH:/Users/emman/.depot_tools"
+
 # Replace with GNU coreutils (https://github.com/darksonic37/linuxify)
 BREW_HOME=$(brew --prefix)
 # most programs
-export PATH="${BREW_HOME}/bin:$PATH"
 export MANPATH="${BREW_HOME}/share/man:$MANPATH"
 export INFOPATH="${BREW_HOME}/share/info:$INFOPATH"
-
 # coreutils
 export PATH="${BREW_HOME}/opt/coreutils/libexec/gnubin:$PATH"
 export MANPATH="${BREW_HOME}/opt/coreutils/libexec/gnuman:$MANPATH"
-
 # make
 export PATH="${BREW_HOME}/opt/make/libexec/gnubin:$PATH"
 export MANPATH="${BREW_HOME}/opt/make/libexec/gnuman:$MANPATH"
-
 # m4
 export PATH="${BREW_HOME}/opt/m4/bin:$PATH"
-
 # file-formula
 export PATH="${BREW_HOME}/opt/file-formula/bin:$PATH"
-
 # unzip
 export PATH="${BREW_HOME}/opt/unzip/bin:$PATH"
-
 # flex
 export PATH="${BREW_HOME}/opt/flex/bin:$PATH"
 export LDFLAGS="-L${BREW_HOME}/opt/flex/lib"
 export CPPFLAGS="-I${BREW_HOME}/opt/flex/include"
-
 # bison
 export PATH="${BREW_HOME}/opt/bison/bin:$PATH"
 export LDFLAGS="-L${BREW_HOME}/opt/bison/lib"
-
 # libressl
 export PATH="${BREW_HOME}/opt/libressl/bin:$PATH"
 export LDFLAGS="-L${BREW_HOME}/opt/libressl/lib"
 export CPPFLAGS="-I${BREW_HOME}/opt/libressl/include"
 export PKG_CONFIG_PATH="${BREW_HOME}/opt/libressl/lib/pkgconfig"
-
 # ed
 export PATH="${BREW_HOME}/opt/ed/libexec/gnubin:$PATH"
-
 # findutils
 export PATH="${BREW_HOME}/opt/findutils/libexec/gnubin:$PATH"
-
 # gnu-indent
 export PATH="${BREW_HOME}/opt/gnu-indent/libexec/gnubin:$PATH"
-
 # gnu-sed
 export PATH="${BREW_HOME}/opt/gnu-sed/libexec/gnubin:$PATH"
-
 # gnu-tar
 export PATH="${BREW_HOME}/opt/gnu-tar/libexec/gnubin:$PATH"
-
 # gnu-which
 export PATH="${BREW_HOME}/opt/gnu-which/libexec/gnubin:$PATH"
-
 # grep
 export PATH="${BREW_HOME}/opt/grep/libexec/gnubin:$PATH"
 
-unset BREW_HOME
+# unset BREW_HOME
 
 # Custom aliases
 alias appupdate="brew update && brew upgrade --greedy && brew autoremove && brew cleanup; 
@@ -154,3 +138,7 @@ alias x86-gcc="/usr/local/bin/gcc-12"
 
 # opam configuration
 [[ ! -r /Users/emman/.opam/opam-init/init.zsh ]] || source /Users/emman/.opam/opam-init/init.zsh  > /dev/null 2> /dev/null
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
