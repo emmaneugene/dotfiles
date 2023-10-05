@@ -1,6 +1,6 @@
 # Collection of aliases, helper functions and scripts for UNIX-based systems
 alias fk="fuck"
-alias routerip="curl https://api.incolumitas.com | jq . && curl ifconfig.me/forwarded"
+alias routerip="curl https://api.incolumitas.com | jq ."
 
 # Converts a video(.mp4) to GIF format
 function vidtogif() {
