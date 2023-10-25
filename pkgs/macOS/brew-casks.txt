@@ -18,7 +18,6 @@ google-chrome
 google-cloud-sdk
 google-drive
 http-toolkit
-insomnia
 intellij-idea-ce
 iterm2
 karabiner-elements
@@ -31,12 +30,12 @@ microsoft-auto-update
 microsoft-outlook
 microsoft-teams
 mongodb-compass
-mqttx
 ngrok
 notion
 ntfstool
 obs
 obsidian
+osquery
 paintbrush
 parallels
 parsec
@@ -44,6 +43,7 @@ postman
 rectangle
 shotcut
 signal
+slack
 sourcetree
 spotify
 tailscale
