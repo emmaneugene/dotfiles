@@ -1,0 +1,8 @@
+[v1]
+"dua-cli 2.20.1 (registry+https://github.com/rust-lang/crates.io-index)" = ["dua"]
+"git-cliff 1.2.0 (registry+https://github.com/rust-lang/crates.io-index)" = [
+    "git-cliff",
+    "git-cliff-completions",
+    "git-cliff-mangen",
+]
+"rustlings 5.4.1 (path+file:///Users/emman/rustlings)" = ["rustlings"]

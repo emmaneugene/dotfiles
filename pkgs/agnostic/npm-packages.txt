@@ -1,4 +1,5 @@
 corepack
+dotenv
 editorconfig
 forever
 grunt-cli
