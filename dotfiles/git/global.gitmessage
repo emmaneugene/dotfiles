@@ -1,12 +1,15 @@
+## Full reference: https://www.conventionalcommits.org/
+##
 ## ---TITLE---
-## Prefix: [feat/fix/docs/refactor/test/chore/ci/revert][optional scope]
-## [Add/Fix/Remove/Update/Refactor/Document] [issue #id] [summary]
+## [feat/fix/chore/refactor/docs/test/revert][!][scope][issue_id]
+## feat(api)!: Send email to customer when product is shipped
 
 ## ---BODY---
-## Why is it necessary? (Fix, feature, improvements?)
+## What was done?
 
-## How does the change address the issue? 
+## What issues does this change address?
 
-## What side effects does this change have? 
+## What side effects does it have? 
 
-## ---FOOTER---
+## ---FOOTER--
+## Signatures or author details
