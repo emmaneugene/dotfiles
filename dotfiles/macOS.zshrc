@@ -77,7 +77,7 @@ source "$HB_CNF_HANDLER";
 fi
 
 # PATH config
-export PATH="/opt/homebrew/opt/curl/bin:/opt/homebrew/opt/openjdk/bin:$PATH:/Users/emman/.depot_tools"
+export PATH="/Users/emman/go/bin:/opt/homebrew/opt/curl/bin:/opt/homebrew/opt/openjdk/bin:$PATH:/Users/emman/.depot_tools"
 
 # Replace with GNU coreutils (https://github.com/darksonic37/linuxify)
 BREW_HOME=$(brew --prefix)
