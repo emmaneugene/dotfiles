@@ -11,13 +11,11 @@ dbeaver-community
 devtoys
 discord
 docker
-drawio
 dropbox
 firefox
 google-chrome
 google-cloud-sdk
 google-drive
-http-toolkit
 intellij-idea-ce
 iterm2
 karabiner-elements
@@ -28,7 +26,6 @@ macfuse
 mattermost
 microsoft-auto-update
 microsoft-outlook
-microsoft-teams
 mongodb-compass
 ngrok
 notion
@@ -54,8 +51,6 @@ typora
 utm
 visual-studio-code
 vlc
-vnc-server
-vnc-viewer
 wireshark
 zoom
 zotero

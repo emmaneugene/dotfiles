@@ -102,7 +102,6 @@ jpeg-xl
 jq
 jsoncpp
 jupyterlab
-keyring
 kotlin
 krb5
 kubernetes-cli
@@ -122,8 +121,6 @@ libevent
 libfido2
 libgcrypt
 libgit2
-libgit2@1.5
-libgit2@1.6
 libgpg-error
 libheif
 libidn
@@ -199,6 +196,7 @@ neovim
 nettle
 nmap
 node
+nushell
 oniguruma
 opencore-amr
 openexr
@@ -221,7 +219,6 @@ perl
 php
 pixman
 pkg-config
-poetry
 popt
 postgresql@14
 protobuf
@@ -233,6 +230,7 @@ pyenv
 pygments
 python-certifi
 python-cryptography
+python-jinja
 python-lsp-server
 python-lxml
 python-markupsafe
@@ -289,7 +287,6 @@ unzip
 utf8proc
 vde
 vim
-virtualenv
 w3m
 watch
 wdiff
