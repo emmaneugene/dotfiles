@@ -12,7 +12,7 @@ Generally, these are some of my absolute essentials:
 - **Mail client**: Thunderbird
 - **Password manager**: Bitwarden
 - **Cloud storage**: Dropbox, Google Drive
-- **Clipboard history**: CopyQ/BettterTouchTools
+- **Clipboard history**: CopyQ/BetterTouchTools
 - **Chat**: Telegram
 - **Work communication**: Slack, Mattermost
 - **E-library**: Calibre
