@@ -1,0 +1,1 @@
+Symlink or copy `init.lua` into `~/config/nvim/init.lua`. If you are running nvim for the first time with this configuration, you will need to install the plugins with `:PackerInstall`
