@@ -1,1 +1,1 @@
-Symlink or copy this folder into `~/config/`. If you are running nvim for the first time with this configuration, you will need to install the plugins with `:Lazy`
+Symlink or copy this folder into `~/.config/`. If you are running nvim for the first time with this configuration, you will need to install the plugins with `:Lazy`
