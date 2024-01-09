@@ -43,22 +43,18 @@ plugins=(
   git
   history-substring-search
   kubectl
-  minikube
   node
   macos
-  npm
   nvm
-  yarn
   zsh-autosuggestions
   zsh-syntax-highlighting
 )
 
 source $ZSH/oh-my-zsh.sh
 
-eval $(thefuck --alias)
-
 # Helpers
 source $HOME/.config/helpers.sh
+eval $(thefuck --alias)
 
 # JAVA_HOME
 export JAVA_HOME="/opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home"
@@ -129,7 +125,7 @@ export PATH="${BREW_HOME}/opt/grep/libexec/gnubin:$PATH"
 alias appupdate="brew update && brew upgrade --greedy && brew autoremove && brew cleanup; 
 x86-brew update && x86-brew upgrade && x86-brew autoremove && x86-brew cleanup;"
 alias x86-brew="arch -x86_64 /usr/local/Homebrew/bin/brew"
-alias x86-gcc="/usr/local/bin/gcc-12"
+alias x86-gcc="/usr/local/bin/gcc-13"
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
