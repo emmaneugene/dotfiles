@@ -1,7 +1,7 @@
 ## Full reference: https://www.conventionalcommits.org/
 ##
 ## ---TITLE---
-## [feat/fix/chore/refactor/docs/test/revert][!][scope][issue_id]
+## [feat/fix/style/refactor/docs/chore/test/revert][!][scope][issue_id]
 ## feat(api)!: Send email to customer when product is shipped
 
 ## ---BODY---
