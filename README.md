@@ -2,10 +2,6 @@
 
 An effort to automate the process of setting up software and configurations on new computers - I'm publishing lists of all the important software and extensions I have on my devices alongside configuration files and setup scripts. 
 
-### `pkgs`
-
-I like to keep track of installed software with package managers, and I've created lists of installed software for the ones I use on each OS - `brew` for macOS, `apt`and `flatpak` for Linux Mint, and `choco` for Windows.
-
 Generally, these are some of my absolute essentials:
 
 - **Browser**: Firefox, Chromium
