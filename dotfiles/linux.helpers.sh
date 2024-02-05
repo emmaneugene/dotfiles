@@ -29,7 +29,7 @@ function doc() {
 }
 
 # Show basic info on wifi interfaces
-function checkwifi() {
+function wificheck() {
   interface=$(nmcli -t -f active,device d wifi list | grep '^yes' | cut -d':' -f2)
   echo -e "\n        \033[1;33mInterface:\033[0m $interface"
   signal_strength=$(iw dev $interface link | awk '/signal/ {print $2}')
