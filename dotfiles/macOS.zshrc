@@ -9,25 +9,9 @@ fi
 export ZSH="$HOME/.oh-my-zsh"
 
 ZSH_THEME="powerlevel10k/powerlevel10k"
-
-# Uncomment the following line to display red dots whilst waiting for completion.
-# You can also set it to another string to have that shown instead of the default red dots.
-# e.g. COMPLETION_WAITING_DOTS="%F{yellow}waiting...%f"
-# Caution: this setting can cause issues with multiline prompts in zsh < 5.7.1 (see #5765)
 COMPLETION_WAITING_DOTS="true"
-
-# Uncomment the following line if you want to disable marking untracked files
-# under VCS as dirty. This makes repository status check for large repositories
-# much, much faster.
 DISABLE_UNTRACKED_FILES_DIRTY="true"
-
-# Uncomment the following line if you want to change the command execution time
-# stamp shown in the history command output.
-# You can set one of the optional three formats:
-# "mm/dd/yyyy"|"dd.mm.yyyy"|"yyyy-mm-dd"
-# or set a custom format using the strftime function format specifications,
-# see 'man strftime' for details.
-# HIST_STAMPS="mm/dd/yyyy"
+HIST_STAMPS="dd/mm//yyyy"
 
 # Standard plugins can be found in $ZSH/plugins/
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
@@ -51,8 +35,8 @@ plugins=(
 )
 
 source $ZSH/oh-my-zsh.sh
+unalias -m  "*"
 
-# Helpers
 source $HOME/.config/helpers.sh
 eval $(thefuck --alias)
 
@@ -120,12 +104,6 @@ export PATH="${BREW_HOME}/opt/gnu-which/libexec/gnubin:$PATH"
 export PATH="${BREW_HOME}/opt/grep/libexec/gnubin:$PATH"
 
 # unset BREW_HOME
-
-# Custom aliases
-alias appupdate="brew update && brew upgrade --greedy && brew autoremove && brew cleanup; 
-x86-brew update && x86-brew upgrade && x86-brew autoremove && x86-brew cleanup;"
-alias x86-brew="arch -x86_64 /usr/local/Homebrew/bin/brew"
-alias x86-gcc="/usr/local/bin/gcc-13"
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
