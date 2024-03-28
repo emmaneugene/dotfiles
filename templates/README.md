@@ -6,6 +6,7 @@
 </h1> -->
 
 <!-- TITLE -->
+
 # Project name
 
 <!-- TABLE OF CONTENTS -->
@@ -15,19 +16,20 @@
   - [Table of contents](#table-of-contents)
   - [About](#about)
   - [Getting Started](#getting-started)
-    - [Prerequisites](#prerequisites)
+    - [Requirements](#requirements)
     - [Usage](#usage)
   - [Roadmap](#roadmap)
   - [Contributing](#contributing)
   - [License](#license) -->
 
 <!-- ABOUT -->
+
 ## About
 
 <!-- GETTING STARTED -->
 ## Getting Started
 
-### Prerequisites
+### Requirements
 
 ### Usage
 
