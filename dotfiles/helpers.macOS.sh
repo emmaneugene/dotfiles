@@ -1,12 +1,20 @@
 # Collection of aliases, helper functions and scripts for UNIX-based systems
 alias fk="fuck"
 alias routerip="curl https://api.incolumitas.com | jq ."
-alias appupdate="brew update && brew upgrade --greedy && brew autoremove && brew cleanup; 
-x86-brew update && x86-brew upgrade && x86-brew autoremove && x86-brew cleanup;"
-alias x86-brew="arch -x86_64 /usr/local/Homebrew/bin/brew"
 alias x86-gcc="/usr/local/bin/gcc-13"
+alias x86-brew="arch -x86_64 /usr/local/Homebrew/bin/brew"
 alias l="ls -lAh"
 alias md="mkdir -p"
+
+# Update applications and binaries
+alias appupdate="brew update && brew upgrade --greedy && brew autoremove && brew cleanup; 
+x86-brew update && x86-brew upgrade && x86-brew autoremove && x86-brew cleanup;"
+alias goupdate="go-global-update"
+alias rustupdate="cargo-install-update install-update --all"
+alias jsupdate="npm install -g npm && npm -g update"
+function pyupdate() {
+  python3 -m pip --disable-pip-version-check list --outdated --format=json | python3 -c "import json, sys; print('\n'.join([x['name'] for x in json.load(sys.stdin)]))" | xargs -n1 python3 -m pip install -U
+}
 
 # git
 alias g=git
