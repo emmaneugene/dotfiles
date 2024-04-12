@@ -7,12 +7,13 @@ alias l="ls -lAh"
 alias md="mkdir -p"
 
 # Update applications and binaries
-alias appupdate="brew update && brew upgrade --greedy && brew autoremove && brew cleanup; 
+alias appupdate="brew update && brew upgrade --greedy && brew autoremove && brew cleanup;
 x86-brew update && x86-brew upgrade && x86-brew autoremove && x86-brew cleanup;"
 alias goupdate="go-global-update"
 alias rustupdate="cargo-install-update install-update --all"
 alias jsupdate="npm install -g npm && npm -g update"
 function pyupdate() {
+  python3 -m pip install --upgrade pip
   python3 -m pip --disable-pip-version-check list --outdated --format=json | python3 -c "import json, sys; print('\n'.join([x['name'] for x in json.load(sys.stdin)]))" | xargs -n1 python3 -m pip install -U
 }
 
