@@ -13,8 +13,13 @@ alias goupdate="go-global-update"
 alias rustupdate="cargo-install-update install-update --all"
 alias jsupdate="npm install -g npm && npm -g update"
 function pyupdate() {
-  python3 -m pip install --upgrade pip
-  python3 -m pip --disable-pip-version-check list --outdated --format=json | python3 -c "import json, sys; print('\n'.join([x['name'] for x in json.load(sys.stdin)]))" | xargs -n1 python3 -m pip install -U
+  if [ $# -ne 1 ]; then
+    echo "Please provide a version number (e.g. 3.10, 3.11)"
+    return
+  fi
+
+  python$1 -m pip install --upgrade pip
+  python$1 -m pip --disable-pip-version-check list --outdated --format=json | python3 -c "import json, sys; print('\n'.join([x['name'] for x in json.load(sys.stdin)]))" | xargs -n1 python$1 -m pip install -U
 }
 
 # git
@@ -57,6 +62,7 @@ function vidtogif() {
     echo "Usage: $0 <inputFile> <outputFile>
     where input file is of type: .mp4, .webm, ...
     and output file is .gif"
+    return
   fi
   gifski -r 10 $1 -o $2
 }
@@ -65,7 +71,7 @@ function vidtogif() {
 function doc() {
   if [ $# -ne 1 ]; then
     echo "Usage: $0 <binary>"
-    exit 1
+    return
   fi
 
   binary="$1"
