@@ -1,4 +1,5 @@
 # Collection of aliases, helper functions and scripts for UNIX-based systems
+alias c="clear"
 alias fk="fuck"
 alias routerip="curl https://api.incolumitas.com | jq ."
 alias x86-gcc="/usr/local/bin/gcc-13"
