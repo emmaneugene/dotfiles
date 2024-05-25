@@ -6,13 +6,13 @@ alias l="ls -lAh"
 alias md="mkdir -p"
 
 # Update applications and binaries
-alias appupdate="sudo apt update && sudo apt upgrade -y \
+alias upd="sudo apt update && sudo apt upgrade -y \
 && sudo apt autoclean -y && sudo apt autoremove -y;
 sudo flatpak update -y;"
-alias goupdate="go-global-update"
-alias rustupdate="cargo-install-update install-update --all"
-alias jsupdate="npm install -g npm && npm -g update"
-function pyupdate() {
+alias goupd="go-global-update"
+alias rustupd="cargo-install-update install-update --all"
+alias jsupd="npm install -g npm && npm -g update"
+function pyupd() {
   if [ $# -ne 1 ]; then
     echo "Please provide a version number (e.g. 3.10, 3.11)"
     return

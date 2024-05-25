@@ -8,12 +8,13 @@ alias l="ls -lAh"
 alias md="mkdir -p"
 
 # Update applications and binaries
-alias appupdate="brew update && brew upgrade --greedy && brew autoremove && brew cleanup;
+alias upd="brew update && brew upgrade && brew autoremove && brew cleanup;
 x86-brew update && x86-brew upgrade && x86-brew autoremove && x86-brew cleanup;"
-alias goupdate="go-global-update"
-alias rustupdate="cargo-install-update install-update --all"
-alias jsupdate="npm install -g npm && npm -g update"
-function pyupdate() {
+alias updcask="brew update && brew upgrade --cask"
+alias goupd="go-global-update"
+alias rustupd="cargo-install-update install-update --all"
+alias jsupd="npm install -g npm && npm -g update"
+function pyupd() {
   if [ $# -ne 1 ]; then
     echo "Please provide a version number (e.g. 3.10, 3.11)"
     return
