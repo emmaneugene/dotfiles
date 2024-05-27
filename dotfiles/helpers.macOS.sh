@@ -8,9 +8,9 @@ alias l="ls -lAh"
 alias md="mkdir -p"
 
 # Update applications and binaries
-alias upd="brew update && brew upgrade && brew autoremove && brew cleanup;
+alias appupd="brew update && brew upgrade && brew autoremove && brew cleanup;
 x86-brew update && x86-brew upgrade && x86-brew autoremove && x86-brew cleanup;"
-alias updcask="brew update && brew upgrade --cask"
+alias appupdcask="brew update && brew upgrade --greedy"
 alias goupd="go-global-update"
 alias rustupd="cargo-install-update install-update --all"
 alias jsupd="npm install -g npm && npm -g update"

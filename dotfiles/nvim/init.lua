@@ -184,7 +184,7 @@ require('lazy').setup({
   },
 
   {
-    -- Gruvbox 
+    -- Gruvbox
     'gruvbox-community/gruvbox',
     priority = 1000,
     config = function()

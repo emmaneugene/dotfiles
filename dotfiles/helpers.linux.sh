@@ -6,7 +6,7 @@ alias l="ls -lAh"
 alias md="mkdir -p"
 
 # Update applications and binaries
-alias upd="sudo apt update && sudo apt upgrade -y \
+alias appupd="sudo apt update && sudo apt upgrade -y \
 && sudo apt autoclean -y && sudo apt autoremove -y;
 sudo flatpak update -y;"
 alias goupd="go-global-update"
