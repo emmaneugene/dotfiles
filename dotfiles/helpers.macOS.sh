@@ -10,7 +10,7 @@ alias md="mkdir -p"
 # Update applications and binaries
 alias appupd="brew update && brew upgrade && brew autoremove && brew cleanup;
 x86-brew update && x86-brew upgrade && x86-brew autoremove && x86-brew cleanup;"
-alias appupdcask="brew update && brew upgrade --greedy"
+alias appupdcask="brew update && brew upgrade --greedy && brew autoremove && brew cleanup"
 alias goupd="go-global-update"
 alias rustupd="cargo-install-update install-update --all"
 alias jsupd="npm install -g npm && npm -g update"

@@ -38,6 +38,8 @@ source $ZSH/oh-my-zsh.sh
 unalias -m  "*"
 
 source $HOME/.config/helpers.sh
+
+# thefuck
 eval $(thefuck --alias)
 
 # JAVA_HOME
@@ -141,3 +143,5 @@ load-nvmrc() {
 
 add-zsh-hook chpwd load-nvmrc
 load-nvmrc
+
+eval "$(atuin init zsh --disable-up-arrow)"
