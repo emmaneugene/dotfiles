@@ -45,11 +45,6 @@ eval $(thefuck --alias)
 # JAVA_HOME
 export JAVA_HOME="/opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home"
 
-# pyenv setup
-export PYENV_ROOT="$HOME/.pyenv"
-command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
-eval "$(pyenv init -)"
-
 export PYTHONSTARTUP="$HOME/.config/pythonstartup.py"
 
 # homebrew command-not-found
