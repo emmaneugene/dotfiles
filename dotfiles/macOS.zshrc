@@ -36,15 +36,14 @@ plugins=(
 
 source $ZSH/oh-my-zsh.sh
 unalias -m  "*"
-
 source $HOME/.config/helpers.sh
-
-# thefuck
 eval $(thefuck --alias)
+source <(fzf --zsh)
 
 # JAVA_HOME
 export JAVA_HOME="/opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home"
 
+# iPython startup
 export PYTHONSTARTUP="$HOME/.config/pythonstartup.py"
 
 # homebrew command-not-found
@@ -54,7 +53,7 @@ source "$HB_CNF_HANDLER";
 fi
 
 # PATH config
-export PATH="$HOME/bin:$HOME/.gem/bin:$HOME/go/bin:/opt/homebrew/opt/curl/bin:/opt/homebrew/opt/openjdk/bin:$PATH:/Users/emman/.depot_tools"
+export PATH="$HOME/bin:$HOME/.gem/bin:$HOME/go/bin:/opt/homebrew/opt/openjdk/bin:$PATH:/Users/emman/.depot_tools"
 
 # Replace with GNU coreutils (https://github.com/darksonic37/linuxify)
 BREW_HOME=$(brew --prefix)
