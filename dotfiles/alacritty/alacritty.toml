@@ -1,11 +1,5 @@
 [font]
 size = 12
-
-[font.normal]
-family = "Hack Nerd Font"
-
-[font.bold]
-family = "Hack Nerd Font"
-
-[font.italic]
-family = "Hack Nerd Font"
+normal.family = "Hack Nerd Font"
+bold.family = "Hack Nerd Font"
+italic.family = "Hack Nerd Font"
