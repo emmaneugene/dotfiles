@@ -138,4 +138,21 @@ load-nvmrc() {
 add-zsh-hook chpwd load-nvmrc
 load-nvmrc
 
+dedupe_path() {
+  if [ -n "$PATH" ]; then
+    old_PATH=$PATH:; PATH=
+    while [ -n "$old_PATH" ]; do
+      x=${old_PATH%%:*}
+      case $PATH: in
+        *:"$x":*) ;;
+        *) PATH=$PATH:$x;;
+      esac
+      old_PATH=${old_PATH#*:}
+    done
+    PATH=${PATH#:}
+  fi
+}
+
+dedupe_path
+
 eval "$(atuin init zsh --disable-up-arrow)"
