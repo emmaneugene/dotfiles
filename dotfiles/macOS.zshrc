@@ -5,7 +5,9 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
-# Path to your oh-my-zsh installation.
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
 export ZSH="$HOME/.oh-my-zsh"
 
 ZSH_THEME="powerlevel10k/powerlevel10k"
@@ -17,9 +19,10 @@ HIST_STAMPS="dd/mm//yyyy"
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 plugins=(
   aliases
+  asdf
   aws
-  command-not-found
   colored-man-pages
+  command-not-found
   docker
   docker-compose
   dotenv
@@ -27,9 +30,8 @@ plugins=(
   git
   history-substring-search
   kubectl
-  node
   macos
-  nvm
+  node
   zsh-autosuggestions
   zsh-syntax-highlighting
 )
@@ -43,7 +45,7 @@ source <(fzf --zsh)
 # JAVA_HOME
 export JAVA_HOME="/opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home"
 
-# iPython startup
+# For iPython sessions
 export PYTHONSTARTUP="$HOME/.config/pythonstartup.py"
 
 # homebrew command-not-found
@@ -53,6 +55,20 @@ source "$HB_CNF_HANDLER";
 fi
 
 # PATH config
+# Haskell
+[ -f "/Users/emman/.ghcup/env" ] && source "/Users/emman/.ghcup/env"
+
+# Ocaml
+[[ ! -r /Users/emman/.opam/opam-init/init.zsh ]] || source /Users/emman/.opam/opam-init/init.zsh  > /dev/null 2> /dev/null
+
+# Gcloud
+source "$(brew --prefix)/share/google-cloud-sdk/path.zsh.inc"
+source "$(brew --prefix)/share/google-cloud-sdk/completion.zsh.inc"
+
+# Python 3
+export PATH="/Library/Frameworks/Python.framework/Versions/3.12/bin:/Library/Frameworks/Python.framework/Versions/3.11/bin:/Library/Frameworks/Python.framework/Versions/3.10/bin:${PATH}"
+
+# User, Go, Ruby, Java
 export PATH="$HOME/bin:$HOME/.gem/bin:$HOME/go/bin:/opt/homebrew/opt/openjdk/bin:$PATH:/Users/emman/.depot_tools"
 
 # Replace with GNU coreutils (https://github.com/darksonic37/linuxify)
@@ -99,45 +115,8 @@ export PATH="${BREW_HOME}/opt/gnu-which/libexec/gnubin:$PATH"
 # grep
 export PATH="${BREW_HOME}/opt/grep/libexec/gnubin:$PATH"
 
-# unset BREW_HOME
-
-# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
-[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
-
-[ -f "/Users/emman/.ghcup/env" ] && source "/Users/emman/.ghcup/env" # ghcup-env
-
-# opam configuration
-[[ ! -r /Users/emman/.opam/opam-init/init.zsh ]] || source /Users/emman/.opam/opam-init/init.zsh  > /dev/null 2> /dev/null
-
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-
-# invoke `nvm use` automatically in a directory with a `.nvmrc` file
-autoload -U add-zsh-hook
-
-load-nvmrc() {
-  local nvmrc_path
-  nvmrc_path="$(nvm_find_nvmrc)"
-
-  if [ -n "$nvmrc_path" ]; then
-    local nvmrc_node_version
-    nvmrc_node_version=$(nvm version "$(cat "${nvmrc_path}")")
-
-    if [ "$nvmrc_node_version" = "N/A" ]; then
-      nvm install
-    elif [ "$nvmrc_node_version" != "$(nvm version)" ]; then
-      nvm use
-    fi
-  elif [ -n "$(PWD=$OLDPWD nvm_find_nvmrc)" ] && [ "$(nvm version)" != "$(nvm version default)" ]; then
-    echo "Reverting to nvm default version"
-    nvm use default
-  fi
-}
-
-add-zsh-hook chpwd load-nvmrc
-load-nvmrc
-
+# Deduplicate PATH entries in case of multiple .zshrc executions
+# (e.g. when opening tmux sessions)
 dedupe_path() {
   if [ -n "$PATH" ]; then
     old_PATH=$PATH:; PATH=
