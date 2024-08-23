@@ -54,7 +54,7 @@ if [ -f "$HB_CNF_HANDLER" ]; then
 source "$HB_CNF_HANDLER";
 fi
 
-# PATH config
+# PATH and shell completions
 # Haskell
 [ -f "/Users/emman/.ghcup/env" ] && source "/Users/emman/.ghcup/env"
 
@@ -65,8 +65,16 @@ fi
 source "$(brew --prefix)/share/google-cloud-sdk/path.zsh.inc"
 source "$(brew --prefix)/share/google-cloud-sdk/completion.zsh.inc"
 
+# Ngrok
+if command -v ngrok &>/dev/null; then
+    eval "$(ngrok completion)"
+fi
+
+# Postgres 16
+export PATH="/opt/homebrew/opt/postgresql@16/bin:$PATH"
+
 # Python 3
-export PATH="/Library/Frameworks/Python.framework/Versions/3.12/bin:/Library/Frameworks/Python.framework/Versions/3.11/bin:/Library/Frameworks/Python.framework/Versions/3.10/bin:${PATH}"
+export PATH="/Library/Frameworks/Python.framework/Versions/3.12/bin:/Library/Frameworks/Python.framework/Versions/3.11/bin:/Library/Frameworks/Python.framework/Versions/3.10/bin:$PATH"
 
 # User, Go, Ruby, Java
 export PATH="$HOME/bin:$HOME/.gem/bin:$HOME/go/bin:/opt/homebrew/opt/openjdk/bin:$PATH:/Users/emman/.depot_tools"
