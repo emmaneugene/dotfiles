@@ -39,7 +39,6 @@ plugins=(
 source $ZSH/oh-my-zsh.sh
 unalias -m  "*"
 source $HOME/.config/helpers.sh
-eval $(thefuck --alias)
 source <(fzf --zsh)
 
 # JAVA_HOME
