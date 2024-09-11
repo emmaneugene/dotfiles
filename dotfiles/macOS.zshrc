@@ -36,6 +36,8 @@ plugins=(
   zsh-syntax-highlighting
 )
 
+FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
+
 source $ZSH/oh-my-zsh.sh
 unalias -m  "*"
 source $HOME/.config/helpers.sh
