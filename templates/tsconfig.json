@@ -9,7 +9,7 @@
     "moduleResolution": "NodeNext",
 
     /* Emit */
-    "sourceMap": false,
+    "sourceMap": true,
     "outDir": "./dist",
 
     /* Interop Constraints */

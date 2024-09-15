@@ -43,11 +43,11 @@ unalias -m  "*"
 source $HOME/.config/helpers.sh
 source <(fzf --zsh)
 
-# JAVA_HOME
-export JAVA_HOME="/opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home"
-
 # For iPython sessions
 export PYTHONSTARTUP="$HOME/.config/pythonstartup.py"
+
+# AWS CLI
+export AWS_PROFILE=personal
 
 # homebrew command-not-found
 HB_CNF_HANDLER="$(brew --repository)/Library/Taps/homebrew/homebrew-command-not-found/handler.sh"
@@ -77,8 +77,12 @@ export PATH="/opt/homebrew/opt/postgresql@16/bin:$PATH"
 # Python 3
 export PATH="/Library/Frameworks/Python.framework/Versions/3.12/bin:/Library/Frameworks/Python.framework/Versions/3.11/bin:/Library/Frameworks/Python.framework/Versions/3.10/bin:$PATH"
 
-# User, Go, Ruby, Java
-export PATH="$HOME/bin:$HOME/.gem/bin:$HOME/go/bin:/opt/homebrew/opt/openjdk/bin:$PATH:/Users/emman/.depot_tools"
+# User, Go, Ruby
+export PATH="$HOME/bin:$HOME/.gem/bin:$HOME/go/bin:$PATH:/Users/emman/.depot_tools"
+
+# SDKman for JVMs and SDKs
+export SDKMAN_DIR="$HOME/.sdkman"
+[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
 
 # Replace with GNU coreutils (https://github.com/darksonic37/linuxify)
 BREW_HOME=$(brew --prefix)
