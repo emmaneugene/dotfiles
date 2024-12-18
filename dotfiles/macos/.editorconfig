@@ -1,5 +1,4 @@
-# See editorconfig.org
-# Symlink to ~/.editorconfig
+# See https://editorconfig.org/
 root = true
 
 [*]

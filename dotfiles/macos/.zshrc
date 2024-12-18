@@ -37,18 +37,15 @@ plugins=(
 )
 
 FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
-
 source $ZSH/oh-my-zsh.sh
 unalias -m  "*"
 source $HOME/.config/helpers.sh
 source <(fzf --zsh)
 
-# For iPython sessions
+# iPython sessions
 export PYTHONSTARTUP="$HOME/.config/pythonstartup.py"
-
 # AWS CLI
 export AWS_PROFILE=personal
-
 # homebrew command-not-found
 HB_CNF_HANDLER="$(brew --repository)/Library/Taps/homebrew/homebrew-command-not-found/handler.sh"
 if [ -f "$HB_CNF_HANDLER" ]; then
@@ -58,29 +55,22 @@ fi
 # PATH and shell completions
 # Haskell
 [ -f "/Users/emman/.ghcup/env" ] && source "/Users/emman/.ghcup/env"
-
 # Ocaml
 [[ ! -r /Users/emman/.opam/opam-init/init.zsh ]] || source /Users/emman/.opam/opam-init/init.zsh  > /dev/null 2> /dev/null
-
 # Gcloud
 source "$(brew --prefix)/share/google-cloud-sdk/path.zsh.inc"
 source "$(brew --prefix)/share/google-cloud-sdk/completion.zsh.inc"
-
 # Ngrok
 if command -v ngrok &>/dev/null; then
     eval "$(ngrok completion)"
 fi
-
 # Postgres 16
 export PATH="/opt/homebrew/opt/postgresql@16/bin:$PATH"
-
 # Python 3
 export PATH="/Library/Frameworks/Python.framework/Versions/3.12/bin:/Library/Frameworks/Python.framework/Versions/3.11/bin:/Library/Frameworks/Python.framework/Versions/3.10/bin:$PATH"
-
-# User, Go, Ruby
-export PATH="$HOME/bin:$HOME/.gem/bin:$HOME/go/bin:$PATH:/Users/emman/.depot_tools"
-
-# SDKman for JVMs and SDKs
+# User, Ruby, Golang
+export PATH="$HOME/scripts:$HOME/.gem/bin:$HOME/go/bin:$PATH:/Users/emman/.depot_tools"
+# SDKman for JVMs and associated SDKs
 export SDKMAN_DIR="$HOME/.sdkman"
 [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
 
@@ -128,23 +118,41 @@ export PATH="${BREW_HOME}/opt/gnu-which/libexec/gnubin:$PATH"
 # grep
 export PATH="${BREW_HOME}/opt/grep/libexec/gnubin:$PATH"
 
-# Deduplicate PATH entries in case of multiple .zshrc executions
-# (e.g. when opening tmux sessions)
-dedupe_path() {
-  if [ -n "$PATH" ]; then
-    old_PATH=$PATH:; PATH=
-    while [ -n "$old_PATH" ]; do
-      x=${old_PATH%%:*}
-      case $PATH: in
-        *:"$x":*) ;;
-        *) PATH=$PATH:$x;;
+# Deduplicate ?PATH env vars
+# (e.g. multiple .zshrc executions when opening tmux sessions)
+dedupe_env() {
+  local var_name="${1:?Must provide an environment variable name}"
+  local orig_var=$(eval "echo \$$var_name")
+
+  if [ -n "$orig_var" ]; then
+    local deduped_var=""
+    local remaining_var="$orig_var:"
+
+    while [ -n "$remaining_var" ]; do
+      local current_entry="${remaining_var%%:*}"
+
+      case ":$deduped_var:" in
+        *:"$current_entry":*) ;;
+        *)
+          if [ -z "$deduped_var" ]; then
+            deduped_var="$current_entry"
+          else
+            deduped_var="$deduped_var:$current_entry"
+          fi
+          ;;
       esac
-      old_PATH=${old_PATH#*:}
+
+      remaining_var="${remaining_var#*:}"
     done
-    PATH=${PATH#:}
+
+    # Update the environment variable
+    eval "export $var_name='$deduped_var'"
   fi
 }
 
-dedupe_path
+dedupe_env PATH
+dedupe_env FPATH
+dedupe_env INFOPATH
 
 eval "$(atuin init zsh --disable-up-arrow)"
+autoload -U compinit; compinit

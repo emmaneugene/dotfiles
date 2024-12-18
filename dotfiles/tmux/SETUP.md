@@ -1,1 +1,0 @@
-Symlink or copy `.tmux.conf` into `~/.tmux.conf`. You will also need to initialize the [tmux plugin manager](https://github.com/tmux-plugins/tpm)
