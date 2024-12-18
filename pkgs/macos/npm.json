@@ -1,0 +1,77 @@
+{
+  "name": "lib",
+  "dependencies": {
+    "axios": {
+      "version": "1.7.3",
+      "overridden": false
+    },
+    "corepack": {
+      "version": "0.29.3",
+      "overridden": false
+    },
+    "dotenv": {
+      "version": "16.4.5",
+      "overridden": false
+    },
+    "eas-cli": {
+      "version": "10.2.2",
+      "overridden": false
+    },
+    "editorconfig": {
+      "version": "2.0.0",
+      "overridden": false
+    },
+    "expo": {
+      "version": "51.0.26",
+      "overridden": false
+    },
+    "forever": {
+      "version": "4.0.3",
+      "overridden": false
+    },
+    "grunt-cli": {
+      "version": "1.5.0",
+      "overridden": false
+    },
+    "live-server": {
+      "version": "1.2.2",
+      "overridden": false
+    },
+    "nodemon": {
+      "version": "3.1.4",
+      "overridden": false
+    },
+    "npm-check-updates": {
+      "version": "17.0.6",
+      "overridden": false
+    },
+    "npm": {
+      "version": "10.9.2",
+      "overridden": false
+    },
+    "prettier": {
+      "version": "3.3.3",
+      "overridden": false
+    },
+    "serverless": {
+      "version": "4.1.21",
+      "overridden": false
+    },
+    "tldr": {
+      "version": "3.4.0",
+      "overridden": false
+    },
+    "tslab": {
+      "version": "1.0.22",
+      "overridden": false
+    },
+    "typescript": {
+      "version": "5.5.4",
+      "overridden": false
+    },
+    "uglify-js": {
+      "version": "3.19.2",
+      "overridden": false
+    }
+  }
+}
