@@ -1,0 +1,33 @@
+[user]
+	name = <REDACTED>
+	email = <REDACTED>
+	signingkey = <REDACTED>
+[commit]
+	template = ~/.gitmessage
+[core]
+	editor = nvim
+	excludesfile = ~/.gitignore
+  ignorecase = false
+[diff]
+	tool = difftastic
+[difftool]
+	prompt = false
+[difftool "difftastic"]
+	cmd = difft "$LOCAL" "$REMOTE"
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
+[init]
+	defaultBranch = main
+[merge]
+	tool = code
+[pager]
+	difftool = true
+[pull]
+	rebase = false
+[push]
+	autoSetupRemote = true
+[rerere]
+	enabled = true
