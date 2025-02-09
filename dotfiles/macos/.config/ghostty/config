@@ -1,0 +1,6 @@
+font-family = Hack Nerd Font
+font-size = 11
+font-thicken = true
+keybind = cmd+backspace=text:\x15
+confirm-close-surface = false
+quit-after-last-window-closed = true
