@@ -1,8 +1,8 @@
 ## Full reference: https://www.conventionalcommits.org/
-##
 ## ---TITLE---
-## [feat/fix/style/refactor/docs/chore/test/revert][!][scope][issue_id]
-## feat(api)!: Send email to customer when product is shipped
+## [type][!][scope][issue_id]
+## type: feat/fix/chore/docs/perf/refactor/revert/style/test
+## e.g. "feat(api)!: Email customer when product ships"
 
 ## ---BODY---
 
@@ -10,7 +10,8 @@
 
 ## What issues does this change address?
 
-## What side effects does it have? 
+## What side effects does it have?
 
 ## ---FOOTER--
 ## Signatures or author details
+## [BREAKING CHANGE] if this commit breaks API behaviour

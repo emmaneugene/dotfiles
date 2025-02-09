@@ -3,3 +3,25 @@ size = 12
 normal.family = "Hack Nerd Font"
 bold.family = "Hack Nerd Font"
 italic.family = "Hack Nerd Font"
+[font]
+size = 10.5
+normal.family = "JetBrainsMono Nerd Font"
+
+[window]
+opacity = 1.0
+title = "Alacritty"
+dynamic_title = false
+dynamic_padding = true
+
+[terminal]
+osc52 = "CopyPaste"
+
+[keyboard]
+bindings = [
+  { key = "ArrowLeft", mods = "Command", chars = "\u001bOH" },  # <Home>
+  { key = "ArrowRight", mods = "Command", chars = "\u001bOF" }, # <End>
+  { key = "Backspace", mods = "Command", chars = "\u0015" },    # <C-u>
+  { key = "Backspace", mods = "Option", chars = "\u0017" },     # <C-w>
+  { key = "ArrowLeft", mods = "Option", chars = "\u001bb" },    # back word
+  { key = "ArrowRight", mods = "Option", chars = "\u001bf" },   # forward word
+]

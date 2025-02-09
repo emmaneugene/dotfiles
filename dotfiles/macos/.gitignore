@@ -1,4 +1,6 @@
+.aider*
 .DS_Store
+.env
 .idea
 .vscode
 node_modules

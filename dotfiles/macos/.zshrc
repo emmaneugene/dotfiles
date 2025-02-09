@@ -10,16 +10,24 @@ fi
 
 export ZSH="$HOME/.oh-my-zsh"
 
+# Locale
+export LANG="en_US.UTF-8"
+export LC_ALL="en_US.UTF-8"
+export LANGUAGE="en_US.UTF-8"
+
+# VISUAL, EDITOR
+export EDITOR="$(command -v nvim || command -v vim || command -v vi)"
+export VISUAL="$EDITOR"
+
 ZSH_THEME="powerlevel10k/powerlevel10k"
 COMPLETION_WAITING_DOTS="true"
 DISABLE_UNTRACKED_FILES_DIRTY="true"
-HIST_STAMPS="dd/mm//yyyy"
+HIST_STAMPS="dd/mm/yyyy"
 
 # Standard plugins can be found in $ZSH/plugins/
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 plugins=(
   aliases
-  asdf
   aws
   colored-man-pages
   command-not-found
@@ -37,9 +45,9 @@ plugins=(
 )
 
 FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
-source $ZSH/oh-my-zsh.sh
+source "$ZSH/oh-my-zsh.sh"
 unalias -m  "*"
-source $HOME/.config/helpers.sh
+source "$HOME/.config/helpers.sh"
 source <(fzf --zsh)
 
 # iPython sessions
@@ -53,6 +61,9 @@ source "$HB_CNF_HANDLER";
 fi
 
 # PATH and shell completions
+# asdf
+export ASDF_DATA_DIR="$HOME/.asdf"
+export PATH="$ASDF_DATA_DIR/shims:$PATH"
 # Haskell
 [ -f "/Users/emman/.ghcup/env" ] && source "/Users/emman/.ghcup/env"
 # Ocaml
@@ -75,7 +86,7 @@ export SDKMAN_DIR="$HOME/.sdkman"
 [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
 
 # Replace with GNU coreutils (https://github.com/darksonic37/linuxify)
-BREW_HOME=$(brew --prefix)
+BREW_HOME="$(brew --prefix)"
 # most programs
 export MANPATH="${BREW_HOME}/share/man:$MANPATH"
 export INFOPATH="${BREW_HOME}/share/info:$INFOPATH"
@@ -150,9 +161,10 @@ dedupe_env() {
   fi
 }
 
-dedupe_env PATH
 dedupe_env FPATH
 dedupe_env INFOPATH
+dedupe_env MANPATH
+dedupe_env PATH
 
 eval "$(atuin init zsh --disable-up-arrow)"
 autoload -U compinit; compinit

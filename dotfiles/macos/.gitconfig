@@ -21,6 +21,8 @@
 	required = true
 [init]
 	defaultBranch = main
+[log]
+  date = local
 [merge]
 	tool = code
 [pager]
@@ -31,3 +33,5 @@
 	autoSetupRemote = true
 [rerere]
 	enabled = true
+[safe]
+  bareRepository = explicit
