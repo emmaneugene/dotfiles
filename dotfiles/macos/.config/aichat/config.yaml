@@ -1,0 +1,40 @@
+model: claude:claude-3-7-sonnet-latest
+
+# Client API keys are sourced from environment variables
+# https://github.com/sigoden/aichat/wiki/Environment-Variables#client-related-envs
+clients:
+# https://docs.anthropic.com/en/docs/about-claude/models/all-models
+- type: claude
+  models:
+  - name: claude-3-7-sonnet-latest
+    max_input_tokens: 200000
+    max_output_tokens: 8192
+    require_max_tokens: true
+    input_price: 3
+    output_price: 15
+    supports_vision: true
+    support_function_calling: true
+  - name: claude-3-5-sonnet-latest
+    max_output_tokens: 8192
+    require_max_tokens: true
+    input_price: 3
+    output_price: 15
+    supports_vision: true
+    support_function_calling: true
+  - name: claude-3-5-haiku-latest
+    max_output_tokens: 8192
+    require_max_tokens: true
+    input_price: 0.8
+    output_price: 4
+    supports_vision: true
+    support_function_calling: true
+- type: openai
+- type: openai-compatible
+  name: deepseek
+  api_base: https://api.deepseek.com
+
+prelude: "role:main"
+save_session: true
+compress_threshold: 4000
+
+serve_addr: 127.0.0.1:10100

@@ -1,11 +1,14 @@
 # Collection of aliases, helper functions and scripts for UNIX-based systems
 # Core
 alias c="clear"
-alias l="ls -lAh"
+alias ls="eza"
+alias l="eza -lAh --icons=always"
 alias md="mkdir -p"
 alias t="touch"
 alias file="file -h"
 alias path="echo $PATH | tr ':' '\n'"
+alias ldo="lazydocker"
+alias lg="lazygit"
 
 # Applications/context specific
 alias aichatserve="nohup aichat --serve 10100> /dev/null 2>&1 &; open http://localhost:10100/playground"

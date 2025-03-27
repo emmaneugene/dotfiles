@@ -1,17 +1,18 @@
-## Full reference: https://www.conventionalcommits.org/
-## ---TITLE---
-## [type][!][scope][issue_id]
-## type: feat/fix/chore/docs/perf/refactor/revert/style/test
+## Reference: https://www.conventionalcommits.org/
+## <type>[optional_scope][!]: <description>
+## type: feat/fix/refactor/docs/style/build/test/chore
 ## e.g. "feat(api)!: Email customer when product ships"
+## ▼-----------------HEADER---------------------▼
 
-## ---BODY---
 
+## ▼-----------------BODY----------------------------------------------▼
 ## What was done?
 
 ## What issues does this change address?
 
 ## What side effects does it have?
 
-## ---FOOTER--
-## Signatures or author details
-## [BREAKING CHANGE] if this commit breaks API behaviour
+## ▼----------------FOOTER---------------------------------------------▼
+## Signatures and author details
+## [BREAKING CHANGE]: if commit breaks API behaviour
+Emmanuel Oh (emmaneugene@outlook.com)
