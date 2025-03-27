@@ -1,0 +1,4 @@
+# Create secrets.sh on your local machine, but do not symlink
+export CLAUDE_API_KEY="<your-key-here>"
+export OPENAI_API_KEY="<your-key-here>"
+export DEEPSEEK_API_KEY="<your-key-here>"

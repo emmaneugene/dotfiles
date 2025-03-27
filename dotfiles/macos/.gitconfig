@@ -4,34 +4,55 @@
 	signingkey = <REDACTED>
 [commit]
 	template = ~/.gitmessage
+	verbose = true
 [core]
 	editor = nvim
 	excludesfile = ~/.gitignore
-  ignorecase = false
+	ignorecase = false
 [diff]
 	tool = difftastic
+	algorithm = histogram
+	colorMoved = plain
 [difftool]
 	prompt = false
 [difftool "difftastic"]
 	cmd = difft "$LOCAL" "$REMOTE"
+[fetch]
+	prune = true
+	pruneTags = true
+	all = true
 [filter "lfs"]
 	clean = git-lfs clean -- %f
 	smudge = git-lfs smudge -- %f
 	process = git-lfs filter-process
 	required = true
+[help]
+	autocorrect = prompt
 [init]
 	defaultBranch = main
 [log]
-  date = local
+	date = local
 [merge]
 	tool = code
+	conflictstyle = zdiff3
+[mergetool "sourcetree"]
+	cmd = /Applications/Sourcetree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
+	trustExitCode = true
 [pager]
 	difftool = true
 [pull]
-	rebase = false
+	rebase = true
 [push]
 	autoSetupRemote = true
+	followTags = true
+[rebase]
+	autoSquash = true
+	autoStash = true
+	updateRefs = true
 [rerere]
 	enabled = true
+	autoupdate = true
 [safe]
-  bareRepository = explicit
+	bareRepository = explicit
+[tag]
+	sort = -creatordate

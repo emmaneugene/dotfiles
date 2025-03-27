@@ -8,24 +8,27 @@ fi
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
+## Environment variables
+# oh-my-zsh
 export ZSH="$HOME/.oh-my-zsh"
-
 # Locale
 export LANG="en_US.UTF-8"
 export LC_ALL="en_US.UTF-8"
 export LANGUAGE="en_US.UTF-8"
-
 # VISUAL, EDITOR
 export EDITOR="$(command -v nvim || command -v vim || command -v vi)"
 export VISUAL="$EDITOR"
+# XDG_CONFIG_HOME
+export XDG_CONFIG_HOME="$HOME/.config"
+# Secrets
+source "$HOME/.config/secrets.sh"
 
 ZSH_THEME="powerlevel10k/powerlevel10k"
 COMPLETION_WAITING_DOTS="true"
 DISABLE_UNTRACKED_FILES_DIRTY="true"
 HIST_STAMPS="dd/mm/yyyy"
 
-# Standard plugins can be found in $ZSH/plugins/
-# Custom plugins may be added to $ZSH_CUSTOM/plugins/
+## ZSH plugins ($ZSH/plugins/:$ZSH_CUSTOM/plugins/)
 plugins=(
   aliases
   aws
@@ -36,6 +39,7 @@ plugins=(
   dotenv
   gh
   git
+  golang
   history-substring-search
   kubectl
   macos
@@ -44,23 +48,26 @@ plugins=(
   zsh-syntax-highlighting
 )
 
-FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
-source "$ZSH/oh-my-zsh.sh"
-unalias -m  "*"
-source "$HOME/.config/helpers.sh"
-source <(fzf --zsh)
 
-# iPython sessions
-export PYTHONSTARTUP="$HOME/.config/pythonstartup.py"
-# AWS CLI
-export AWS_PROFILE=personal
+## Homebrew
+eval "$(/opt/homebrew/bin/brew shellenv)"
+FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
 # homebrew command-not-found
 HB_CNF_HANDLER="$(brew --repository)/Library/Taps/homebrew/homebrew-command-not-found/handler.sh"
 if [ -f "$HB_CNF_HANDLER" ]; then
 source "$HB_CNF_HANDLER";
 fi
 
-# PATH and shell completions
+# AWS CLI
+export AWS_PROFILE=personal
+## iPython sessions
+export PYTHONSTARTUP="$HOME/.config/pythonstartup.py"
+
+## PATH and shell completions
+# cargo
+source "$HOME/.cargo/env"
+# uv
+export PATH="/Users/SP13843/.local/bin:$PATH"
 # asdf
 export ASDF_DATA_DIR="$HOME/.asdf"
 export PATH="$ASDF_DATA_DIR/shims:$PATH"
@@ -77,15 +84,14 @@ if command -v ngrok &>/dev/null; then
 fi
 # Postgres 16
 export PATH="/opt/homebrew/opt/postgresql@16/bin:$PATH"
-# Python 3
-export PATH="/Library/Frameworks/Python.framework/Versions/3.12/bin:/Library/Frameworks/Python.framework/Versions/3.11/bin:/Library/Frameworks/Python.framework/Versions/3.10/bin:$PATH"
+# Python 3.12 (official install)
+export PATH="/Library/Frameworks/Python.framework/Versions/3.12/bin:$PATH"
 # User, Ruby, Golang
 export PATH="$HOME/scripts:$HOME/.gem/bin:$HOME/go/bin:$PATH:/Users/emman/.depot_tools"
 # SDKman for JVMs and associated SDKs
 export SDKMAN_DIR="$HOME/.sdkman"
 [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
-
-# Replace with GNU coreutils (https://github.com/darksonic37/linuxify)
+# Replace inbuilt binaries with GNU coreutil equivalents (https://github.com/darksonic37/linuxify)
 BREW_HOME="$(brew --prefix)"
 # most programs
 export MANPATH="${BREW_HOME}/share/man:$MANPATH"
@@ -166,5 +172,10 @@ dedupe_env INFOPATH
 dedupe_env MANPATH
 dedupe_env PATH
 
-eval "$(atuin init zsh --disable-up-arrow)"
 autoload -U compinit; compinit
+source "$ZSH/oh-my-zsh.sh"
+unalias -m  "*"
+source "$HOME/.config/helpers.sh"
+source <(fzf --zsh)
+eval "$(atuin init zsh --disable-up-arrow)"
+eval "$(zoxide init zsh)"
