@@ -2,6 +2,6 @@
 
 Ok, so dotfiles are back on the menu.
 
-- `dotfiles/`: System-specific dotfiles. Optional setup scripts provided
+- `dotfiles/`: Dotfiles for software config, with a simple script for symlinking
 - `pkgs/`: Globally installed software packages and libraries
-- `starters/`: Reasonable defaults for bootstrapping
+- `starters/`: Reasonable defaults for bootstrapping projects
