@@ -67,14 +67,14 @@ export PYTHONSTARTUP="$HOME/.config/pythonstartup.py"
 # cargo
 source "$HOME/.cargo/env"
 # uv
-export PATH="/Users/SP13843/.local/bin:$PATH"
+export PATH="$HOME/.local/bin:$PATH"
 # asdf
 export ASDF_DATA_DIR="$HOME/.asdf"
 export PATH="$ASDF_DATA_DIR/shims:$PATH"
 # Haskell
-[ -f "/Users/emman/.ghcup/env" ] && source "/Users/emman/.ghcup/env"
+[ -f "$HOME/.ghcup/env" ] && source "$HOME/.ghcup/env"
 # Ocaml
-[[ ! -r /Users/emman/.opam/opam-init/init.zsh ]] || source /Users/emman/.opam/opam-init/init.zsh  > /dev/null 2> /dev/null
+[[ ! -r $HOME/.opam/opam-init/init.zsh ]] || source $HOME/.opam/opam-init/init.zsh  > /dev/null 2> /dev/null
 # Gcloud
 source "$(brew --prefix)/share/google-cloud-sdk/path.zsh.inc"
 source "$(brew --prefix)/share/google-cloud-sdk/completion.zsh.inc"
@@ -87,7 +87,7 @@ export PATH="/opt/homebrew/opt/postgresql@16/bin:$PATH"
 # Python 3.12 (official install)
 export PATH="/Library/Frameworks/Python.framework/Versions/3.12/bin:$PATH"
 # User, Ruby, Golang
-export PATH="$HOME/scripts:$HOME/.gem/bin:$HOME/go/bin:$PATH:/Users/emman/.depot_tools"
+export PATH="$HOME/scripts:$HOME/.gem/bin:$HOME/go/bin:$PATH:$HOME/.depot_tools"
 # SDKman for JVMs and associated SDKs
 export SDKMAN_DIR="$HOME/.sdkman"
 [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
