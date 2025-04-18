@@ -1,3 +1,0 @@
-gcc
-gdb
-openjdk@8

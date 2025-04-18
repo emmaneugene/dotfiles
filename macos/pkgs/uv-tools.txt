@@ -1,0 +1,10 @@
+aider-chat v0.79.2
+- aider
+mkdocs v1.6.1
+- mkdocs
+poetry v2.1.2
+- poetry
+pre-commit v4.2.0
+- pre-commit
+ruff v0.11.2
+- ruff

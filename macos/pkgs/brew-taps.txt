@@ -3,7 +3,6 @@ deviceinsight/packages
 felixkratz/formulae
 hashicorp/tap
 homebrew/command-not-found
-homebrew/services
 jesseduffield/lazydocker
 mongodb/brew
 oven-sh/bun
