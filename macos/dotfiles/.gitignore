@@ -1,6 +1,15 @@
+# IDEs and dev tooling
 .aider*
 .DS_Store
+.idea/
+.sdkmanrc
+.vscode/
+
+# Common defaults for projects
 .env
-.idea
-.vscode
-node_modules
+.env.*
+!*.example
+build/
+target/
+logs/
+node_modules/
