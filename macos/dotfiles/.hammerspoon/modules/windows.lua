@@ -13,11 +13,6 @@ local winPositions = {
   bottomRight = { x = 0.5, y = 0.5, w = 0.5, h = 0.5 },
   top = { x = 0, y = 0, w = 1, h = 0.5 },
   bottom = { x = 0, y = 0.5, w = 1, h = 0.5 },
-  thirdLeft = { x = 0, y = 0, w = 0.33, h = 1 },
-  thirdMiddle = { x = 0.33, y = 0, w = 0.34, h = 1 },
-  thirdRight = { x = 0.67, y = 0, w = 0.33, h = 1 },
-  twoThirdLeft = { x = 0, y = 0, w = 0.67, h = 1 },
-  twoThirdRight = { x = 0.33, y = 0, w = 0.67, h = 1 }
 }
 
 function windows.moveWindow(position)
@@ -54,16 +49,10 @@ function windows.init()
   hs.hotkey.bind(ctrlAlt, "]", function() windows.moveWindow(winPositions.topRight) end)
   hs.hotkey.bind(ctrlAlt, ";", function() windows.moveWindow(winPositions.bottomLeft) end)
   hs.hotkey.bind(ctrlAlt, "'", function() windows.moveWindow(winPositions.bottomRight) end)
-  hs.hotkey.bind(ctrlAlt, "i", function() windows.moveWindow(winPositions.thirdLeft) end)
-  hs.hotkey.bind(ctrlAlt, "o", function() windows.moveWindow(winPositions.thirdMiddle) end)
-  hs.hotkey.bind(ctrlAlt, "p", function() windows.moveWindow(winPositions.thirdRight) end)
-  hs.hotkey.bind(ctrlAlt, "k", function() windows.moveWindow(winPositions.twoThirdLeft) end)
-  hs.hotkey.bind(ctrlAlt, "l", function() windows.moveWindow(winPositions.twoThirdRight) end)
   hs.hotkey.bind(ctrlAltCmd, "left", function() windows.moveToScreen("left") end)
   hs.hotkey.bind(ctrlAltCmd, "right", function() windows.moveToScreen("right") end)
   hs.hotkey.bind(ctrlAltCmd, "up", function() windows.moveToScreen("up") end)
   hs.hotkey.bind(ctrlAltCmd, "down", function() windows.moveToScreen("down") end)
-  hs.hotkey.bind(ctrlAlt, "h", function() hs.hints.windowHints() end)
 end
 
 return windows

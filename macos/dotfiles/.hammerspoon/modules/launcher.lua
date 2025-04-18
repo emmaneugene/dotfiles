@@ -38,16 +38,24 @@ function launcher.init()
     ]])
   end)
 
-  -- Close notifications (TODO: fix)
-  -- hs.hotkey.bind(ctrlCmd, "b", function()
-  --   hs.osascript.applescript([[
-  --       tell application "System Events"
-  --           tell process "NotificationCenter"
-  --               click button "Close" of every window
-  --           end tell
-  --       end tell
-  --   ]])
-  -- end)
+  -- Close notifications
+  hs.hotkey.bind(ctrlCmd, "b", function()
+    hs.osascript.applescript([[
+        tell application "System Events" to tell application process "NotificationCenter"
+            try
+                repeat with uiElement in (actions of UI elements of scroll area 1 of group 1 of group 1 of window "Notification Center" of application process "NotificationCenter" of application "System Events")
+                    if description of uiElement contains "Close" then
+                        perform uiElement
+                    end if
+                    if description of uiElement contains "Clear" then
+                        perform uiElement
+                    end if
+                end repeat
+            return ""
+            end try
+        end tell
+    ]])
+  end)
 
   -- Hide all windows
   hs.hotkey.bind(ctrlCmd, "m", function()
