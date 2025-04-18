@@ -8,10 +8,9 @@ ctrlAlt = { "ctrl", "alt" }
 ctrlCmd = { "ctrl", "cmd" }
 ctrlAltCmd = { "ctrl", "alt", "cmd" }
 
+-- Import from modules/ as needed
 local modules = {
-  "amphetamine",
-  "launcher",
-  "windows"
+  "launcher"
 }
 
 for _, module in ipairs(modules) do
