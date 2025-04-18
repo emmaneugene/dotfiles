@@ -1,0 +1,5 @@
+go-global-update
+gocode
+gopls
+gore
+staticcheck
