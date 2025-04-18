@@ -2,6 +2,10 @@
 	name = <REDACTED>
 	email = <REDACTED>
 	signingkey = <REDACTED>
+[branch]
+	sort = -committerdate
+[column]
+	ui = never
 [commit]
 	template = ~/.gitmessage
 	verbose = true
@@ -44,6 +48,7 @@
 	rebase = true
 [push]
 	autoSetupRemote = true
+  default = current
 	followTags = true
 [rebase]
 	autoSquash = true
