@@ -1,14 +1,15 @@
-#!/bin/zsh
+#!/usr/bin/env zsh
 source ~/.zshrc
 
-echo "Updating brew packages..."
-appupd
+echo "Updating brew formulae..."
+brew update && brew upgrade && brew autoremove && brew cleanup
 
 echo "Updating oh-my-zsh..."
 omz update
 
-echo "Updating rust packages..."
-rustupd
+echo "Updating global rust packages..."
+rustup update stable
+cargo-install-update install-update --all
 
-echo "Updating go packages..."
-goupd
+echo "Updating global go packages..."
+go-global-update

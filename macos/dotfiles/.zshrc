@@ -48,7 +48,6 @@ plugins=(
   zsh-syntax-highlighting
 )
 
-
 ## Homebrew
 eval "$(/opt/homebrew/bin/brew shellenv)"
 FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
@@ -64,6 +63,8 @@ export AWS_PROFILE=personal
 export PYTHONSTARTUP="$HOME/.config/pythonstartup.py"
 
 ## PATH and shell completions
+# Orbstack (replaces docker)
+source ~/.orbstack/shell/init.zsh 2>/dev/null || :
 # cargo
 source "$HOME/.cargo/env"
 # uv

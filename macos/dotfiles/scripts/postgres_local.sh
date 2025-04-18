@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/usr/bin/env zsh
 
 CONTAINER_NAME="postgres_local"
 CONTAINER_IMAGE="postgres:16.4"
