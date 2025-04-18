@@ -17,7 +17,7 @@ set undofile
 set incsearch
 set scrolloff=8
 set signcolumn=yes
-set colorcolumn=80,120
+set colorcolumn=80,100
 
 " Filetype detection, plugins, and indent rules
 filetype plugin indent on

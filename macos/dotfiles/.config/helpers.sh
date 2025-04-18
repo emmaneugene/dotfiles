@@ -17,11 +17,6 @@ alias x86-gcc="/usr/local/bin/gcc-13"
 alias x86-brew="arch -x86_64 /usr/local/Homebrew/bin/brew"
 
 # Update applications and binaries
-alias appupd="brew update && brew upgrade && brew autoremove && brew cleanup;
-x86-brew update && x86-brew upgrade && x86-brew autoremove && x86-brew cleanup;"
-alias appupdcask="brew update && brew upgrade --greedy && brew autoremove && brew cleanup"
-alias goupd="go-global-update"
-alias rustupd="cargo-install-update install-update --all"
 alias jsupd="npm install -g npm && npm -g update"
 function pyupd() {
   if [ $# -ne 1 ]; then
@@ -37,6 +32,12 @@ function pyupd() {
 alias g=git
 alias ga="git add"
 alias gb="git branch"
+alias gbv="git branch -vv"
+gba() {
+  git branch -a --format='%(if)%(HEAD)%(then)* %(else)  %(end)%(refname) | %(objectname:short) | %(committerdate:relative) | %(authorname) %(authoremail)' \
+  | awk -F '|' '{printf "\033[36m%-40s\033[0m \033[33m%-8s\033[0m \033[32m%s%s\033[0m\n", $1, $2, $3, $4}' \
+  | less -R
+}
 alias gc="git commit"
 alias gcam="git commit -am"
 alias gco="git checkout"
@@ -70,18 +71,28 @@ alias k=kubectl
 alias kaf="kubectl apply -f"
 
 # Invoke manpage or --help for a binary
-function doc() {
-  if [ $# -ne 1 ]; then
-    echo "Usage: $0 <binary>"
-    return
+function m() {
+  if [ $# -lt 1 ]; then
+    echo "Usage: $0 <command> [subcommand...]"
+    return 1
   fi
 
-  binary="$1"
+  cmd=""
+  cmd_array=("$@")
+  for arg in "$@"; do
+    if [ -z "$cmd" ]; then
+      cmd="$arg"
+    else
+      cmd="$cmd $arg"
+    fi
+  done
 
-  if man -w "$binary" >/dev/null 2>&1; then
-    man "$binary"
+  man_cmd=$(echo "$cmd" | tr ' ' '-')
+
+  if man -w "$man_cmd" >/dev/null 2>&1; then
+    man "$man_cmd"
   else
-    "$binary" --help
+    "${cmd_array[@]}" --help
   fi
 }
 
@@ -108,5 +119,5 @@ function vidtogif() {
     and output file is .gif"
     return
   fi
-  gifski -r 10 $1 -o $2
+  gifski -r 10 "$1" -o "$2"
 }

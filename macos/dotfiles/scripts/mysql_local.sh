@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/usr/bin/env zsh
 
 CONTAINER_NAME="mysql_local"
 CONTAINER_IMAGE="mysql:8.4"
