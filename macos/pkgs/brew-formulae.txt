@@ -24,6 +24,7 @@ duf
 ed
 emacs
 eza
+fastfetch
 fd
 felixkratz/formulae/borders
 ffmpeg
@@ -76,10 +77,8 @@ mysql-client@8.0
 mysql-client@8.4
 nano
 nasm
-neofetch
 neovim
 nnn
-ollama
 opam
 openssh
 openvino

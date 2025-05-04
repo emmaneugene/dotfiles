@@ -11,7 +11,6 @@ db-browser-for-sqlite
 dbeaver-community
 discord
 dropbox
-eqmac
 figma
 firefox
 font-hack-nerd-font
@@ -23,10 +22,10 @@ gitbutler
 goland
 google-cloud-sdk
 hammerspoon
-hiddenbar
 http-toolkit
 intellij-idea
 iterm2
+jordanbaird-ice
 karabiner-elements
 linearmouse
 lm-studio
@@ -49,7 +48,6 @@ raycast
 sioyek
 slack
 sourcetree
-spotify
 stats
 syntax-highlight
 tailscale
@@ -59,6 +57,7 @@ utm
 visual-studio-code
 vlc
 wireshark
+yaak
 zen-browser
 zoom
 zotero
