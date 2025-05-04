@@ -3,12 +3,11 @@ local launcher = {}
 local appBindings = {
   e = "com.apple.finder",               -- Finder
   r = "com.apple.Preview",              -- Preview
-  t = "org.alacritty",                  -- Alacritty
+  t = "com.mitchellh.ghostty",          -- Ghostty
   y = "com.bitwarden.Desktop",          -- Bitwarden
   o = "md.Obsidian",                    -- Obsidian
   p = "com.postmanlabs.mac",            -- Postman
   a = "com.apple.ActivityMonitor",      -- ActivityMonitor
-  s = "com.spotify.client",             -- Spotify
   d = "org.jkiss.dbeaver.core.product", -- DBeaver
   g = "com.tinyspeck.slackmacgap",      -- Slack
   l = "com.anthropic.claudefordesktop", -- Claude
@@ -23,8 +22,8 @@ local appBindings = {
 function launcher.init()
   hs.hotkey.bind(hyper, "`", hs.reload)
 
-  for key, bundle in pairs(appBindings) do
-    hs.hotkey.bind(hyper, key, function() hs.application.launchOrFocusByBundleID(bundle) end)
+  for key, bundleId in pairs(appBindings) do
+    hs.hotkey.bind(hyper, key, function() hs.application.launchOrFocusByBundleID(bundleId) end)
   end
 
   -- Toggle dark mode

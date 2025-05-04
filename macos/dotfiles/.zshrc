@@ -1,12 +1,11 @@
-# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+# Enable Powerlevel10k instant prompt. Should stay close to the top of $HOME/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block; everything else may go below.
-if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
-fi
+[[ -f "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]] \
+&& source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 
-# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
-[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+# To customize prompt, run `p10k configure` or edit $HOME/.p10k.zsh.
+[[ -f "$HOME/.p10k.zsh" ]] && source "$HOME/.p10k.zsh"
 
 ## Environment variables
 # oh-my-zsh
@@ -53,9 +52,7 @@ eval "$(/opt/homebrew/bin/brew shellenv)"
 FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
 # homebrew command-not-found
 HB_CNF_HANDLER="$(brew --repository)/Library/Taps/homebrew/homebrew-command-not-found/handler.sh"
-if [ -f "$HB_CNF_HANDLER" ]; then
-source "$HB_CNF_HANDLER";
-fi
+[[ -f "$HB_CNF_HANDLER" ]] && source "$HB_CNF_HANDLER"
 
 # AWS CLI
 export AWS_PROFILE=personal
@@ -63,8 +60,10 @@ export AWS_PROFILE=personal
 export PYTHONSTARTUP="$HOME/.config/pythonstartup.py"
 
 ## PATH and shell completions
-# Orbstack (replaces docker)
-source ~/.orbstack/shell/init.zsh 2>/dev/null || :
+# Orbstack
+source "$HOME/.orbstack/shell/init.zsh" 2>/dev/null || :
+# LMStudio (lms)
+export PATH="$PATH:$HOME/.lmstudio/bin"
 # cargo
 source "$HOME/.cargo/env"
 # uv
@@ -73,26 +72,25 @@ export PATH="$HOME/.local/bin:$PATH"
 export ASDF_DATA_DIR="$HOME/.asdf"
 export PATH="$ASDF_DATA_DIR/shims:$PATH"
 # Haskell
-[ -f "$HOME/.ghcup/env" ] && source "$HOME/.ghcup/env"
+[[ -f "$HOME/.ghcup/env" ]] && source "$HOME/.ghcup/env"
 # Ocaml
-[[ ! -r $HOME/.opam/opam-init/init.zsh ]] || source $HOME/.opam/opam-init/init.zsh  > /dev/null 2> /dev/null
+[[ -f "$HOME/.opam/opam-init/init.zsh" ]] && source $HOME/.opam/opam-init/init.zsh  > /dev/null 2> /dev/null
 # Gcloud
 source "$(brew --prefix)/share/google-cloud-sdk/path.zsh.inc"
 source "$(brew --prefix)/share/google-cloud-sdk/completion.zsh.inc"
 # Ngrok
-if command -v ngrok &>/dev/null; then
-    eval "$(ngrok completion)"
-fi
+command -v ngrok &>/dev/null && eval "$(ngrok completion)"
 # Postgres 16
 export PATH="/opt/homebrew/opt/postgresql@16/bin:$PATH"
-# Python 3.12 (official install)
+# Python 3.12 (official installer)
 export PATH="/Library/Frameworks/Python.framework/Versions/3.12/bin:$PATH"
 # User, Ruby, Golang
-export PATH="$HOME/scripts:$HOME/.gem/bin:$HOME/go/bin:$PATH:$HOME/.depot_tools"
+export PATH="$HOME/scripts:$HOME/.gem/bin:$HOME/go/bin:$PATH"
 # SDKman for JVMs and associated SDKs
 export SDKMAN_DIR="$HOME/.sdkman"
-[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
-# Replace inbuilt binaries with GNU coreutil equivalents (https://github.com/darksonic37/linuxify)
+[[ -f "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
+
+## Replace inbuilt binaries with GNU coreutil equivalents (https://github.com/darksonic37/linuxify)
 BREW_HOME="$(brew --prefix)"
 # most programs
 export MANPATH="${BREW_HOME}/share/man:$MANPATH"

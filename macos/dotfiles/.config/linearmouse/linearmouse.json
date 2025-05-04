@@ -5,9 +5,9 @@
       "if": {
         "device": {
           "category": "trackpad",
+          "vendorID": "0x5ac",
           "productID": "0x342",
-          "productName": "Apple Internal Keyboard / Trackpad",
-          "vendorID": "0x5ac"
+          "productName": "Apple Internal Keyboard / Trackpad"
         }
       },
       "scrolling": {
@@ -20,21 +20,27 @@
       "if": {
         "device": {
           "category": "mouse",
+          "vendorID": "0x46d",
           "productID": "0xb015",
           "productName": "M720 Triathlon",
-          "serialNumber": "89014E9602FC6848",
-          "vendorID": "0x46d"
+          "serialNumber": "89014E9602FC6848"
         }
       },
       "pointer": {
+        "speed": 0.0689655172413792768,
         "acceleration": 0.8,
-        "disableAcceleration": true,
-        "speed": 0.0689655172413792768
+        "disableAcceleration": true
       },
       "scrolling": {
-        "acceleration": {
-          "vertical": 1
-        }
+        "reverse": {
+          "vertical": false
+        },
+        "distance": {
+          "horizontal": 10,
+          "vertical": "auto"
+        },
+        "acceleration": 1,
+        "speed": 0
       }
     }
   ]

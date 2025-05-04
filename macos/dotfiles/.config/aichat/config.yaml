@@ -4,6 +4,7 @@ model: claude:claude-3-7-sonnet-latest
 # https://github.com/sigoden/aichat/wiki/Environment-Variables#client-related-envs
 clients:
 # https://docs.anthropic.com/en/docs/about-claude/models/all-models
+# https://docs.anthropic.com/en/api/messages
 - type: claude
   models:
   - name: claude-3-7-sonnet-latest
@@ -28,7 +29,13 @@ clients:
     output_price: 4
     supports_vision: true
     support_function_calling: true
+# https://platform.openai.com/docs/models
+# https://platform.openai.com/docs/api-reference/chat
 - type: openai
+# https://ai.google.dev/models/gemini
+# https://ai.google.dev/pricing
+# https://ai.google.dev/api/rest/v1beta/models/streamGenerateContent
+- type: gemini
 - type: openai-compatible
   name: deepseek
   api_base: https://api.deepseek.com
