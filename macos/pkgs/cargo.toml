@@ -16,5 +16,5 @@
 "hurl 6.1.1 (registry+https://github.com/rust-lang/crates.io-index)" = ["hurl"]
 "jnv 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)" = ["jnv"]
 "monolith 2.10.1 (registry+https://github.com/rust-lang/crates.io-index)" = ["monolith"]
-"nu 0.103.0 (registry+https://github.com/rust-lang/crates.io-index)" = ["nu"]
+"nu 0.104.0 (registry+https://github.com/rust-lang/crates.io-index)" = ["nu"]
 "rustlings 6.4.0 (registry+https://github.com/rust-lang/crates.io-index)" = ["rustlings"]
