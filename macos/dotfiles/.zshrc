@@ -1,9 +1,3 @@
-# Enable Powerlevel10k instant prompt. Should stay close to the top of $HOME/.zshrc.
-# Initialization code that may require console input (password prompts, [y/n]
-# confirmations, etc.) must go above this block; everything else may go below.
-[[ -f "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]] \
-&& source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
-
 # To customize prompt, run `p10k configure` or edit $HOME/.p10k.zsh.
 [[ -f "$HOME/.p10k.zsh" ]] && source "$HOME/.p10k.zsh"
 
@@ -22,12 +16,13 @@ export XDG_CONFIG_HOME="$HOME/.config"
 # Secrets
 source "$HOME/.config/secrets.sh"
 
+## Oh-My-Zsh config
 ZSH_THEME="powerlevel10k/powerlevel10k"
 COMPLETION_WAITING_DOTS="true"
 DISABLE_UNTRACKED_FILES_DIRTY="true"
 HIST_STAMPS="dd/mm/yyyy"
-
-## ZSH plugins ($ZSH/plugins/:$ZSH_CUSTOM/plugins/)
+zstyle ':omz:update' mode disabled
+# Plugins ($ZSH/plugins/:$ZSH_CUSTOM/plugins/)
 plugins=(
   aliases
   aws
@@ -54,7 +49,7 @@ FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
 HB_CNF_HANDLER="$(brew --repository)/Library/Taps/homebrew/homebrew-command-not-found/handler.sh"
 [[ -f "$HB_CNF_HANDLER" ]] && source "$HB_CNF_HANDLER"
 
-# AWS CLI
+## AWS CLI
 export AWS_PROFILE=personal
 ## iPython sessions
 export PYTHONSTARTUP="$HOME/.config/pythonstartup.py"
