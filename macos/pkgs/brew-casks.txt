@@ -7,13 +7,15 @@ balenaetcher
 betterdisplay
 chromium
 claude
+cursor
 db-browser-for-sqlite
 dbeaver-community
 discord
 dropbox
 figma
 firefox
-font-hack-nerd-font
+font-0xproto
+font-0xproto-nerd-font
 font-jetbrains-mono
 font-jetbrains-mono-nerd-font
 ghostty
@@ -58,6 +60,7 @@ visual-studio-code
 vlc
 wireshark
 yaak
+zen
 zen-browser
 zoom
 zotero

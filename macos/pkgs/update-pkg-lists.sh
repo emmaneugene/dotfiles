@@ -1,4 +1,5 @@
 #!/usr/bin/env zsh
+source ~/.zshrc
 # homebrew (arm64)
 brew tap > brew-taps.txt && brew list --cask > brew-casks.txt && brew leaves > brew-formulae.txt
 # homebrew (x86)
@@ -17,3 +18,7 @@ uv tool list > uv-tools.txt
 pipdeptree -d 0 > pip.txt
 # ruby gems
 gem dep > gem-deps.txt
+# sdkman
+tree -L 2 "$SDKMAN_DIR/candidates" > sdkman.txt
+# docker
+docker images --format "table {{.Repository}}\t{{.Tag}}\t{{.ID}}" | tail -n +2 | sort > docker-images.txt
