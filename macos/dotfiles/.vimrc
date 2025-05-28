@@ -22,7 +22,6 @@ set scrolloff=8
 set signcolumn=yes
 set colorcolumn=80,100
 
-" Hold shift + arrow keys to select in any mode
 nmap <S-Up> v<Up>
 nmap <S-Down> v<Down>
 nmap <S-Left> v<Left>
