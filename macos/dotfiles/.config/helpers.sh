@@ -1,3 +1,5 @@
+#!/usr/bin/env zsh
+
 # Collection of aliases, helper functions and scripts for UNIX-based systems
 # Core
 alias c="clear"
@@ -13,11 +15,11 @@ alias lg="lazygit"
 # Applications/context specific
 alias aichatserve="nohup aichat --serve 10100> /dev/null 2>&1 &; open http://localhost:10100/playground"
 alias routerip="curl https://api.incolumitas.com | jq ."
-alias x86-gcc="/usr/local/bin/gcc-13"
-alias x86-brew="arch -x86_64 /usr/local/Homebrew/bin/brew"
 
-# Update applications and binaries
+# Update global npm pkgs
 alias jsupd="npm install -g npm && npm -g update"
+
+# Update global pip pkgs
 function pyupd() {
   if [ $# -ne 1 ]; then
     echo "Please provide a version number (e.g. 3.10, 3.11)"
@@ -61,7 +63,7 @@ alias gsub="git submodule update --init --recursive"
 # docker
 alias dk=docker
 alias dkc="docker container"
-alias dkcp="docker compose"
+alias dkcp="docker-compose"
 alias dki="docker image"
 alias dkn="docker network"
 alias dkv="docker volume"
@@ -96,7 +98,7 @@ function m() {
   fi
 }
 
-# ripgrep + fzf
+# ripgrep-all + fzf
 function rga-fzf() {
   RG_PREFIX="rga --files-with-matches"
   local file
@@ -120,4 +122,32 @@ function vidtogif() {
     return
   fi
   gifski -r 10 "$1" -o "$2"
+}
+
+# Show all ANSI colors in the terminal
+function ansi-colors() {
+  for x in {0..5}; do echo --- && for z in 0 10 60 70; do for y in {30..37}; do y=$((y + z)) && printf '\e[%d;%dm%-12s\e[0m' "$x" "$y" "$(printf ' \\e[%d;%dm] ' "$x" "$y")" && printf ' '; done && printf '\n'; done; done
+}
+
+# Simple conversion from unix time (in seconds or milliseconds) to ISO
+function unixtime-convert() {
+  local timestamp="$1"
+
+  # Check if argument is provided
+  if [[ -z "$timestamp" ]]; then
+    echo "Usage: unixtime <timestamp>"
+    echo "Example: unixtime 1609459200000"
+    return 1
+  fi
+
+  # Remove any non-digit characters (in case of decimal points)
+  timestamp=$(echo "$timestamp" | sed 's/[^0-9]//g')
+
+  # Check if timestamp is in milliseconds (13+ digits typically indicates milliseconds)
+  if [[ ${#timestamp} -ge 13 ]]; then
+    timestamp=$((timestamp / 1000))
+  fi
+
+  echo "ISO:    $(date -d "@$timestamp" -Iseconds)"
+  echo "Pretty: $(date -d "@$timestamp" '+%A, %d %B %Y at %I:%M:%S %p')"
 }
