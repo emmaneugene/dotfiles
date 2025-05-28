@@ -1,0 +1,41 @@
+#!/usr/bin/env zsh
+
+# Find all instances of a command in PATH using regex matching
+if [[ $# -eq 0 ]]; then
+  pattern=""
+  list_all=true
+else
+  pattern="$1"
+  list_all=false
+fi
+
+found=0
+
+# Split PATH using ':' delimiter
+path_dirs=(${(s.:.)PATH})
+for dir in $path_dirs; do
+  # Skip empty directory entries
+  if [[ -z "$dir" ]]; then
+      dir="."
+  fi
+
+  # Find executable files in this directory that match the pattern
+  if [[ -d "$dir" ]]; then
+    for file in "$dir"/*; do
+      if [[ -x "$file" ]]; then
+        filename=${file:t}
+        if $list_all || [[ $filename =~ $pattern ]]; then
+          echo "$file"
+          found=1
+        fi
+      fi
+    done
+  fi
+done
+
+if [[ $found -eq 0 ]]; then
+  echo "No commands matching '$pattern' found in PATH" >&2
+  exit 1
+fi
+
+exit 0

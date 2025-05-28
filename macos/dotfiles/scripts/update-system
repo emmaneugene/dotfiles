@@ -15,58 +15,57 @@ confirm() {
   local check_command="$2"
   local action="$3"
 
-  if ! $AUTO_APPROVE && [[ -n "$check_command" ]]; then
-    echo "Checking for updates"
-    eval "$check_command"
-  fi
-
   if $AUTO_APPROVE; then
     eval "$action"
     return
   fi
 
-  echo -n "\033[33m$prompt\033[0m [Y/n]: "
+  if [[ -n "$check_command" ]]; then
+    echo "Checking for updates..."
+    eval "$check_command"
+  fi
+
+  echo -n "\e[33m$prompt\e[0m [Y/n]: "
   read -r response
 
   if [[ "$response" =~ ^[Nn]$ ]]; then
-    echo "Skipping this step."
+    echo "Skipping this step..."
   else
     eval "$action"
   fi
 }
 
+echo "\e[3;94m=== Oh-My-Zsh ===\e[0m"
+omz update
+
+echo "\e[3;94m=== Homebrew ===\e[0m"
 brew update
 echo "Fetching outdated brew packages..."
 brew upgrade --greedy --dry-run
-
-echo "=== Homebrew ==="
 confirm "Update Homebrew formulae?" \
   "" \
-  "{ echo 'Updating brew formulae...'; brew upgrade; }"
-
+  "{ echo 'Updating brew formulae...';  brew upgrade; }"
 confirm "Update Homebrew casks?" \
   "" \
   "{ echo 'Updating brew casks...'; brew upgrade --greedy --no-quarantine; }"
-
-echo "Running cleanup for brew"
+echo "Running cleanup..."
 brew autoremove
 brew cleanup
 
-echo "=== Oh-My-Zsh ==="
-confirm "Update Oh-My-Zsh?" \
-  "" \
-  "{ echo 'Updating oh-my-zsh...'; omz update; }"
-
-# Rust update
-echo "=== Rust and Cargo Packages ==="
+echo "\e[3;94m=== Rust and Cargo binaries ===\e[0m"
 confirm "Update Rust and global Rust binaries?" \
 "{ echo 'Rust version:'; rustup check; echo 'Cargo package versions:'; cargo install-update --list; }" \
 "{ echo 'Updating global rust binaries...'; rustup update stable; cargo install-update --all; }"
 
-# Go binaries update
-echo "=== Go Packages ==="
+echo "\e[3;94m=== Go binaries ===\e[0m"
 confirm "Update global Go binaries?" \
 "go-global-update --dry-run" \
 "{ echo 'Updating global go binaries...'; go-global-update; }"
 
-echo "\033[32mSystem update complete!\033[0m"
+# uv tools update
+echo "\e[3;94m=== uv tools ===\e[0m"
+confirm "Update uv tools?" \
+"" \
+"{ uv tool upgrade --all }"
+
+echo "\e[32mSystem update complete!\e[0m"
