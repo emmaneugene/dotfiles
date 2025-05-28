@@ -1,44 +1,56 @@
-model: claude:claude-3-7-sonnet-latest
+model: claude:claude-sonnet-4-20250514
 
 # Client API keys are sourced from environment variables
 # https://github.com/sigoden/aichat/wiki/Environment-Variables#client-related-envs
 clients:
-# https://docs.anthropic.com/en/docs/about-claude/models/all-models
-# https://docs.anthropic.com/en/api/messages
-- type: claude
-  models:
-  - name: claude-3-7-sonnet-latest
-    max_input_tokens: 200000
-    max_output_tokens: 8192
-    require_max_tokens: true
-    input_price: 3
-    output_price: 15
-    supports_vision: true
-    support_function_calling: true
-  - name: claude-3-5-sonnet-latest
-    max_output_tokens: 8192
-    require_max_tokens: true
-    input_price: 3
-    output_price: 15
-    supports_vision: true
-    support_function_calling: true
-  - name: claude-3-5-haiku-latest
-    max_output_tokens: 8192
-    require_max_tokens: true
-    input_price: 0.8
-    output_price: 4
-    supports_vision: true
-    support_function_calling: true
-# https://platform.openai.com/docs/models
-# https://platform.openai.com/docs/api-reference/chat
-- type: openai
-# https://ai.google.dev/models/gemini
-# https://ai.google.dev/pricing
-# https://ai.google.dev/api/rest/v1beta/models/streamGenerateContent
-- type: gemini
-- type: openai-compatible
-  name: deepseek
-  api_base: https://api.deepseek.com
+  # https://docs.anthropic.com/en/docs/about-claude/models/all-models
+  # https://docs.anthropic.com/en/api/messages
+  - type: claude
+    models:
+      - name: claude-opus-4-20250514
+        max_input_tokens: 200000
+        max_output_tokens: 32000
+        require_max_tokens: true
+        input_price: 15
+        output_price: 75
+        supports_vision: true
+        support_function_calling: true
+      - name: claude-sonnet-4-20250514
+        max_input_tokens: 200000
+        max_output_tokens: 64000
+        require_max_tokens: true
+        input_price: 3
+        output_price: 15
+        supports_vision: true
+        support_function_calling: true
+      - name: claude-3-7-sonnet-latest
+        max_input_tokens: 200000
+        max_output_tokens: 64000
+        require_max_tokens: true
+        input_price: 3
+        output_price: 15
+        supports_vision: true
+        support_function_calling: true
+      - name: claude-3-5-haiku-latest
+        max_output_tokens: 8192
+        require_max_tokens: true
+        input_price: 0.8
+        output_price: 4
+        supports_vision: true
+        support_function_calling: true
+  # https://platform.openai.com/docs/models
+  # https://platform.openai.com/docs/api-reference/chat
+  - type: openai
+  # https://ai.google.dev/models/gemini
+  # https://ai.google.dev/pricing
+  # https://ai.google.dev/api/rest/v1beta/models/streamGenerateContent
+  - type: gemini
+    models:
+      - name: gemini-2.5-pro-preview-05-06
+      - name: gemini-2.5-flash-preview-05-20
+  - type: openai-compatible
+    name: deepseek
+    api_base: https://api.deepseek.com
 
 prelude: "role:main"
 save_session: true
