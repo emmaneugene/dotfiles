@@ -11,4 +11,4 @@ I daily drive macOS at the moment, so everything of note currently resides in `m
 
 ### Misc
 
-- `starters/`: Reasonable defaults for bootstrapping projects
+- `templates/`: Reasonable defaults for bootstrapping projects
