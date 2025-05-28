@@ -2,7 +2,7 @@
   "name": "lib",
   "dependencies": {
     "axios": {
-      "version": "1.8.4",
+      "version": "1.9.0",
       "overridden": false
     },
     "corepack": {
@@ -10,11 +10,11 @@
       "overridden": false
     },
     "dotenv": {
-      "version": "16.4.7",
+      "version": "16.5.0",
       "overridden": false
     },
     "eas-cli": {
-      "version": "16.1.0",
+      "version": "16.6.2",
       "overridden": false
     },
     "editorconfig": {
@@ -22,7 +22,7 @@
       "overridden": false
     },
     "expo": {
-      "version": "52.0.41",
+      "version": "53.0.9",
       "overridden": false
     },
     "forever": {
@@ -42,15 +42,15 @@
       "overridden": false
     },
     "nodemon": {
-      "version": "3.1.9",
+      "version": "3.1.10",
       "overridden": false
     },
     "npm-check-updates": {
-      "version": "17.1.16",
+      "version": "18.0.1",
       "overridden": false
     },
     "npm": {
-      "version": "11.3.0",
+      "version": "11.4.1",
       "overridden": false
     },
     "prettier": {
@@ -58,11 +58,7 @@
       "overridden": false
     },
     "serverless": {
-      "version": "4.9.1",
-      "overridden": false
-    },
-    "tldr": {
-      "version": "3.4.0",
+      "version": "4.14.4",
       "overridden": false
     },
     "tslab": {
@@ -70,11 +66,15 @@
       "overridden": false
     },
     "typescript": {
-      "version": "5.8.2",
+      "version": "5.8.3",
       "overridden": false
     },
     "uglify-js": {
       "version": "3.19.3",
+      "overridden": false
+    },
+    "whistle": {
+      "version": "2.9.98",
       "overridden": false
     }
   }

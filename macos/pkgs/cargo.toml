@@ -1,20 +1,7 @@
 [v1]
-"aichat 0.29.0 (registry+https://github.com/rust-lang/crates.io-index)" = ["aichat"]
 "cargo-cache 0.8.3 (registry+https://github.com/rust-lang/crates.io-index)" = ["cargo-cache"]
 "cargo-update 16.3.0 (registry+https://github.com/rust-lang/crates.io-index)" = [
     "cargo-install-update",
     "cargo-install-update-config",
 ]
-"difftastic 0.63.0 (registry+https://github.com/rust-lang/crates.io-index)" = ["difft"]
-"dua-cli 2.30.0 (registry+https://github.com/rust-lang/crates.io-index)" = ["dua"]
-"git-cliff 2.8.0 (registry+https://github.com/rust-lang/crates.io-index)" = [
-    "git-cliff",
-    "git-cliff-completions",
-    "git-cliff-mangen",
-]
-"gping 1.19.0 (registry+https://github.com/rust-lang/crates.io-index)" = ["gping"]
-"hurl 6.1.1 (registry+https://github.com/rust-lang/crates.io-index)" = ["hurl"]
-"jnv 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)" = ["jnv"]
-"monolith 2.10.1 (registry+https://github.com/rust-lang/crates.io-index)" = ["monolith"]
-"nu 0.104.0 (registry+https://github.com/rust-lang/crates.io-index)" = ["nu"]
 "rustlings 6.4.0 (registry+https://github.com/rust-lang/crates.io-index)" = ["rustlings"]
