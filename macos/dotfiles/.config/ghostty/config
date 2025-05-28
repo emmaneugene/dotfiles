@@ -6,9 +6,10 @@ clipboard-read = allow
 clipboard-write = allow
 copy-on-select = clipboard
 cursor-style = block
+font-family = 0xProto Nerd Font Mono
+font-feature = -calt, -liga, -dlig
 font-size = 11
 font-thicken = true
-font-family = JetBrainsMonoNL Nerd Font Mono
 adjust-cell-width = -10%
 keybind = cmd+backspace=text:\x15
 shell-integration-features = no-cursor
