@@ -1,0 +1,26 @@
+#!/usr/bin/env zsh
+
+# Convert from unix time (in seconds or milliseconds) to ISO
+function unixtime-convert() {
+  local timestamp="$1"
+
+  # Check if argument is provided
+  if [[ -z "$timestamp" ]]; then
+    echo "Usage: unixtime <timestamp>"
+    echo "Example: unixtime 1609459200000"
+    return 1
+  fi
+
+  # Remove any non-digit characters (in case of decimal points)
+  timestamp=$(echo "$timestamp" | sed 's/[^0-9]//g')
+
+  # Check if timestamp is in milliseconds (13+ digits typically indicates milliseconds)
+  if [[ ${#timestamp} -ge 13 ]]; then
+    timestamp=$((timestamp / 1000))
+  fi
+
+  echo "ISO:    $(date -d "@$timestamp" -Iseconds)"
+  echo "Pretty: $(date -d "@$timestamp" '+%A, %d %B %Y at %I:%M:%S %p')"
+}
+
+unixtime-convert "$@"

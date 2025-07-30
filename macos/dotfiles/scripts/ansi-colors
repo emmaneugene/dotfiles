@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# Show all ANSI colors in the terminal
+# Displays color combinations across different text attributes and color ranges
+#
+# This script demonstrates ANSI color codes where:
+#   x (0-5): Text attributes
+#     0 = normal, 1 = bold, 2 = dim, 3 = italic, 4 = underline, 5 = blink
+#   z values (0, 10, 60, 70): Color type modifiers
+#     0 = regular foreground, 10 = bright foreground
+#     60 = regular background, 70 = bright background
+#   y (30-37): Base color codes
+#     30=black, 31=red, 32=green, 33=yellow, 34=blue, 35=magenta, 36=cyan, 37=white
+#
+# Each line shows: \e[attribute;colorm text \e[0m (reset)
+
+for x in {0..5}; do
+  echo "--- Attribute: $x ---"
+
+  for z in 0 10 60 70; do
+    for y in {30..37}; do
+      # Calculate the actual color code
+      color_code=$((y + z))
+
+      # Print the colored text with escape sequence label
+      printf '\e[%d;%dm%-12s\e[0m' "$x" "$color_code" "$(printf ' \\e[%d;%dm] ' "$x" "$color_code")"
+      printf ' '
+    done
+    printf '\n'
+  done
+  printf '\n'
+done

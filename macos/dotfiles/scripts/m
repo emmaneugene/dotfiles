@@ -1,0 +1,29 @@
+#!/usr/bin/env zsh
+
+# Invoke manpage or --help for a binary
+function m() {
+  if [ $# -lt 1 ]; then
+    echo "Usage: $0 <command> [subcommand...]"
+    return 1
+  fi
+
+  cmd=""
+  cmd_array=("$@")
+  for arg in "$@"; do
+    if [ -z "$cmd" ]; then
+      cmd="$arg"
+    else
+      cmd="$cmd $arg"
+    fi
+  done
+
+  man_cmd=$(echo "$cmd" | tr ' ' '-')
+
+  if man -w "$man_cmd" >/dev/null 2>&1; then
+    man "$man_cmd"
+  else
+    "${cmd_array[@]}" --help
+  fi
+}
+
+m "$@"
