@@ -1,11 +1,9 @@
-# IDEs and dev tooling
+# AI tools
 .aider*
-.DS_Store
-.idea/
-.sdkmanrc
-.vscode/
+.claude*
 
-# Common defaults for projects
+# Common defaults
+.DS_Store
 .env
 .env.*
 !*.example
