@@ -4,16 +4,18 @@
 ## Environment variables
 # oh-my-zsh
 export ZSH="$HOME/.oh-my-zsh"
+# fzf
+export FZF_DEFAULT_OPTS='--walker file,dir,hidden'
 # Locale
 export LANG="en_US.UTF-8"
-export LC_ALL="en_US.UTF-8"
 export LANGUAGE="en_US.UTF-8"
+export LC_ALL="en_US.UTF-8"
 # VISUAL, EDITOR
 export EDITOR="$(command -v nvim || command -v vim || command -v vi)"
 export VISUAL="$EDITOR"
 # XDG_CONFIG_HOME
 export XDG_CONFIG_HOME="$HOME/.config"
-# Secrets
+# Secrets (see secrets.sh.example)
 source "$HOME/.config/secrets.sh"
 
 ## Oh-My-Zsh config
@@ -22,6 +24,7 @@ COMPLETION_WAITING_DOTS="true"
 DISABLE_UNTRACKED_FILES_DIRTY="true"
 HIST_STAMPS="dd/mm/yyyy"
 zstyle ':omz:update' mode disabled
+zstyle ':omz:plugins:*' aliases no
 # Plugins ($ZSH/plugins/:$ZSH_CUSTOM/plugins/)
 plugins=(
   aliases
@@ -84,6 +87,8 @@ export PATH="$HOME/scripts:$HOME/.gem/bin:$HOME/go/bin:$PATH"
 # SDKman for JVMs and associated SDKs
 export SDKMAN_DIR="$HOME/.sdkman"
 [[ -f "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
+# Claude Code
+alias claude="~/.claude/local/claude"
 
 ## Replace inbuilt binaries with GNU coreutil equivalents (https://github.com/darksonic37/linuxify)
 BREW_HOME="$(brew --prefix)"
@@ -168,7 +173,6 @@ dedupe_env PATH
 
 autoload -U compinit; compinit
 source "$ZSH/oh-my-zsh.sh"
-unalias -m  "*"
 source "$HOME/.config/helpers.sh"
 source <(fzf --zsh)
 eval "$(atuin init zsh --disable-up-arrow)"
