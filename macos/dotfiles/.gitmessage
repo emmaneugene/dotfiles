@@ -1,18 +1,29 @@
 ## Reference: https://www.conventionalcommits.org/
 ## <type>[optional_scope][!]: <description>
-## type: feat/fix/refactor/docs/style/build/test/chore
+## type: feat/fix/docs/test/refactor/style/build/ci/chore
 ## e.g. "feat(api)!: Email customer when product ships"
-## ▼-----------------HEADER---------------------▼
+##------------------HEADER-(50)------------------▼
 
 
-## ▼-----------------BODY----------------------------------------------▼
-## What was done?
-
-## What issues does this change address?
-
-## What side effects does it have?
-
-## ▼----------------FOOTER---------------------------------------------▼
-## Signatures and author details
-## [BREAKING CHANGE]: if commit breaks API behaviour
-<AUTHOR_NAME> (<AUTHOR_EMAIL>)
+##------------------BODY-(72)------------------------------------------▼
+## - What was done?
+##   - What problem are you solving?
+##   - Why this solution?
+## - What's wrong with the current code?
+## - Are there other solutions?
+## - Any side effects/breaking changes?
+#
+#
+##------------------TRAILER-(72)---------------------------------------▼
+## Signatures and author details (uncomment as needed)
+# Bug: #xxxx
+# Issue: #xxxx
+# Acked-by: Example User <user@example.com>
+# Cc: Example User <user@example.com>
+# Co-Authored-by: Example User <user@example.com>
+# Requested-by: Example User <user@example.com>
+# Reported-by: Example User <user@example.com>
+# Reviewed-by: Example User <user@example.com>
+# Suggested-by: Example User <user@example.com>
+# Tested-by: Example User <user@example.com>
+# Thanks: Example User <user@example.com>
