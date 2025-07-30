@@ -1,0 +1,281 @@
+#!/usr/bin/env python3
+"""
+Script to find source code files that use non-LF line endings
+Usage: python find_non_lf_files.py [directory]
+
+This script checks for line ending characters within files:
+- Files with \r\n (CRLF) or \r (CR) line endings are flagged
+- Files that are empty, single-line, or don't end with a line ending are OK
+"""
+
+import os
+import sys
+import argparse
+from pathlib import Path
+from typing import List, Tuple, Dict
+
+# Common source code file extensions
+SOURCE_EXTENSIONS = {
+    '.c', '.cpp', '.cc', '.cxx', '.h', '.hpp', '.hxx',
+    '.py', '.js', '.ts', '.jsx', '.tsx',
+    '.java', '.kt', '.scala',
+    '.rb', '.php', '.go', '.rs',
+    '.cs', '.vb', '.fs',
+    '.sh', '.bash', '.zsh',
+    '.pl', '.pm', '.r', '.R',
+    '.sql', '.html', '.css', '.scss', '.sass',
+    '.xml', '.json', '.yaml', '.yml',
+    '.md', '.txt', '.ini', '.cfg', '.conf',
+    '.vim', '.lua', '.tcl'
+}
+
+def is_source_file(file_path: Path) -> bool:
+    """Check if a file is a source code file based on its extension."""
+    return file_path.suffix.lower() in SOURCE_EXTENSIONS
+
+def analyze_line_endings(file_path: Path) -> Tuple[bool, Dict[str, int], str]:
+    """
+    Analyze line endings in a file.
+    Returns (has_non_lf_endings, line_ending_counts, description)
+    """
+    try:
+        # Read file in binary mode to preserve exact line endings
+        with open(file_path, 'rb') as f:
+            content = f.read()
+
+        if not content:
+            return False, {}, "empty file"
+
+        # Count different line ending types
+        crlf_count = content.count(b'\r\n')
+        cr_only_count = content.count(b'\r') - crlf_count  # Subtract CRLF CRs
+        lf_only_count = content.count(b'\n') - crlf_count  # Subtract CRLF LFs
+
+        line_ending_counts = {
+            'CRLF': crlf_count,
+            'CR': cr_only_count,
+            'LF': lf_only_count
+        }
+
+        # Check if file has any line endings at all
+        total_line_endings = crlf_count + cr_only_count + lf_only_count
+
+        if total_line_endings == 0:
+            return False, line_ending_counts, "single line or no line endings"
+
+        # Check if any non-LF line endings exist
+        has_non_lf = crlf_count > 0 or cr_only_count > 0
+
+        if has_non_lf:
+            descriptions = []
+            if crlf_count > 0:
+                descriptions.append(f"{crlf_count} CRLF")
+            if cr_only_count > 0:
+                descriptions.append(f"{cr_only_count} CR-only")
+            if lf_only_count > 0:
+                descriptions.append(f"{lf_only_count} LF")
+
+            description = "mixed line endings: " + ", ".join(descriptions)
+            if crlf_count > 0 and cr_only_count == 0 and lf_only_count == 0:
+                description = f"Windows line endings (CRLF): {crlf_count}"
+            elif cr_only_count > 0 and crlf_count == 0 and lf_only_count == 0:
+                description = f"classic Mac line endings (CR): {cr_only_count}"
+        else:
+            description = f"Unix line endings (LF): {lf_only_count}"
+
+        return has_non_lf, line_ending_counts, description
+
+    except (OSError, IOError) as e:
+        return False, {}, f"error reading file: {e}"
+
+def find_source_files(directory: Path) -> List[Path]:
+    """Find all source code files in the given directory."""
+    source_files = []
+
+    try:
+        for root, dirs, files in os.walk(directory):
+            # Skip common non-source directories
+            dirs[:] = [d for d in dirs if not d.startswith('.') and d not in {
+                'node_modules', '__pycache__', 'build', 'dist', 'target',
+                'bin', 'obj', '.git', '.svn', '.hg'
+            }]
+
+            for file in files:
+                file_path = Path(root) / file
+                if is_source_file(file_path):
+                    source_files.append(file_path)
+    except PermissionError as e:
+        print(f"Warning: Permission denied accessing {directory}: {e}", file=sys.stderr)
+
+    return source_files
+
+def show_sample_lines(file_path: Path, num_lines: int = 3) -> str:
+    """Show a few sample lines to illustrate the line endings."""
+    try:
+        with open(file_path, 'rb') as f:
+            content = f.read(1000)  # Read first 1KB
+
+        if not content:
+            return "empty file"
+
+        # Split into lines while preserving line endings
+        lines = []
+        current_line = b""
+
+        i = 0
+        while i < len(content) and len(lines) < num_lines:
+            char = content[i:i+1]
+            current_line += char
+
+            if char == b'\n':
+                lines.append(current_line)
+                current_line = b""
+            elif char == b'\r':
+                # Check if next char is \n (CRLF)
+                if i + 1 < len(content) and content[i+1:i+2] == b'\n':
+                    current_line += content[i+1:i+2]  # Add the \n
+                    i += 1  # Skip the \n in next iteration
+                lines.append(current_line)
+                current_line = b""
+
+            i += 1
+
+        # Add remaining content if we didn't hit a line ending
+        if current_line and len(lines) < num_lines:
+            lines.append(current_line)
+
+        # Format lines for display
+        result = []
+        for i, line in enumerate(lines):
+            # Show hex representation of line ending
+            if line.endswith(b'\r\n'):
+                ending = "\\r\\n"
+            elif line.endswith(b'\r'):
+                ending = "\\r"
+            elif line.endswith(b'\n'):
+                ending = "\\n"
+            else:
+                ending = "(no ending)"
+
+            # Convert to string for display, handling encoding errors
+            try:
+                line_str = line.decode('utf-8', errors='replace').rstrip('\r\n')
+            except UnicodeDecodeError:
+                line_str = str(line)[2:-1]  # Remove b' and '
+
+            # Truncate long lines
+            if len(line_str) > 50:
+                line_str = line_str[:47] + "..."
+
+            result.append(f"   Line {i+1}: '{line_str}' [{ending}]")
+
+        return "\n".join(result)
+
+    except (OSError, IOError):
+        return "unable to read file"
+
+def main():
+    parser = argparse.ArgumentParser(description='Find source code files with non-LF line endings')
+    parser.add_argument('directory', nargs='?', default='.',
+                       help='Directory to search (default: current directory)')
+    parser.add_argument('--fix', action='store_true',
+                       help='Automatically convert line endings to LF')
+    parser.add_argument('--show-samples', action='store_true',
+                       help='Show sample lines with their line endings')
+    parser.add_argument('--stats', action='store_true',
+                       help='Show statistics about line ending usage')
+
+    args = parser.parse_args()
+
+    search_dir = Path(args.directory).resolve()
+
+    if not search_dir.exists():
+        print(f"Error: Directory '{search_dir}' does not exist", file=sys.stderr)
+        sys.exit(1)
+
+    if not search_dir.is_dir():
+        print(f"Error: '{search_dir}' is not a directory", file=sys.stderr)
+        sys.exit(1)
+
+    print(f"Searching for source code files with non-LF line endings in: {search_dir}")
+    print("=" * 70)
+
+    # Find all source files
+    source_files = find_source_files(search_dir)
+    print(f"Found {len(source_files)} source code files to check...")
+    print()
+
+    # Check each file
+    non_lf_files = []
+    all_stats = {'CRLF': 0, 'CR': 0, 'LF': 0}
+
+    for file_path in source_files:
+        has_non_lf, line_counts, description = analyze_line_endings(file_path)
+
+        # Update overall statistics
+        for ending_type, count in line_counts.items():
+            all_stats[ending_type] += count
+
+        if has_non_lf:
+            non_lf_files.append(file_path)
+            print(f"❌ {file_path.relative_to(search_dir)}")
+            print(f"   {description}")
+
+            if args.show_samples:
+                print(show_sample_lines(file_path))
+            print()
+
+    # Summary
+    print("Summary:")
+    print("=" * 20)
+
+    if non_lf_files:
+        print(f"Found {len(non_lf_files)} source code file(s) with non-LF line endings:")
+        for file_path in non_lf_files:
+            print(f"  • {file_path.relative_to(search_dir)}")
+
+        if args.stats:
+            print(f"\nOverall line ending statistics:")
+            print(f"  LF (Unix):     {all_stats['LF']:,}")
+            print(f"  CRLF (Windows): {all_stats['CRLF']:,}")
+            print(f"  CR (Classic Mac): {all_stats['CR']:,}")
+
+        if args.fix:
+            print("\nConverting line endings to LF...")
+            fixed_count = 0
+            for file_path in non_lf_files:
+                try:
+                    # Read file and convert line endings
+                    with open(file_path, 'rb') as f:
+                        content = f.read()
+
+                    # Convert CRLF and CR to LF
+                    content = content.replace(b'\r\n', b'\n')  # CRLF -> LF
+                    content = content.replace(b'\r', b'\n')    # CR -> LF
+
+                    with open(file_path, 'wb') as f:
+                        f.write(content)
+
+                    print(f"  ✅ Converted: {file_path.relative_to(search_dir)}")
+                    fixed_count += 1
+
+                except (OSError, IOError) as e:
+                    print(f"  ❌ Failed to convert {file_path.relative_to(search_dir)}: {e}")
+
+            print(f"\nConverted {fixed_count} file(s)")
+
+        else:
+            print(f"\nTo convert these files to LF line endings, run:")
+            print(f"  python {sys.argv[0]} {args.directory} --fix")
+
+    else:
+        print("✅ All source code files use LF line endings (or are single-line/empty)!")
+
+        if args.stats:
+            print(f"\nOverall line ending statistics:")
+            print(f"  LF (Unix): {all_stats['LF']:,}")
+
+    return len(non_lf_files)
+
+if __name__ == "__main__":
+    sys.exit(main())

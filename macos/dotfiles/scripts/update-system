@@ -1,5 +1,4 @@
 #!/usr/bin/env zsh
-source ~/.zshrc
 
 # Default to interactive mode
 AUTO_APPROVE=false
@@ -21,7 +20,6 @@ confirm() {
   fi
 
   if [[ -n "$check_command" ]]; then
-    echo "Checking for updates..."
     eval "$check_command"
   fi
 
@@ -35,37 +33,72 @@ confirm() {
   fi
 }
 
-echo "\e[3;94m=== Oh-My-Zsh ===\e[0m"
-omz update
+echo "\e[34m=== Oh-My-Zsh ===\e[0m"
+confirm "Update oh-my-zsh?" \
+  "" \
+  "{ $ZSH/tools/upgrade.sh }"
 
-echo "\e[3;94m=== Homebrew ===\e[0m"
+echo "\e[34m=== Homebrew ===\e[0m"
 brew update
-echo "Fetching outdated brew packages..."
-brew upgrade --greedy --dry-run
-confirm "Update Homebrew formulae?" \
-  "" \
-  "{ echo 'Updating brew formulae...';  brew upgrade; }"
-confirm "Update Homebrew casks?" \
-  "" \
-  "{ echo 'Updating brew casks...'; brew upgrade --greedy --no-quarantine; }"
-echo "Running cleanup..."
+confirm "Update brew formulae?" \
+  "{
+    echo '\e[33mFreshest brew formulae\e[0m:';
+    brew outdated --formula;
+  }" \
+  "{ brew upgrade }"
+confirm "Update brew casks?" \
+  "{
+    echo '\e[33mFreshest brew casks\e[0m:';
+    brew outdated --cask --greedy;
+  }" \
+  "{ brew upgrade --greedy --no-quarantine }"
+echo "Running brew cleanup..."
 brew autoremove
 brew cleanup
 
-echo "\e[3;94m=== Rust and Cargo binaries ===\e[0m"
-confirm "Update Rust and global Rust binaries?" \
-"{ echo 'Rust version:'; rustup check; echo 'Cargo package versions:'; cargo install-update --list; }" \
-"{ echo 'Updating global rust binaries...'; rustup update stable; cargo install-update --all; }"
+echo "\e[34m=== Rust and Cargo packages ===\e[0m"
+confirm "Update Rust and global Rust packages?" \
+  "{
+    echo '\e[33mRustiest version\e[0m:'; rustup check;
+    echo '\e[33mRecent Cargo shipments\e[0m:'; cargo install-update --list;
+  }" \
+  "{
+    rustup update stable;
+    cargo install-update --all;
+  }"
 
-echo "\e[3;94m=== Go binaries ===\e[0m"
-confirm "Update global Go binaries?" \
-"go-global-update --dry-run" \
-"{ echo 'Updating global go binaries...'; go-global-update; }"
+echo "\e[34m=== Go packages ===\e[0m"
+confirm "Update global Go packages?" \
+  "{
+    echo '\e[33mUpdates (to-Go)\e[0m:';
+    go-global-update --dry-run
+  }" \
+  "{ go-global-update }"
 
-# uv tools update
-echo "\e[3;94m=== uv tools ===\e[0m"
+npm install -g npm
+echo "\e[34m=== Node packages ===\e[0m"
+confirm "Update global Node packages?" \
+  "{
+    echo '\e[33mNew nodes\e[0m:'; npm outdated -g
+  }" \
+  "{ npm update -g }"
+
+python3 -m pip install --upgrade pip
+echo "\e[34m=== Python packages ===\e[0m"
+confirm "Update global Python packages?" \
+  "{
+    echo '\e[33mUpdatesssss\e[0m:';
+    python3 -m pip list --outdated
+  }" \
+  "{
+    python3 -m pip list --outdated --format=json \
+    | jq '.[].name' \
+    | xargs -n1 python3 -m pip install --upgrade
+  }"
+
+echo "\e[34m=== uv tools ===\e[0m"
 confirm "Update uv tools?" \
-"" \
-"{ uv tool upgrade --all }"
+  "" \
+  "{ uv tool upgrade --all }"
 
 echo "\e[32mSystem update complete!\e[0m"

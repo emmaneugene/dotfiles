@@ -1,0 +1,4 @@
+#!/usr/bin/env zsh
+
+# Get router IP information
+curl https://api.ipapi.is | jq .
