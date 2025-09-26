@@ -1,4 +1,5 @@
-# See https://ghostty.zerebos.com/app/import-export
+# Docs: https://ghostty.org/docs/config/reference
+# Preview: https://ghostty.zerebos.com/app/import-export
 
 confirm-close-surface = false
 quit-after-last-window-closed = true
@@ -13,3 +14,5 @@ font-thicken = true
 adjust-cell-width = -10%
 keybind = cmd+backspace=text:\x15
 shell-integration-features = no-cursor
+# For claude code multi-line
+keybind = shift+enter=text:\n

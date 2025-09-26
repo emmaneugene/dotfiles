@@ -45,6 +45,7 @@ alias grs="git reset"
 alias gst="git status"
 alias gsta="git stash"
 alias gsub="git submodule update --init --recursive"
+alias gw="git worktree"
 
 # docker
 alias dk=docker
