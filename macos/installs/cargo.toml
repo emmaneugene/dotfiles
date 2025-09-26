@@ -1,7 +1,7 @@
 [v1]
 "cargo-cache 0.8.3 (registry+https://github.com/rust-lang/crates.io-index)" = ["cargo-cache"]
-"cargo-update 16.3.0 (registry+https://github.com/rust-lang/crates.io-index)" = [
+"cargo-update 17.0.0 (registry+https://github.com/rust-lang/crates.io-index)" = [
     "cargo-install-update",
     "cargo-install-update-config",
 ]
-"rustlings 6.4.0 (registry+https://github.com/rust-lang/crates.io-index)" = ["rustlings"]
+"rustlings 6.5.0 (registry+https://github.com/rust-lang/crates.io-index)" = ["rustlings"]

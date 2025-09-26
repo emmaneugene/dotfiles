@@ -1,11 +1,5 @@
 charmbracelet/tap
-deviceinsight/packages
 felixkratz/formulae
-hashicorp/tap
-homebrew/command-not-found
 jesseduffield/lazydocker
 mongodb/brew
 oven-sh/bun
-supabase/tap
-withgraphite/tap
-xwmx/taps
