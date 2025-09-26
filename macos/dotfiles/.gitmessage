@@ -2,7 +2,7 @@
 ## <type>[optional_scope][!]: <description>
 ## type: feat/fix/docs/test/refactor/style/build/ci/chore
 ## e.g. "feat(api)!: Email customer when product ships"
-##------------------HEADER-(50)------------------▼
+##------------------HEADER-(72)----------------------------------------▼
 
 
 ##------------------BODY-(72)------------------------------------------▼

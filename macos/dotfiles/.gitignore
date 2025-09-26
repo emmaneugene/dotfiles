@@ -1,7 +1,3 @@
-# AI tools
-.aider*
-.claude*
-
 # Common defaults
 .DS_Store
 .env

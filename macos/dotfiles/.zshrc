@@ -2,7 +2,7 @@
 [[ -f "$HOME/.p10k.zsh" ]] && source "$HOME/.p10k.zsh"
 
 ## Environment variables
-# oh-my-zsh
+# Oh-My-Zsh
 export ZSH="$HOME/.oh-my-zsh"
 # fzf
 export FZF_DEFAULT_OPTS='--walker file,dir,hidden'
@@ -18,6 +18,12 @@ export XDG_CONFIG_HOME="$HOME/.config"
 # Secrets (see secrets.sh.example)
 source "$HOME/.config/secrets.sh"
 
+## Custom keybindings
+# (⌘ + ←)
+bindkey '\e\eOD' beginning-of-line
+# (⌘ + →)
+bindkey '\e\eOC' end-of-line
+
 ## Oh-My-Zsh config
 ZSH_THEME="powerlevel10k/powerlevel10k"
 COMPLETION_WAITING_DOTS="true"
@@ -28,19 +34,16 @@ zstyle ':omz:plugins:*' aliases no
 # Plugins ($ZSH/plugins/:$ZSH_CUSTOM/plugins/)
 plugins=(
   aliases
-  aws
   colored-man-pages
   command-not-found
   docker
   docker-compose
   dotenv
-  gh
   git
-  golang
   history-substring-search
-  kubectl
   macos
   node
+  # Custom
   zsh-autosuggestions
   zsh-syntax-highlighting
 )
@@ -52,16 +55,10 @@ FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
 HB_CNF_HANDLER="$(brew --repository)/Library/Taps/homebrew/homebrew-command-not-found/handler.sh"
 [[ -f "$HB_CNF_HANDLER" ]] && source "$HB_CNF_HANDLER"
 
-## AWS CLI
-export AWS_PROFILE=personal
 ## iPython sessions
 export PYTHONSTARTUP="$HOME/.config/pythonstartup.py"
 
 ## PATH and shell completions
-# Orbstack
-source "$HOME/.orbstack/shell/init.zsh" 2>/dev/null || :
-# LMStudio (lms)
-export PATH="$PATH:$HOME/.lmstudio/bin"
 # cargo
 source "$HOME/.cargo/env"
 # uv
@@ -69,17 +66,6 @@ export PATH="$HOME/.local/bin:$PATH"
 # asdf
 export ASDF_DATA_DIR="$HOME/.asdf"
 export PATH="$ASDF_DATA_DIR/shims:$PATH"
-# Haskell
-[[ -f "$HOME/.ghcup/env" ]] && source "$HOME/.ghcup/env"
-# Ocaml
-[[ -f "$HOME/.opam/opam-init/init.zsh" ]] && source $HOME/.opam/opam-init/init.zsh  > /dev/null 2> /dev/null
-# Gcloud
-source "$(brew --prefix)/share/google-cloud-sdk/path.zsh.inc"
-source "$(brew --prefix)/share/google-cloud-sdk/completion.zsh.inc"
-# Ngrok
-command -v ngrok &>/dev/null && eval "$(ngrok completion)"
-# Postgres 16
-export PATH="/opt/homebrew/opt/postgresql@16/bin:$PATH"
 # Python 3.12 (official installer)
 export PATH="/Library/Frameworks/Python.framework/Versions/3.12/bin:$PATH"
 # User, Ruby, Golang
@@ -90,7 +76,7 @@ export SDKMAN_DIR="$HOME/.sdkman"
 # Claude Code
 alias claude="~/.claude/local/claude"
 
-## Replace inbuilt binaries with GNU coreutil equivalents (https://github.com/darksonic37/linuxify)
+## Replace Darwin binaries with GNU coreutils (https://github.com/darksonic37/linuxify)
 BREW_HOME="$(brew --prefix)"
 # most programs
 export MANPATH="${BREW_HOME}/share/man:$MANPATH"

@@ -1,41 +1,78 @@
-#!/usr/bin/env zsh
+#!/usr/bin/env python3
 
-# Find all instances of a command in PATH using regex matching
-if [[ $# -eq 0 ]]; then
-  pattern=""
-  list_all=true
-else
-  pattern="$1"
-  list_all=false
-fi
+import os
+import re
+import sys
+import argparse
 
-found=0
 
-# Split PATH using ':' delimiter
-path_dirs=(${(s.:.)PATH})
-for dir in $path_dirs; do
-  # Skip empty directory entries
-  if [[ -z "$dir" ]]; then
-      dir="."
-  fi
+def find_executables(pattern=None, fuzzy=False):
+    """Find all executables in PATH, optionally filtered by pattern."""
+    found = False
+    path_dirs = os.environ.get('PATH', '').split(':')
 
-  # Find executable files in this directory that match the pattern
-  if [[ -d "$dir" ]]; then
-    for file in "$dir"/*; do
-      if [[ -x "$file" ]]; then
-        filename=${file:t}
-        if $list_all || [[ $filename =~ $pattern ]]; then
-          echo "$file"
-          found=1
-        fi
-      fi
-    done
-  fi
-done
+    for dir_path in path_dirs:
+        # Handle empty directory entries
+        if not dir_path:
+            dir_path = '.'
 
-if [[ $found -eq 0 ]]; then
-  echo "No commands matching '$pattern' found in PATH" >&2
-  exit 1
-fi
+        # Skip non-existent directories
+        if not os.path.isdir(dir_path):
+            continue
 
-exit 0
+        try:
+            for filename in os.listdir(dir_path):
+                filepath = os.path.join(dir_path, filename)
+
+                # Check if file is executable
+                if os.path.isfile(filepath) and os.access(filepath, os.X_OK):
+                    # Apply pattern matching
+                    if pattern is None:
+                        print(filepath)
+                        found = True
+                    elif fuzzy:
+                        if re.search(pattern, filename):
+                            print(filepath)
+                            found = True
+                    else:
+                        if filename == pattern:
+                            print(filepath)
+                            found = True
+        except PermissionError:
+            # Skip directories we can't read
+            continue
+
+    return found
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description='Find all instances of executables in PATH.',
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog='''examples:
+  which-all              List all executables in PATH
+  which-all python       Find exact matches for "python"
+  which-all -f py        Find all executables containing "py"
+  which-all --fuzzy "^git"  Find all executables starting with "git"'''
+    )
+
+    parser.add_argument('-f', '--fuzzy', action='store_true',
+                        help='Use regex pattern matching instead of exact matching')
+    parser.add_argument('pattern', nargs='?',
+                        help='Pattern to search for')
+
+    args = parser.parse_args()
+
+    try:
+        found = find_executables(args.pattern, args.fuzzy)
+
+        if not found and args.pattern:
+            print(f"No commands matching '{args.pattern}' found in PATH", file=sys.stderr)
+            sys.exit(1)
+    except re.error as e:
+        print(f"Invalid regex pattern: {e}", file=sys.stderr)
+        sys.exit(1)
+
+
+if __name__ == '__main__':
+    main()

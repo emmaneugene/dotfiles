@@ -1,22 +1,18 @@
 local launcher = {}
 
 local appBindings = {
-  e = "com.apple.finder",               -- Finder
-  r = "com.apple.Preview",              -- Preview
-  t = "com.mitchellh.ghostty",          -- Ghostty
-  y = "com.bitwarden.Desktop",          -- Bitwarden
-  o = "md.Obsidian",                    -- Obsidian
-  p = "com.postmanlabs.mac",            -- Postman
-  a = "com.apple.ActivityMonitor",      -- ActivityMonitor
-  d = "org.jkiss.dbeaver.core.product", -- DBeaver
-  g = "com.tinyspeck.slackmacgap",      -- Slack
-  l = "com.anthropic.claudefordesktop", -- Claude
-  z = "us.zoom.xos",                    -- Zoom
-  x = "com.microsoft.VSCode",           -- VisualStudioCode
-  c = "ru.keepcoder.Telegram",          -- Telegram
-  b = "org.mozilla.firefox",            -- Firefox
-  n = "notion.id",                      -- Notion
-  m = "com.microsoft.Outlook"           -- MicrosoftOutlook
+  e = "com.apple.finder",                   -- File explorer (Finder)
+  t = "com.mitchellh.ghostty",              -- Terminal (Ghostty)
+  o = "md.Obsidian",                        -- Notes (Obsidian)
+  -- p = "com.postmanlabs.mac",                -- API client (Postman)
+  -- d = "org.jkiss.dbeaver.core.product",     -- DB client (DBeaver)
+  -- g = "com.hnc.Discord",                    -- Admin chat (Discord)
+  l = "com.anthropic.claudefordesktop",     -- LLM (Claude)
+  x = "com.microsoft.VSCode",               -- IDE (VSCode)
+  c = "ru.keepcoder.Telegram",              -- Chat (Telegram)
+  b = "org.mozilla.firefox",                -- Browser (Firefox)
+  n = "org.chromium.Chromium",              -- Test browser (Chromium)
+  m = "com.microsoft.Outlook"               -- Mail (Outlook)
 }
 
 function launcher.init()
