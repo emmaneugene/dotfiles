@@ -1,11 +1,29 @@
-# See: https://pre-commit.com/#intro
+# See: https://pre-commit.com/
+# Update plugin versions with `pre-commit autoupdate`
 repos:
--   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.4.0
+  # General files
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
     hooks:
-    -   id: check-added-large-files
-    -   id: check-case-conflict
-    -   id: check-xml
-    -   id: check-yaml
-    -   id: end-of-file-fixer
-    -   id: trailing-whitespace
+      - id: check-added-large-files
+      - id: check-case-conflict
+      - id: check-json
+      - id: check-toml
+      - id: check-xml
+      - id: check-yaml
+      - id: end-of-file-fixer
+      - id: pretty-format-json
+        args: [--autofix, --no-sort-keys, --indent=2]
+      - id: trailing-whitespace
+  # Ruff formatter and linter for Python
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.12.0
+    hooks:
+      - id: ruff-check
+      - id: ruff-format
+  # Other languages (golang, java, rust)
+  - repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
+    rev: v2.14.0
+    hooks:
+      - id: pretty-format-java
+        args: [--autofix]
