@@ -2,14 +2,9 @@
 
 Ok, so dotfiles are back on the menu.
 
-### OS-specific configs
-
 Configuration for each OS is within the appropriately named directory (e.g. `macos/` for macOS)
 
 - `dotfiles/`: Conventional dotfiles
-- `pkgs/`: Globally installed software packages for reference and backup
+- `installs/`: Globally installed software packages, mainly for reference
 
-### Misc
-
-- `links/`: Content that should be publicly accessible (RSS, webpages)
-- `templates/`: Reasonable defaults for bootstrapping projects
+Apart from that, `templates/` has a bunch of boilerplate and sane defaults
