@@ -1,4 +1,5 @@
 # Common defaults
+*.bak
 .DS_Store
 .env
 .env.*

@@ -22,7 +22,7 @@ function m() {
   if man -w "$man_cmd" >/dev/null 2>&1; then
     man "$man_cmd"
   else
-    "${cmd_array[@]}" --help
+    "${cmd_array[@]}" --help | less -FRX
   fi
 }
 
