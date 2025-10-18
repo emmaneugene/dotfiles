@@ -8,7 +8,7 @@ There is a handy script to symlink them directly to your home directory
 
 ```bash
 # If you want the macos stuff
-./symlink.sh macos
+./symlink-dotfiles.sh macos
 ```
 
 ### Misc
