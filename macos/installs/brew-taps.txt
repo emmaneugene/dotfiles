@@ -1,5 +1,0 @@
-charmbracelet/tap
-felixkratz/formulae
-jesseduffield/lazydocker
-mongodb/brew
-oven-sh/bun

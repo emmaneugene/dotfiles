@@ -1,5 +1,0 @@
-github.com/Gelio/go-global-update@latest
-github.com/mdempsky/gocode@latest
-golang.org/x/tools/gopls@latest
-github.com/x-motemen/gore/cmd/gore@latest
-honnef.co/go/tools/cmd/staticcheck@latest
