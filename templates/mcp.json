@@ -1,9 +1,0 @@
-{
-  "mcpServers": {
-    // Playwright MCP for browser automation
-    "playwright": {
-      "command": "npx",
-      "args": ["@playwright/mcp@latest"]
-    }
-  }
-}
