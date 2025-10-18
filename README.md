@@ -1,15 +1,16 @@
-# (More than just) dotfiles
-
-Ok, so dotfiles are back on the menu.
+# Dotfiles
 
 ### OS-specific configs
 
-Configuration for each OS is within the appropriately named directory (e.g. `macos/` for macOS)
+Core dotfiles for each major OS are within the appropriately named directory.
 
-- `dotfiles/`: Conventional dotfiles
-- `pkgs/`: Globally installed software packages for reference and backup
+There is a handy script to symlink them directly to your home directory
+
+```bash
+# If you want the macos stuff
+./symlink.sh macos
+```
 
 ### Misc
 
-- `links/`: Content that should be publicly accessible (RSS, webpages)
-- `templates/`: Reasonable defaults for bootstrapping projects
+- `templates/`: I like to keep track of defaults for bootstrapping projects because idk, I'm old-fashioned.
