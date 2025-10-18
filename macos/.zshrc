@@ -1,165 +1,129 @@
 # To customize prompt, run `p10k configure` or edit $HOME/.p10k.zsh.
 [[ -f "$HOME/.p10k.zsh" ]] && source "$HOME/.p10k.zsh"
 
-## Environment variables
-# Oh-My-Zsh
-export ZSH="$HOME/.oh-my-zsh"
-# fzf
-export FZF_DEFAULT_OPTS='--walker file,dir,hidden'
-# Locale
+#### Custom stuff ####
+# Basic environment
 export LANG="en_US.UTF-8"
 export LANGUAGE="en_US.UTF-8"
 export LC_ALL="en_US.UTF-8"
-# VISUAL, EDITOR
 export EDITOR="$(command -v nvim || command -v vim || command -v vi)"
 export VISUAL="$EDITOR"
-# XDG_CONFIG_HOME
 export XDG_CONFIG_HOME="$HOME/.config"
-# Secrets (see secrets.sh.example)
-source "$HOME/.config/secrets.sh"
 
-## Custom keybindings
+# Keybindings
 # (⌘ + ←)
 bindkey '\e\eOD' beginning-of-line
 # (⌘ + →)
 bindkey '\e\eOC' end-of-line
 
-## Oh-My-Zsh config
+# Prevent duplicates
+typeset -U path fpath manpath infopath
+
+#### PATH$ modifications ####
+# Homebrew
+eval "$(/opt/homebrew/bin/brew shellenv)"
+BREW_HOME="$(brew --prefix)"
+# Use GNU coreutils (https://github.com/darksonic37/linuxify)
+path=(
+    "${BREW_HOME}/opt/coreutils/libexec/gnubin"     # coreutils
+    "${BREW_HOME}/opt/make/libexec/gnubin"          # make
+    "${BREW_HOME}/opt/m4/bin"                       # m4
+    "${BREW_HOME}/opt/file-formula/bin"             # file-formula
+    "${BREW_HOME}/opt/unzip/bin"                    # unzip
+    "${BREW_HOME}/opt/flex/bin"                     # flex
+    "${BREW_HOME}/opt/bison/bin"                    # bison
+    "${BREW_HOME}/opt/libressl/bin"                 # libressl
+    "${BREW_HOME}/opt/ed/libexec/gnubin"            # ed
+    "${BREW_HOME}/opt/findutils/libexec/gnubin"     # findutils
+    "${BREW_HOME}/opt/gnu-indent/libexec/gnubin"    # gnu-indent
+    "${BREW_HOME}/opt/gnu-sed/libexec/gnubin"       # gnu-sed
+    "${BREW_HOME}/opt/gnu-tar/libexec/gnubin"       # gnu-tar
+    "${BREW_HOME}/opt/gnu-which/libexec/gnubin"     # gnu-which
+    "${BREW_HOME}/opt/grep/libexec/gnubin"          # grep
+    $path
+)
+manpath=(
+    "${BREW_HOME}/share/man"                        # most programs
+    "${BREW_HOME}/opt/coreutils/libexec/gnuman"     # coreutils
+    "${BREW_HOME}/opt/make/libexec/gnuman"          # make
+    $manpath
+)
+infopath=(
+    "${BREW_HOME}/share/info"                       # most programs
+    $infopath
+)
+# SDKman (https://sdkman.io/)
+export SDKMAN_DIR="$HOME/.sdkman"
+[[ -f "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
+# Rust (https://rust-lang.org/)
+source "$HOME/.cargo/env"
+# Orbstack
+source "$HOME/.orbstack/shell/init.zsh" 2>/dev/null || :
+# LMStudio (lms)
+export PATH="$PATH:$HOME/.lmstudio/bin"
+# Haskell
+[[ -f "$HOME/.ghcup/env" ]] && source "$HOME/.ghcup/env"
+# Gcloud
+source "$(brew --prefix)/share/google-cloud-sdk/path.zsh.inc"
+source "$(brew --prefix)/share/google-cloud-sdk/completion.zsh.inc"
+# Ngrok
+command -v ngrok &>/dev/null && eval "$(ngrok completion)"
+# Custom scripts, uv, Python 3, Ruby, Golang, asdf
+export ASDF_DATA_DIR="$HOME/.asdf"
+python3="/Library/Frameworks/Python.framework/Versions/3.12/bin"
+path=(
+    "/opt/homebrew/opt/postgresql@16/bin"
+    "$HOME/bin"             # Custom scripts
+    "$HOME/.local/bin"      # uv
+    $python3                # Python3
+    "$HOME/.gem/bin"        # Ruby
+    "$HOME/go/bin"          # Golang
+    "$ASDF_DATA_DIR/shims"  # asdf
+    $path
+)
+# Shell completions
+fpath=(
+    "$(brew --prefix)/share/zsh/site-functions"
+    "$HOME/.zfunc"
+    $fpath
+)
+
+#### Oh-My-Zsh ####
+export ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME="powerlevel10k/powerlevel10k"
 COMPLETION_WAITING_DOTS="true"
 DISABLE_UNTRACKED_FILES_DIRTY="true"
-HIST_STAMPS="dd/mm/yyyy"
 zstyle ':omz:update' mode disabled
 zstyle ':omz:plugins:*' aliases no
-# Plugins ($ZSH/plugins/:$ZSH_CUSTOM/plugins/)
+# ($ZSH/plugins/:$ZSH_CUSTOM/plugins/)
 plugins=(
-  aliases
-  colored-man-pages
-  command-not-found
-  docker
-  docker-compose
-  dotenv
-  git
-  history-substring-search
-  macos
-  node
-  # Custom
-  zsh-autosuggestions
-  zsh-syntax-highlighting
+    aliases
+    aws
+    colored-man-pages
+    command-not-found
+    docker
+    docker-compose
+    dotenv
+    gh
+    git
+    golang
+    history-substring-search
+    kubectl
+    macos
+    node
+    # Custom
+    zig-shell-completions
+    zsh-autosuggestions
+    zsh-syntax-highlighting
 )
-
-## Homebrew
-eval "$(/opt/homebrew/bin/brew shellenv)"
-FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
-# homebrew command-not-found
-HB_CNF_HANDLER="$(brew --repository)/Library/Taps/homebrew/homebrew-command-not-found/handler.sh"
-[[ -f "$HB_CNF_HANDLER" ]] && source "$HB_CNF_HANDLER"
-
-## iPython sessions
-export PYTHONSTARTUP="$HOME/.config/pythonstartup.py"
-
-## PATH and shell completions
-# cargo
-source "$HOME/.cargo/env"
-# uv
-export PATH="$HOME/.local/bin:$PATH"
-# asdf
-export ASDF_DATA_DIR="$HOME/.asdf"
-export PATH="$ASDF_DATA_DIR/shims:$PATH"
-# Python 3.12 (official installer)
-export PATH="/Library/Frameworks/Python.framework/Versions/3.12/bin:$PATH"
-# User, Ruby, Golang
-export PATH="$HOME/scripts:$HOME/.gem/bin:$HOME/go/bin:$PATH"
-# SDKman for JVMs and associated SDKs
-export SDKMAN_DIR="$HOME/.sdkman"
-[[ -f "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
-# Claude Code
-alias claude="~/.claude/local/claude"
-
-## Replace Darwin binaries with GNU coreutils (https://github.com/darksonic37/linuxify)
-BREW_HOME="$(brew --prefix)"
-# most programs
-export MANPATH="${BREW_HOME}/share/man:$MANPATH"
-export INFOPATH="${BREW_HOME}/share/info:$INFOPATH"
-# coreutils
-export PATH="${BREW_HOME}/opt/coreutils/libexec/gnubin:$PATH"
-export MANPATH="${BREW_HOME}/opt/coreutils/libexec/gnuman:$MANPATH"
-# make
-export PATH="${BREW_HOME}/opt/make/libexec/gnubin:$PATH"
-export MANPATH="${BREW_HOME}/opt/make/libexec/gnuman:$MANPATH"
-# m4
-export PATH="${BREW_HOME}/opt/m4/bin:$PATH"
-# file-formula
-export PATH="${BREW_HOME}/opt/file-formula/bin:$PATH"
-# unzip
-export PATH="${BREW_HOME}/opt/unzip/bin:$PATH"
-# flex
-export PATH="${BREW_HOME}/opt/flex/bin:$PATH"
-export LDFLAGS="-L${BREW_HOME}/opt/flex/lib"
-export CPPFLAGS="-I${BREW_HOME}/opt/flex/include"
-# bison
-export PATH="${BREW_HOME}/opt/bison/bin:$PATH"
-export LDFLAGS="-L${BREW_HOME}/opt/bison/lib"
-# libressl
-export PATH="${BREW_HOME}/opt/libressl/bin:$PATH"
-export LDFLAGS="-L${BREW_HOME}/opt/libressl/lib"
-export CPPFLAGS="-I${BREW_HOME}/opt/libressl/include"
-export PKG_CONFIG_PATH="${BREW_HOME}/opt/libressl/lib/pkgconfig"
-# ed
-export PATH="${BREW_HOME}/opt/ed/libexec/gnubin:$PATH"
-# findutils
-export PATH="${BREW_HOME}/opt/findutils/libexec/gnubin:$PATH"
-# gnu-indent
-export PATH="${BREW_HOME}/opt/gnu-indent/libexec/gnubin:$PATH"
-# gnu-sed
-export PATH="${BREW_HOME}/opt/gnu-sed/libexec/gnubin:$PATH"
-# gnu-tar
-export PATH="${BREW_HOME}/opt/gnu-tar/libexec/gnubin:$PATH"
-# gnu-which
-export PATH="${BREW_HOME}/opt/gnu-which/libexec/gnubin:$PATH"
-# grep
-export PATH="${BREW_HOME}/opt/grep/libexec/gnubin:$PATH"
-
-# Deduplicate ?PATH env vars
-# (e.g. multiple .zshrc executions when opening tmux sessions)
-dedupe_env() {
-  local var_name="${1:?Must provide an environment variable name}"
-  local orig_var=$(eval "echo \$$var_name")
-
-  if [ -n "$orig_var" ]; then
-    local deduped_var=""
-    local remaining_var="$orig_var:"
-
-    while [ -n "$remaining_var" ]; do
-      local current_entry="${remaining_var%%:*}"
-
-      case ":$deduped_var:" in
-        *:"$current_entry":*) ;;
-        *)
-          if [ -z "$deduped_var" ]; then
-            deduped_var="$current_entry"
-          else
-            deduped_var="$deduped_var:$current_entry"
-          fi
-          ;;
-      esac
-
-      remaining_var="${remaining_var#*:}"
-    done
-
-    # Update the environment variable
-    eval "export $var_name='$deduped_var'"
-  fi
-}
-
-dedupe_env FPATH
-dedupe_env INFOPATH
-dedupe_env MANPATH
-dedupe_env PATH
-
-autoload -U compinit; compinit
 source "$ZSH/oh-my-zsh.sh"
+
+#### Post-OMZ customizations ####
+source "$HOME/.config/secrets.sh"
 source "$HOME/.config/helpers.sh"
+export AWS_PROFILE=personal
+export PYTHONSTARTUP="$HOME/.config/pythonstartup.py"
+export FZF_DEFAULT_OPTS='--walker file,dir,hidden'
 source <(fzf --zsh)
 eval "$(atuin init zsh --disable-up-arrow)"
 eval "$(zoxide init zsh)"
