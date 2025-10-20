@@ -7,7 +7,12 @@ function jsondiff() {
     exit 1
   fi
 
-  diff --color <(jq --sort-keys . "$1") <(jq --sort-keys . "$2")
+  # Use colordiff if available, otherwise fall back to diff
+  if command -v colordiff >/dev/null 2>&1; then
+    colordiff <(jq --sort-keys . "$1") <(jq --sort-keys . "$2")
+  else
+    diff <(jq --sort-keys . "$1") <(jq --sort-keys . "$2")
+  fi
 }
 
 jsondiff "$@"

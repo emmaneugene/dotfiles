@@ -19,8 +19,8 @@ function unixtime-convert() {
     timestamp=$((timestamp / 1000))
   fi
 
-  echo "ISO:    $(date -d "@$timestamp" -Iseconds)"
-  echo "Pretty: $(date -d "@$timestamp" '+%A, %d %B %Y at %I:%M:%S %p')"
+  echo "ISO:    $(date -r "$timestamp" +%Y-%m-%dT%H:%M:%S%z)"
+  echo "Pretty: $(date -r "$timestamp" '+%A, %d %B %Y at %I:%M:%S %p')"
 }
 
 unixtime-convert "$@"

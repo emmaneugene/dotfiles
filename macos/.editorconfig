@@ -8,12 +8,14 @@ indent_style = space
 indent_size = 4
 insert_final_newline = true
 trim_trailing_whitespace = true
+max_line_length = 100
 
 [*.{go,mk,make},Makefile]
 indent_style = tab
 
-[*.{js,ts,json}]
+[*.{js,ts,jsx,tsx,json,html,css,scss,sh,yaml,yml}]
 indent_size = 2
 
 [*.md]
 trim_trailing_whitespace = false
+max_line_length = off
