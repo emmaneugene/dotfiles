@@ -1,4 +1,9 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.8"
+# dependencies = []
+# ///
+
 """
 Script to find source code files that use non-LF line endings
 Usage: python find_non_lf_files.py [directory]
