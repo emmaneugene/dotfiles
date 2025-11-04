@@ -1,0 +1,3 @@
+[submodule "ai"]
+	path = ai
+	url = git@github.com:emmaneugene/ai-dotfiles.git
