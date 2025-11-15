@@ -1,5 +1,15 @@
 #!/usr/bin/env zsh
 
+# Update system packages and tools (oh-my-zsh, homebrew, rust, go, node, uv)
+# Supports both interactive mode (prompts for each update) and auto-approve mode (-y flag)
+#
+# Usage: update-system [OPTIONS]
+#   -y    Auto-approve all updates without prompting
+#
+# Examples:
+#   update-system           # Interactive mode - prompts for each update
+#   update-system -y        # Auto-approve all updates
+
 # Default to interactive mode
 AUTO_APPROVE=false
 
@@ -51,7 +61,7 @@ confirm "Update brew casks?" \
     echo '\e[33mFreshest brew casks\e[0m:';
     brew outdated --cask --greedy;
   }" \
-  "{ brew upgrade --greedy --no-quarantine }"
+  "{ brew upgrade --greedy }"
 echo "Running brew cleanup..."
 brew autoremove
 brew cleanup
@@ -82,19 +92,6 @@ confirm "Update global Node packages?" \
     echo '\e[33mNew nodes\e[0m:'; npm outdated -g
   }" \
   "{ npm update -g }"
-
-python3 -m pip install --upgrade pip
-echo "\e[34m=== Python packages ===\e[0m"
-confirm "Update global Python packages?" \
-  "{
-    echo '\e[33mUpdatesssss\e[0m:';
-    python3 -m pip list --outdated
-  }" \
-  "{
-    python3 -m pip list --outdated --format=json \
-    | jq '.[].name' \
-    | xargs -n1 python3 -m pip install --upgrade
-  }"
 
 echo "\e[34m=== uv tools ===\e[0m"
 confirm "Update uv tools?" \

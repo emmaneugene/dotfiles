@@ -1,0 +1,31 @@
+#!/usr/bin/env zsh
+
+# Converts file line endings to lf/crlf
+
+if [ $# -lt 2 ]; then
+    echo "Usage: $0 <file> <lf|crlf>"
+    exit 1
+fi
+
+file="$1"
+format="$2"
+
+if [ ! -f "$file" ]; then
+    echo "File not found: $file"
+    exit 1
+fi
+
+case "$format" in
+    lf)
+        sed -i '' 's/\r$//' "$file"
+        ;;
+    crlf)
+        sed -i '' 's/\r*$/\r/' "$file"
+        ;;
+    *)
+        echo "Invalid format. Use 'lf' or 'crlf'"
+        exit 1
+        ;;
+esac
+
+echo "Converted $file to $format"

@@ -1,0 +1,33 @@
+#!/usr/bin/env zsh
+
+# Send a notification on macOS using Hammerspoon
+# See: https://www.hammerspoon.org/docs/hs.notify.html#new
+
+local message="done"
+local withdraw=5
+
+for arg in "$@"; do
+  case "$arg" in
+    --persist|-p)
+      withdraw=0
+      ;;
+    --help|-h)
+      echo "Usage: $0 [OPTIONS] [MESSAGE]"
+      echo ""
+      echo "Options:"
+      echo "  -p, --persist    Keep notification in Notification Center"
+      echo "  -h, --help       Show this help message"
+      echo ""
+      echo "Examples:"
+      echo "  $0 \"Build complete\""
+      echo "  $0 --persist \"Remember this\""
+      exit 0
+      ;;
+    *)
+      message="$arg"
+      ;;
+  esac
+done
+
+hs -c "hs.notify.new({title=\"🐚\", informativeText=\"$message\", withdrawAfter=$withdraw}):send()" \
+  > /dev/null 2>&1

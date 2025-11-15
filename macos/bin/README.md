@@ -1,6 +1,6 @@
-Bunch of helper scrips with documentation.
+# Shell scripts
 
-While bash, python and swift scripts can be run directly, .go needs to be compiled
+Note that scripts with an explicit file extension have to be compiled first
 
 ```bash
 # Build `usbi` binary

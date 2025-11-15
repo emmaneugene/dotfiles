@@ -1,0 +1,18 @@
+#!/usr/bin/env zsh
+
+# Compare two JSON files semantically, with invariance to ordering and formatting
+
+if [ $# -ne 2 ]; then
+  echo "Usage: $0 <file1.json> <file2.json>"
+  exit 1
+fi
+
+# Normalize JSON: sort keys and arrays recursively
+normalize_filter='walk(if type == "array" then sort else . end)'
+
+# Use difft if available, otherwise fall back to diff
+if command -v difft >/dev/null 2>&1; then
+  difft <(jq --sort-keys "$normalize_filter" "$1") <(jq --sort-keys "$normalize_filter" "$2")
+else
+  diff <(jq --sort-keys "$normalize_filter" "$1") <(jq --sort-keys "$normalize_filter" "$2")
+fi

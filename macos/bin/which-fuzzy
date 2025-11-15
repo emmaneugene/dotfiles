@@ -4,14 +4,18 @@
 # dependencies = []
 # ///
 
+"""
+Find all instances of executables in PATH that match a regex pattern
+"""
+
 import os
 import re
 import sys
 import argparse
 
 
-def find_executables(pattern=None, fuzzy=False):
-    """Find all executables in PATH, optionally filtered by pattern."""
+def find_executables(pattern=None):
+    """Find all executables in PATH, or filter by a regex pattern"""
     found = False
     path_dirs = os.environ.get('PATH', '').split(':')
 
@@ -34,14 +38,10 @@ def find_executables(pattern=None, fuzzy=False):
                     if pattern is None:
                         print(filepath)
                         found = True
-                    elif fuzzy:
-                        if re.search(pattern, filename):
-                            print(filepath)
-                            found = True
-                    else:
-                        if filename == pattern:
-                            print(filepath)
-                            found = True
+                    elif re.search(pattern, filename):
+                        print(filepath)
+                        found = True
+
         except PermissionError:
             # Skip directories we can't read
             continue
@@ -51,24 +51,20 @@ def find_executables(pattern=None, fuzzy=False):
 
 def main():
     parser = argparse.ArgumentParser(
-        description='Find all instances of executables in PATH.',
+        description='Find all instances of executables in PATH that match a regex pattern',
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog='''examples:
   which-all              List all executables in PATH
-  which-all python       Find exact matches for "python"
-  which-all -f py        Find all executables containing "py"
-  which-all --fuzzy "^git"  Find all executables starting with "git"'''
+  which-all py        Find all executables containing "py"
+  which-all "^git"  Find all executables starting with "git"'''
     )
-
-    parser.add_argument('-f', '--fuzzy', action='store_true',
-                        help='Use regex pattern matching instead of exact matching')
     parser.add_argument('pattern', nargs='?',
                         help='Pattern to search for')
 
     args = parser.parse_args()
 
     try:
-        found = find_executables(args.pattern, args.fuzzy)
+        found = find_executables(args.pattern)
 
         if not found and args.pattern:
             print(f"No commands matching '{args.pattern}' found in PATH", file=sys.stderr)

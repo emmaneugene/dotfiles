@@ -1,5 +1,6 @@
-#!/bin/bash
+#!/usr/bin/env zsh
 
+# NOTE: bash compatible
 # Show all ANSI colors in the terminal
 # Displays color combinations across different text attributes and color ranges
 #

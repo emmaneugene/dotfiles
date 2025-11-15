@@ -1,26 +1,75 @@
 #!/usr/bin/env zsh
 
 # Convert from unix time (in seconds or milliseconds) to ISO
-function unixtime-convert() {
-  local timestamp="$1"
 
-  # Check if argument is provided
-  if [[ -z "$timestamp" ]]; then
-    echo "Usage: unixtime <timestamp>"
-    echo "Example: unixtime 1609459200000"
-    return 1
-  fi
+local timestamp=""
+local unit=""  # "seconds", "milliseconds", or "" for auto-detect
 
-  # Remove any non-digit characters (in case of decimal points)
-  timestamp=$(echo "$timestamp" | sed 's/[^0-9]//g')
+# Parse flags
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -s|--seconds)
+      unit="seconds"
+      shift
+      ;;
+    -ms|--milliseconds)
+      unit="milliseconds"
+      shift
+      ;;
+    -h|--help)
+      echo "Usage: $0 [OPTIONS] <timestamp>"
+      echo ""
+      echo "Options:"
+      echo "  -s, --seconds       Interpret timestamp as seconds"
+      echo "  -ms, --milliseconds Interpret timestamp as milliseconds"
+      echo "  -h, --help          Show this help message"
+      echo ""
+      echo "If no unit is specified, auto-detect based on digit count (13+ = milliseconds)"
+      echo ""
+      echo "Examples:"
+      echo "  $0 1609459200        # auto-detect as seconds (10 digits)"
+      echo "  $0 1609459200000     # auto-detect as milliseconds (13 digits)"
+      echo "  $0 -s 1609459200     # explicit seconds"
+      echo "  $0 -ms 1609459200000 # explicit milliseconds"
+      exit 0
+      ;;
+    *)
+      if [[ -z "$timestamp" ]]; then
+        timestamp="$1"
+        shift
+      else
+        echo "Error: unexpected argument '$1'" >&2
+        exit 1
+      fi
+      ;;
+  esac
+done
 
+# If no timestamp provided, show help
+if [[ -z "$timestamp" ]]; then
+  echo "Usage: $0 [OPTIONS] <timestamp>" >&2
+  echo "Use '$0 --help' for more information." >&2
+  exit 1
+fi
+
+# Remove any non-digit characters (in case of decimal points)
+timestamp=$(echo "$timestamp" | sed 's/[^0-9]//g')
+
+# Determine unit if not explicitly specified
+if [[ -z "$unit" ]]; then
   # Check if timestamp is in milliseconds (13+ digits typically indicates milliseconds)
   if [[ ${#timestamp} -ge 13 ]]; then
-    timestamp=$((timestamp / 1000))
+    unit="milliseconds"
+  else
+    unit="seconds"
   fi
+fi
 
-  echo "ISO:    $(date -r "$timestamp" +%Y-%m-%dT%H:%M:%S%z)"
-  echo "Pretty: $(date -r "$timestamp" '+%A, %d %B %Y at %I:%M:%S %p')"
-}
+# Convert to seconds if needed
+if [[ "$unit" == "milliseconds" ]]; then
+  timestamp=$((timestamp / 1000))
+fi
 
-unixtime-convert "$@"
+echo "Conversion from $unit"
+echo "ISO:    $(date -r "$timestamp" +%Y-%m-%dT%H:%M:%S%z)"
+echo "Pretty: $(date -r "$timestamp" '+%A, %d %B %Y at %I:%M:%S %p')"
