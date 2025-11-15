@@ -1,6 +1,7 @@
 hs.hotkey.alertDuration = 0.25
 hs.window.animationDuration = 0
 
+hs.ipc.cliInstall()
 hs.alert.show("Hammerspoon config loaded")
 
 hyper = { "cmd", "alt", "ctrl", "shift" }
