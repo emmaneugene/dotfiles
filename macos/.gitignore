@@ -6,5 +6,6 @@
 !*.example
 build/
 target/
+tmp/
 logs/
 node_modules/

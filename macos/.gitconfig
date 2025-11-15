@@ -12,6 +12,7 @@
 [core]
 	editor = nvim
 	excludesfile = ~/.gitignore
+	hooksPath = .githooks
 	ignorecase = false
 [diff]
 	tool = difftastic
