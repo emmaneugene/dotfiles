@@ -27,7 +27,6 @@ gba() {
   | less -R
 }
 alias gc="git commit"
-alias gcam="git commit -am"
 alias gco="git checkout"
 alias gd="git difftool"
 alias gf="git fetch"

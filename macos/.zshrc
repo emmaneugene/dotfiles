@@ -17,6 +17,11 @@ export LESS_TERMCAP_me=$'\e[0m'        # reset bold/blink
 export LESS_TERMCAP_se=$'\e[0m'        # reset reverse video
 export LESS_TERMCAP_ue=$'\e[0m'        # reset underline
 export GROFF_NO_SGR=1                  # for konsole and gnome-terminal
+export MANPAGER="less -FRMX"
+# Homebrew
+export HOMEBREW_PREFIX="/opt/homebrew"
+export HOMEBREW_CELLAR="/opt/homebrew/Cellar"
+export HOMEBREW_REPOSITORY="/opt/homebrew"
 
 # Keybindings
 # (⌘ + ←)
@@ -28,9 +33,6 @@ bindkey '\e\eOC' end-of-line
 typeset -U path fpath manpath infopath
 
 #### PATH$ modifications ####
-# Homebrew
-eval "$(/opt/homebrew/bin/brew shellenv)"
-BREW_HOME="$(brew --prefix)"
 # SDKman (https://sdkman.io/)
 export SDKMAN_DIR="$HOME/.sdkman"
 [[ -f "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
@@ -38,21 +40,29 @@ export SDKMAN_DIR="$HOME/.sdkman"
 source "$HOME/.cargo/env"
 # Custom scripts, uv, Python 3, Ruby, Golang, asdf
 export ASDF_DATA_DIR="$HOME/.asdf"
-python3="/Library/Frameworks/Python.framework/Versions/3.12/bin"
 path=(
-    "$HOME/bin"             # Custom scripts
-    "$HOME/.local/bin"      # uv
-    $python3                # Python3
-    "$HOME/.gem/bin"        # Ruby
-    "$HOME/go/bin"          # Golang
-    "$ASDF_DATA_DIR/shims"  # asdf
-    $path
+  "$HOME/bin"             # custom
+  "$HOME/.local/bin"      # uv
+  "$HOME/.gem/bin"        # Ruby
+  "$HOME/go/bin"          # Golang
+  "$ASDF_DATA_DIR/shims"  # asdf
+  "$HOMEBREW_PREFIX/bin"  # homebrew
+  "$HOMEBREW_PREFIX/sbin" # homebrew
+  $path
+)
+# Man pages
+manpath=(
+  "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/share/man" # xcode command line tools
+  "$HOMEBREW_PREFIX/share/man"                                        # homebrew
+  "/usr/local/share/man"                                              # local man pages
+  "/usr/share/man"                                                    # system man pages
+  $manpath
 )
 # Shell completions
 fpath=(
-    "$(brew --prefix)/share/zsh/site-functions"
-    "$HOME/.zfunc"
-    $fpath
+  "$HOME/.zfunc"                                # custom
+  "$HOMEBREW_PREFIX/share/zsh/site-functions"   # homebrew
+  $fpath
 )
 
 #### Oh-My-Zsh ####
@@ -64,18 +74,17 @@ zstyle ':omz:update' mode disabled
 zstyle ':omz:plugins:*' aliases no
 # ($ZSH/plugins/:$ZSH_CUSTOM/plugins/)
 plugins=(
-    aliases
-    command-not-found
-    docker
-    docker-compose
-    dotenv
-    git
-    history-substring-search
-    macos
-    node
-    # Custom
-    zsh-autosuggestions
-    zsh-syntax-highlighting
+  aliases
+  command-not-found
+  docker
+  docker-compose
+  dotenv
+  history-substring-search
+  macos
+  node
+  # Custom
+  zsh-autosuggestions
+  zsh-syntax-highlighting
 )
 source "$ZSH/oh-my-zsh.sh"
 
