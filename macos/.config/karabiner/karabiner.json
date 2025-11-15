@@ -1,7 +1,7 @@
 {
   "global": {
     "check_for_updates_on_startup": false,
-    "show_in_menu_bar": false
+    "show_in_menu_bar": true
   },
   "profiles": [
     {
@@ -35,26 +35,7 @@
           }
         ]
       },
-      "devices": [
-        {
-          "identifiers": {
-            "is_keyboard": true,
-            "is_pointing_device": true,
-            "product_id": 1552,
-            "vendor_id": 13364
-          },
-          "ignore": false
-        },
-        {
-          "identifiers": {
-            "is_keyboard": true,
-            "is_pointing_device": true,
-            "product_id": 785,
-            "vendor_id": 13364
-          },
-          "ignore": false
-        }
-      ],
+      "devices": [],
       "name": "Default profile",
       "selected": true,
       "virtual_hid_keyboard": { "keyboard_type_v2": "ansi" }
