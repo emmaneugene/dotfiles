@@ -1,8 +1,4 @@
-#!/usr/bin/env -S uv run --script
-# /// script
-# requires-python = ">=3.8"
-# dependencies = []
-# ///
+#!/usr/bin/env python3
 
 """
 Find all instances of executables in PATH that match a regex pattern

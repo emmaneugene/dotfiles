@@ -1,8 +1,4 @@
-#!/usr/bin/env -S uv run --script
-# /// script
-# requires-python = ">=3.8"
-# dependencies = []
-# ///
+#!/usr/bin/env python3
 
 """
 Script to find source code files that use non-LF line endings
@@ -223,7 +219,7 @@ def main():
 
         if has_non_lf:
             non_lf_files.append(file_path)
-            print(f"❌ {file_path.relative_to(search_dir)}")
+            print(f"[NON-LF] {file_path.relative_to(search_dir)}")
             print(f"   {description}")
 
             if args.show_samples:
@@ -261,11 +257,11 @@ def main():
                     with open(file_path, 'wb') as f:
                         f.write(content)
 
-                    print(f"  ✅ Converted: {file_path.relative_to(search_dir)}")
+                    print(f"  [OK] Converted: {file_path.relative_to(search_dir)}")
                     fixed_count += 1
 
                 except (OSError, IOError) as e:
-                    print(f"  ❌ Failed to convert {file_path.relative_to(search_dir)}: {e}")
+                    print(f"  [ERROR] Failed to convert {file_path.relative_to(search_dir)}: {e}")
 
             print(f"\nConverted {fixed_count} file(s)")
 
@@ -274,7 +270,7 @@ def main():
             print(f"  python {sys.argv[0]} {args.directory} --fix")
 
     else:
-        print("✅ All source code files use LF line endings (or are single-line/empty)!")
+        print("[OK] All source code files use LF line endings (or are single-line/empty)!")
 
         if args.stats:
             print(f"\nOverall line ending statistics:")

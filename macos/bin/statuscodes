@@ -1,0 +1,135 @@
+#!/usr/bin/env python3
+
+"""
+Display standard status codes for various protocols.
+Usage: statuscodes <protocol>
+
+Supported protocols: posix, http, grpc, dns
+Example: statuscodes http
+"""
+
+import sys
+from typing import Dict
+
+# Status codes database for various protocols
+CODES: Dict[str, str] = {
+    "posix": """0 Success
+1 General error
+2 Misuse of shell command
+126 Command not executable
+127 Command not found
+130 Terminated by Ctrl+C
+137 Killed (SIGKILL)
+143 Terminated (SIGTERM)""",
+
+    "http": """100 Continue
+101 Switching Protocols
+102 Processing
+200 OK
+201 Created
+202 Accepted
+203 Non-Authoritative Information
+204 No Content
+205 Reset Content
+206 Partial Content
+207 Multi-Status
+208 Already Reported
+300 Multiple Choices
+301 Moved Permanently
+302 Found
+303 See Other
+304 Not Modified
+305 Use Proxy
+307 Temporary Redirect
+400 Bad Request
+401 Unauthorized
+402 Payment Required
+403 Forbidden
+404 Not Found
+405 Method Not Allowed
+406 Not Acceptable
+407 Proxy Authentication Required
+408 Request Timeout
+409 Conflict
+410 Gone
+411 Length Required
+412 Precondition Failed
+413 Request Entity Too Large
+414 Request-URI Too Large
+415 Unsupported Media Type
+416 Requested Range Not Satisfiable
+417 Expectation Failed
+418 I'm a teapot
+422 Unprocessable Entity
+423 Locked
+424 Failed Dependency
+426 Upgrade Required
+428 Precondition Required
+429 Too Many Requests
+431 Request Header Fields Too Large
+500 Internal Server Error
+501 Not Implemented
+502 Bad Gateway
+503 Service Unavailable
+504 Gateway Timeout
+505 HTTP Version Not Supported
+506 Variant Also Negotiates
+507 Insufficient Storage
+510 Not Extended
+511 Network Authentication Required""",
+
+    "grpc": """0 OK
+1 CANCELLED
+2 UNKNOWN
+3 INVALID_ARGUMENT
+4 DEADLINE_EXCEEDED
+5 NOT_FOUND
+6 ALREADY_EXISTS
+7 PERMISSION_DENIED
+8 RESOURCE_EXHAUSTED
+9 FAILED_PRECONDITION
+10 ABORTED
+11 OUT_OF_RANGE
+12 UNIMPLEMENTED
+13 INTERNAL
+14 UNAVAILABLE
+15 DATA_LOSS
+16 UNAUTHENTICATED""",
+
+    "dns": """0 NOERROR
+1 FORMERR
+2 SERVFAIL
+3 NXDOMAIN
+4 NOTIMP
+5 REFUSED
+6 YXDOMAIN
+7 YXRRSET
+8 NXRRSET
+9 NOTAUTH
+10 NOTZONE"""
+}
+
+
+def main() -> int:
+    """Display status codes for a specified protocol or standard"""
+    # Check if protocol argument was provided
+    if len(sys.argv) == 1:
+        print("Standards:", ", ".join(CODES.keys()))
+        return 1
+
+    # Normalize protocol name to lowercase
+    standard = sys.argv[1].lower()
+
+    # Validate protocol exists
+    if standard not in CODES:
+        print(f"Unknown protocol: {standard}")
+        print("Available:", ", ".join(CODES.keys()))
+        return 1
+
+    # Display the status codes for the requested protocol
+    print(CODES[standard])
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

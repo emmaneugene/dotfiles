@@ -85,13 +85,13 @@ confirm "Update global Go packages?" \
   }" \
   "{ go-global-update }"
 
-npm install -g npm
-echo "\e[34m=== Node packages ===\e[0m"
-confirm "Update global Node packages?" \
+echo "\e[34m=== Bun packages ===\e[0m"
+confirm "Update global Bun packages?" \
   "{
-    echo '\e[33mNew nodes\e[0m:'; npm outdated -g
+    echo '\e[33mFresh buns\e[0m:';
+    bun outdated --global
   }" \
-  "{ npm update -g }"
+  "{ bun update --global }"
 
 echo "\e[34m=== uv tools ===\e[0m"
 confirm "Update uv tools?" \
