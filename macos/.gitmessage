@@ -15,15 +15,8 @@
 #
 #
 ##------------------TRAILER-(72)---------------------------------------▼
-## Signatures and author details (uncomment as needed)
-# Bug: #xxxx
-# Issue: #xxxx
-# Acked-by: Example User <user@example.com>
-# Cc: Example User <user@example.com>
-# Co-Authored-by: Example User <user@example.com>
-# Requested-by: Example User <user@example.com>
-# Reported-by: Example User <user@example.com>
-# Reviewed-by: Example User <user@example.com>
-# Suggested-by: Example User <user@example.com>
-# Tested-by: Example User <user@example.com>
-# Thanks: Example User <user@example.com>
+## Signatures and author details
+# Ticket: #xxxx
+# Acked-by/Cc/Co-Authored-by/Requested-by/Reported-by/Reviewed-by/
+# Suggested-by/Tested-by/Thanks: User <user@example.com>
+

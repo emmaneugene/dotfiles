@@ -33,19 +33,12 @@ bindkey '\e\eOC' end-of-line
 typeset -U path fpath manpath infopath
 
 #### PATH$ modifications ####
-# SDKman (https://sdkman.io/)
-export SDKMAN_DIR="$HOME/.sdkman"
-[[ -f "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
-# Rust (https://rust-lang.org/)
+# Rust
 source "$HOME/.cargo/env"
-# Custom scripts, uv, Python 3, Ruby, Golang, asdf
-export ASDF_DATA_DIR="$HOME/.asdf"
 path=(
   "$HOME/bin"             # custom
-  "$HOME/.local/bin"      # uv
-  "$HOME/.gem/bin"        # Ruby
-  "$HOME/go/bin"          # Golang
-  "$ASDF_DATA_DIR/shims"  # asdf
+  "$HOME/.local/bin"      # uv and others
+  "$HOME/.bun/bin"        # bun (replaces npm)
   "$HOMEBREW_PREFIX/bin"  # homebrew
   "$HOMEBREW_PREFIX/sbin" # homebrew
   $path
@@ -72,13 +65,14 @@ COMPLETION_WAITING_DOTS="true"
 DISABLE_UNTRACKED_FILES_DIRTY="true"
 zstyle ':omz:update' mode disabled
 zstyle ':omz:plugins:*' aliases no
-# ($ZSH/plugins/:$ZSH_CUSTOM/plugins/)
+# See $ZSH/plugins/:$ZSH_CUSTOM/plugins/
 plugins=(
   aliases
   command-not-found
   docker
   docker-compose
   dotenv
+  golang
   history-substring-search
   macos
   node
@@ -91,9 +85,16 @@ source "$ZSH/oh-my-zsh.sh"
 #### Post-OMZ customizations ####
 source "$HOME/.config/secrets.sh"
 source "$HOME/.config/helpers.sh"
+# Interactive Python
 export PYTHONSTARTUP="$HOME/.config/pythonstartup.py"
+# Claude Code
+export MAX_MCP_OUTPUT_TOKENS=100000
+# fzf
 export FZF_DEFAULT_OPTS='--walker file,dir,hidden'
 source <(fzf --zsh)
+# mise
+eval "$(mise activate zsh)"
+# atuin
 eval "$(atuin init zsh --disable-up-arrow)"
+# zoxide
 eval "$(zoxide init zsh)"
-alias claude="~/.claude/local/claude"

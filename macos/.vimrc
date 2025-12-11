@@ -53,3 +53,6 @@ let &t_EI = "\e[2 q" " Block when exiting insert
 let &t_SR = "\e[4 q" " Horizontal line when entering replace
 let &t_SI = "\e[6 q" " Vertical line when entering insert
 autocmd VimLeave * silent !echo -ne "\e[2 q" " Reset to block on quit
+
+" Custom colors
+colorscheme habamax

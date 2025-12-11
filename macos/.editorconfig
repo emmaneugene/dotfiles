@@ -13,7 +13,7 @@ max_line_length = 100
 [*.{go,mk,make},Makefile]
 indent_style = tab
 
-[*.{js,ts,jsx,tsx,json,html,css,scss,sh,yaml,yml}]
+[*.{js,ts,jsx,tsx,json,html,css,scss,sh,lua,yaml,yml}]
 indent_size = 2
 
 [*.md]
