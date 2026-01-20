@@ -22,5 +22,5 @@ man_cmd=$(echo "$cmd" | tr ' ' '-')
 if man -w "$man_cmd" >/dev/null 2>&1; then
   man "$man_cmd"
 else
-  CLICOLOR_FORCE=1 "${cmd_array[@]}" --help | less -FRMX
+  "${cmd_array[@]}" --help
 fi

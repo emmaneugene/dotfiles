@@ -10,6 +10,7 @@
 	template = ~/.gitmessage
 	verbose = true
 [core]
+	autocrlf = false
 	editor = nvim
 	excludesfile = ~/.gitignore
 	hooksPath = .githooks
@@ -38,8 +39,8 @@
 [log]
 	date = local
 [merge]
-	tool = code
 	conflictstyle = zdiff3
+	tool = nvimdiff
 [mergetool "sourcetree"]
 	cmd = /Applications/Sourcetree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
 	trustExitCode = true

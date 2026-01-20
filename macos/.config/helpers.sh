@@ -3,11 +3,10 @@
 # Collection of aliases, helper functions and scripts for UNIX-based systems
 # Core
 alias c="clear"
-alias ls="eza --time-style='+%Y-%m-%d %H:%M'"
 alias l="eza -lAh --icons=always --time-style='+%Y-%m-%d %H:%M'"
 alias md="mkdir -p"
 alias t="touch"
-alias file="file -h"
+alias f="file --no-dereference"
 alias ldo="lazydocker"
 alias lg="lazygit"
 
@@ -45,6 +44,7 @@ alias grbi="git rebase --interactive"
 alias grs="git reset"
 alias gst="git status"
 alias gsta="git stash"
+alias gsw="git switch"
 alias gsub="git submodule update --init --recursive"
 alias gw="git worktree"
 
