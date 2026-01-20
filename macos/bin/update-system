@@ -43,59 +43,95 @@ confirm() {
   fi
 }
 
-echo "\e[34m=== Oh-My-Zsh ===\e[0m"
-confirm "Update oh-my-zsh?" \
-  "" \
-  "{ $ZSH/tools/upgrade.sh }"
+if [[ -n "$ZSH" && -f "$ZSH/tools/upgrade.sh" ]]; then
+  echo "\e[34m=== Oh-My-Zsh ===\e[0m"
+  confirm "Update oh-my-zsh?" \
+    "" \
+    "{ $ZSH/tools/upgrade.sh }"
+fi
 
-echo "\e[34m=== Homebrew ===\e[0m"
-brew update
-confirm "Update brew formulae?" \
-  "{
-    echo '\e[33mFreshest brew formulae\e[0m:';
-    brew outdated --formula;
-  }" \
-  "{ brew upgrade }"
-confirm "Update brew casks?" \
-  "{
-    echo '\e[33mFreshest brew casks\e[0m:';
-    brew outdated --cask --greedy;
-  }" \
-  "{ brew upgrade --greedy }"
-echo "Running brew cleanup..."
-brew autoremove
-brew cleanup
+if command -v brew &>/dev/null; then
+  echo "\e[34m=== Homebrew ===\e[0m"
+  brew update
+  confirm "Update brew formulae?" \
+    "{
+      echo '\e[33mFreshest brew formulae\e[0m:';
+      brew outdated --formula;
+    }" \
+    "{ brew upgrade }"
+  confirm "Update brew casks?" \
+    "{
+      echo '\e[33mFreshest brew casks\e[0m:';
+      brew outdated --cask --greedy;
+    }" \
+    "{ brew upgrade --greedy }"
+  echo "Running brew cleanup..."
+  brew autoremove
+  brew cleanup
+fi
 
-echo "\e[34m=== Rust and Cargo packages ===\e[0m"
-confirm "Update Rust and global Rust packages?" \
-  "{
-    echo '\e[33mRustiest version\e[0m:'; rustup check;
-    echo '\e[33mRecent Cargo shipments\e[0m:'; cargo install-update --list;
-  }" \
-  "{
-    rustup update stable;
-    cargo install-update --all;
-  }"
+if command -v rustup &>/dev/null && command -v cargo &>/dev/null; then
+  echo "\e[34m=== Rust and Cargo packages ===\e[0m"
+  confirm "Update Rust and global Rust packages?" \
+    "{
+      echo '\e[33mRustiest version\e[0m:'; rustup check;
+      echo '\e[33mRecent Cargo shipments\e[0m:'; cargo install-update --list;
+    }" \
+    "{
+      rustup update stable;
+      cargo install-update --all;
+    }"
+fi
 
-echo "\e[34m=== Go packages ===\e[0m"
-confirm "Update global Go packages?" \
-  "{
-    echo '\e[33mUpdates (to-Go)\e[0m:';
-    go-global-update --dry-run
-  }" \
-  "{ go-global-update }"
+if command -v go-global-update &>/dev/null; then
+  echo "\e[34m=== Go packages ===\e[0m"
+  confirm "Update global Go packages?" \
+    "{
+      echo '\e[33mUpdates (to-Go)\e[0m:';
+      go-global-update --dry-run
+    }" \
+    "{ go-global-update }"
+fi
 
-echo "\e[34m=== Bun packages ===\e[0m"
-confirm "Update global Bun packages?" \
-  "{
-    echo '\e[33mFresh buns\e[0m:';
-    bun outdated --global
-  }" \
-  "{ bun update --global }"
+if command -v bun &>/dev/null; then
+  echo "\e[34m=== Bun packages ===\e[0m"
+  confirm "Update global Bun packages?" \
+    "{
+      echo '\e[33mFresh buns\e[0m:';
+      bun outdated --global
+    }" \
+    "{ bun update --global }"
+fi
 
-echo "\e[34m=== uv tools ===\e[0m"
-confirm "Update uv tools?" \
-  "" \
-  "{ uv tool upgrade --all }"
+if command -v uv &>/dev/null; then
+  echo "\e[34m=== uv tools ===\e[0m"
+  confirm "Update uv tools?" \
+    "" \
+    "{ uv tool upgrade --all }"
+fi
+
+if command -v mas &>/dev/null; then
+  echo "\e[34m=== Mac App Store ===\e[0m"
+  confirm "Update Mac App Store apps?" \
+    "{
+      echo '\e[33mOutdated apps\e[0m:';
+      mas outdated
+    }" \
+    "{ mas update }"
+fi
+
+if command -v claude &>/dev/null; then
+  echo "\e[34m=== Claude Code ===\e[0m"
+  confirm "Update Claude Code?" \
+    "" \
+    "{ claude update }"
+fi
+
+if command -v amp &>/dev/null; then
+  echo "\e[34m=== Amp ===\e[0m"
+  confirm "Update Amp?" \
+    "" \
+    "{ amp update }"
+fi
 
 echo "\e[32mSystem update complete!\e[0m"
