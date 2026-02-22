@@ -16,6 +16,7 @@ Example:
 
 import sys
 import argparse
+import filecmp
 import fnmatch
 from pathlib import Path
 from typing import Dict, List, Tuple
@@ -139,6 +140,10 @@ def symlink_dotfiles(
 
         if dst_path.exists() or dst_path.is_symlink():
             if dst_path.is_symlink():
+                if not dry_run:
+                    dst_path.unlink()
+            elif filecmp.cmp(dotfile_path, dst_path, shallow=False):
+                # Contents are identical, no backup needed
                 if not dry_run:
                     dst_path.unlink()
             else:
