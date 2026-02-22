@@ -1,0 +1,86 @@
+#compdef cdp
+
+# Zsh completion for cdp — Chrome DevTools Protocol instance manager
+
+_cdp() {
+  local -a commands=(
+    'start:Launch a new browser instance with CDP enabled'
+    'stop:Stop a running instance'
+    'restart:Restart a managed instance with the same flags'
+    'list:List all managed instances'
+    'ls:List all managed instances'
+    'info:Show CDP endpoint details for an instance'
+    'status:Show CDP endpoint details for an instance'
+    'logs:Tail the log file for an instance'
+  )
+
+  _arguments -C \
+    '(-h --help)'{-h,--help}'[show help]' \
+    '1: :->command' \
+    '*:: :->args'
+
+  case $state in
+    command)
+      _describe 'command' commands
+      ;;
+    args)
+      case $words[1] in
+        start)         _cdp_start ;;
+        stop)          _cdp_stop ;;
+        restart|info|status|logs) _cdp_instance_opts ;;
+        list|ls)       ;;
+      esac
+      ;;
+  esac
+}
+
+# ── Dynamic completions from state files ──────────────────────────────────────
+
+_cdp_running_ports() {
+  local state_dir="${XDG_STATE_HOME:-$HOME/.local/state}/cdp"
+  local -a ports=()
+  for f in "$state_dir"/*.state(N); do
+    ports+=("$(basename "$f" .state)")
+  done
+  (( ${#ports} )) && _describe 'port' ports
+}
+
+_cdp_running_names() {
+  local state_dir="${XDG_STATE_HOME:-$HOME/.local/state}/cdp"
+  local -a names=()
+  for f in "$state_dir"/*.state(N); do
+    local name
+    name=$(grep '^name=' "$f" | cut -d= -f2-)
+    [[ -n "$name" ]] && names+=("$name")
+  done
+  (( ${#names} )) && _describe 'instance name' names
+}
+
+# ── Per-command completions ───────────────────────────────────────────────────
+
+_cdp_instance_opts() {
+  _arguments \
+    {-p,--port}'[target instance by port]:port:_cdp_running_ports' \
+    {-n,--name}'[target instance by name]:name:_cdp_running_names'
+}
+
+_cdp_start() {
+  _arguments \
+    {-p,--port}'[CDP port to listen on (default: auto-assigned)]:port:' \
+    {-n,--name}'[label for this instance]:name:' \
+    '--headless[run in headless mode]' \
+    '--no-sandbox[disable sandbox]' \
+    '--profile[use a specific user data dir (no rsync)]:directory:_directories' \
+    '--new-profile[start with a clean empty profile]' \
+    '--extra-flags[additional browser flags]:flags:'
+}
+
+_cdp_stop() {
+  _arguments \
+    {-p,--port}'[target instance by port]:port:_cdp_running_ports' \
+    {-n,--name}'[target instance by name]:name:_cdp_running_names' \
+    '--all[stop all managed instances]' \
+    '--clean[also delete profile directory and logs]'
+}
+
+_cdp "$@"

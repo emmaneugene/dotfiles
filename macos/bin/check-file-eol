@@ -1,4 +1,8 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run --script
+# /// script
+# dependencies = ["argcomplete"]
+# ///
+# PYTHON_ARGCOMPLETE_OK
 
 """
 Script to find source code files that use non-LF line endings
@@ -9,6 +13,7 @@ This script checks for line ending characters within files:
 - Files that are empty, single-line, or don't end with a line ending are OK
 """
 
+import argcomplete
 import os
 import sys
 import argparse
@@ -178,7 +183,7 @@ def show_sample_lines(file_path: Path, num_lines: int = 3) -> str:
 def main():
     parser = argparse.ArgumentParser(description='Find source code files with non-LF line endings')
     parser.add_argument('directory', nargs='?', default='.',
-                       help='Directory to search (default: current directory)')
+                       help='Directory to search (default: current directory)').completer = argcomplete.completers.DirectoriesCompleter()
     parser.add_argument('--fix', action='store_true',
                        help='Automatically convert line endings to LF')
     parser.add_argument('--show-samples', action='store_true',
@@ -186,6 +191,7 @@ def main():
     parser.add_argument('--stats', action='store_true',
                        help='Show statistics about line ending usage')
 
+    argcomplete.autocomplete(parser)
     args = parser.parse_args()
 
     search_dir = Path(args.directory).resolve()

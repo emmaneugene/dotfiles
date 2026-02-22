@@ -39,6 +39,12 @@ local categories = {
   --     { name = "Activity Monitor", bundle = "com.apple.ActivityMonitor" }
   --   }
   -- },
+  -- s = {
+  --   name = "Screenshot utility",
+  --   apps = {
+  --     { name = "Shottr", bundle = "cc.ffitch.shottr" }
+  --   }
+  -- },
   -- d = {
   --   name = "DB Client",
   --   apps = {

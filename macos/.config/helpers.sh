@@ -7,8 +7,11 @@ alias l="eza -lAh --icons=always --time-style='+%Y-%m-%d %H:%M'"
 alias md="mkdir -p"
 alias t="touch"
 alias f="file --no-dereference"
+alias ide="code"
 alias ldo="lazydocker"
 alias lg="lazygit"
+alias cco="claude"
+alias oc="opencode"
 
 # git
 alias g=git
@@ -29,7 +32,6 @@ alias gc="git commit"
 alias gco="git checkout"
 alias gd="git difftool"
 alias gf="git fetch"
-alias gfap="git fetch --all --prune"
 alias gl="git log"
 alias glg="git log --graph --all --format='%C(yellow)%h%C(reset) \
 %C(blue)%an%C(reset) %C(green)(%ar)%C(reset) %s%C(auto)%d%C(reset)'"

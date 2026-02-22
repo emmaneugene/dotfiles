@@ -10,7 +10,8 @@
       },
       {
         "id": "4",
-        "type": "separator"
+        "type": "separator",
+        "color": "brightBlack"
       },
       {
         "id": "5",
@@ -25,22 +26,24 @@
       {
         "id": "12ad4f4f-702c-408e-bfc2-8a822f4e76c6",
         "type": "model",
-        "rawValue": true,
-        "color": "white"
+        "color": "white",
+        "rawValue": true
       },
       {
         "id": "638f5c35-77fc-4f3e-84a8-56a4576bd667",
-        "type": "separator"
+        "type": "separator",
+        "color": "brightBlack"
       },
       {
         "id": "f064050d-1905-4ec6-a781-f8503e3e9065",
-        "type": "tokens-total",
+        "type": "context-length",
         "color": "white",
         "rawValue": true
       },
       {
         "id": "cb82e9a2-fb52-45fa-9cbe-285c3582a7a0",
-        "type": "separator"
+        "type": "separator",
+        "color": "brightBlack"
       },
       {
         "id": "5225c381-18ab-481a-ae94-609a34aa0deb",
@@ -53,7 +56,8 @@
       },
       {
         "id": "44516ee6-3987-422c-a99d-54f7de9887eb",
-        "type": "separator"
+        "type": "separator",
+        "color": "brightBlack"
       },
       {
         "id": "9a9cb9fe-25e9-48b2-bdcd-fe2ecc68f91a",

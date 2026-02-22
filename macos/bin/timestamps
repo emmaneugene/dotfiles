@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# timestamps - Display current time in various conventional representations
+
+now_epoch_ms=$(($(date +%s%N) / 1000000))
+now_epoch_s=$((now_epoch_ms / 1000))
+
+iso8601=$(date +"%Y-%m-%dT%H:%M:%S%z" | sed 's/\([+-][0-9][0-9]\)\([0-9][0-9]\)$/\1:\2/')
+utc=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+rfc2822=$(date +"%a, %d %b %Y %H:%M:%S %z")
+tz_name=$(date +"%Z")
+tz_offset=$(date +"%z" | sed 's/\([+-][0-9][0-9]\)\([0-9][0-9]\)$/\1:\2/')
+
+printf "%-20s : %s\n" \
+  "ISO 8601 / RFC 3339" "$iso8601" \
+  "UTC"                 "$utc" \
+  "RFC 2822"            "$rfc2822" \
+  "Unix time (ms)"      "$now_epoch_ms" \
+  "Locale"              "$tz_name (UTC${tz_offset})"

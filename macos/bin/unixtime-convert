@@ -1,9 +1,9 @@
-#!/usr/bin/env zsh
+#!/usr/bin/env bash
 
 # Convert from unix time (in seconds or milliseconds) to ISO
 
-local timestamp=""
-local unit=""  # "seconds", "milliseconds", or "" for auto-detect
+timestamp=""
+unit=""  # "seconds", "milliseconds", or "" for auto-detect
 
 # Parse flags
 while [[ $# -gt 0 ]]; do

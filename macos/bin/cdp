@@ -1,0 +1,496 @@
+#!/usr/bin/env bash
+
+# cdp — Manage Chrome/Chromium browser instances with CDP enabled
+#
+# Chrome DevTools Protocol (CDP) lets tools like Playwright, Puppeteer,
+# and custom scripts connect to and control a running browser.
+#
+# State:    ${XDG_STATE_HOME:-$HOME/.local/state}/cdp/<port>.state
+# Logs:     ${XDG_STATE_HOME:-$HOME/.local/state}/cdp/logs/<port>.log
+# Profiles: ${XDG_CACHE_HOME:-$HOME/.cache}/cdp/profiles/
+
+
+SCRIPT_NAME="$(basename "$0")"
+STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/cdp"
+LOG_DIR="${STATE_DIR}/logs"
+CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/cdp"
+DEFAULT_PORT=9222
+
+# Edit these values once, or override at runtime via the relevant env vars.
+#   Path to the Chrome/Chromium binary.
+CHROME_BIN="${CHROME_BIN:-/Applications/Chromium.app/Contents/MacOS/Chromium}"
+#   Source profile dir, rsynced into the isolated profile on each start.
+#   Set this to your browser's real user data dir, e.g.:
+#     Chromium: ~/Library/Application Support/Chromium
+#     Chrome:   ~/Library/Application Support/Google/Chrome
+CHROME_USER_DATA_DIR="${CHROME_USER_DATA_DIR:-$HOME/Library/Application Support/Chromium}"
+
+# ─── Colors ──────────────────────────────────────────────────────────────────
+
+if [[ -t 1 ]]; then
+  RED=$'\e[31m'; GREEN=$'\e[32m'; YELLOW=$'\e[33m'
+  DIM=$'\e[2m'; BOLD=$'\e[1m'; RESET=$'\e[0m'
+else
+  RED=''; GREEN=''; YELLOW=''; DIM=''; BOLD=''; RESET=''
+fi
+
+# ─── Helpers ─────────────────────────────────────────────────────────────────
+
+die()  { echo "${RED}error:${RESET} $*" >&2; exit 1; }
+info() { echo "${GREEN}●${RESET} $*"; }
+warn() { echo "${YELLOW}⚠${RESET} $*" >&2; }
+
+usage() {
+  cat <<EOF
+${BOLD}${SCRIPT_NAME}${RESET} — Manage Chrome/Chromium instances with CDP
+
+${BOLD}USAGE${RESET}
+  $SCRIPT_NAME <command> [options]
+
+${BOLD}COMMANDS${RESET}
+  start     Launch a new browser instance with CDP enabled
+  stop      Stop a running instance
+  restart   Restart a managed instance with the same flags
+  list      List all managed instances
+  info      Show CDP endpoint details for an instance
+  logs      Tail the log file for an instance
+
+${BOLD}START OPTIONS${RESET}
+  -p, --port PORT           CDP port to listen on (default: auto-assigned from $DEFAULT_PORT)
+  -n, --name NAME           Label for this instance
+      --headless            Run in headless mode
+      --no-sandbox          Disable sandbox (useful in CI)
+      --profile DIR         Use a specific user data dir (no rsync)
+      --new-profile         Start with a clean empty profile (skip rsync)
+      --extra-flags FLAGS   Additional browser flags (quoted string)
+
+${BOLD}ENVIRONMENT${RESET}
+  CHROME_BIN              Path to Chrome/Chromium binary
+                          (default: /Applications/Chromium.app/Contents/MacOS/Chromium)
+  CHROME_USER_DATA_DIR    Source profile rsynced into the isolated profile on start
+                          (default: ~/Library/Application Support/Chromium)
+
+${BOLD}STOP OPTIONS${RESET}
+  -p, --port PORT     Stop instance on this port (default: $DEFAULT_PORT)
+  -n, --name NAME     Stop instance with this name
+      --all           Stop all managed instances
+      --clean         Also delete the profile directory and logs
+
+${BOLD}INFO / LOGS OPTIONS${RESET}
+  -p, --port PORT     Target port (default: $DEFAULT_PORT)
+  -n, --name NAME     Target instance by name
+
+${BOLD}EXAMPLES${RESET}
+  $SCRIPT_NAME start
+  $SCRIPT_NAME start --port 9223 --name scraper --headless
+  $SCRIPT_NAME start --name ci --headless --extra-flags "--disable-web-security"
+  $SCRIPT_NAME list
+  $SCRIPT_NAME info --name scraper
+  $SCRIPT_NAME logs --name scraper
+  $SCRIPT_NAME restart --name scraper
+  $SCRIPT_NAME stop --name scraper --clean
+  $SCRIPT_NAME stop --all
+EOF
+}
+
+# ─── State management ────────────────────────────────────────────────────────
+
+state_file() { echo "${STATE_DIR}/$1.state"; }
+log_file()   { echo "${LOG_DIR}/$1.log"; }
+
+default_profile() {
+  local port=$1 name=$2
+  if [[ -n "$name" ]]; then echo "${CACHE_DIR}/profiles/${name}"
+  else                       echo "${CACHE_DIR}/profiles/${port}"
+  fi
+}
+
+save_state() {
+  local port=$1 pid=$2 name=${3:-} headless=${4:-false} dir=$5 \
+        no_sandbox=${6:-false} extra_flags=${7:-}
+  mkdir -p "$STATE_DIR"
+  cat > "$(state_file "$port")" <<EOF
+port=$port
+pid=$pid
+name=$name
+headless=$headless
+dir=$dir
+no_sandbox=$no_sandbox
+extra_flags=$extra_flags
+started=$(date -u +%s)
+EOF
+}
+
+get_state() {
+  local port=$1 key=$2
+  local file; file=$(state_file "$port")
+  [[ -f "$file" ]] || return 1
+  grep "^${key}=" "$file" | cut -d= -f2-
+}
+
+remove_state() { rm -f "$(state_file "$1")"; }
+
+list_ports() {
+  [[ -d "$STATE_DIR" ]] || return 0
+  for f in "$STATE_DIR"/*.state; do
+    [[ -f "$f" ]] && basename "$f" .state
+  done
+}
+
+find_port_by_name() {
+  local target=$1 port
+  while IFS= read -r port; do
+    [[ $(get_state "$port" name) == "$target" ]] && echo "$port" && return 0
+  done < <(list_ports)
+  return 1
+}
+
+resolve_port() {
+  local port="" name=""
+  while [[ $# -gt 0 ]]; do
+    case $1 in
+      -p|--port) port=$2; shift 2 ;;
+      -n|--name) name=$2; shift 2 ;;
+      *) shift ;;
+    esac
+  done
+  if [[ -n "$name" ]]; then
+    port=$(find_port_by_name "$name") || die "no instance named '$name'"
+  fi
+  echo "${port:-$DEFAULT_PORT}"
+}
+
+is_alive() {
+  local pid; pid=$(get_state "$1" pid) || return 1
+  kill -0 "$pid" 2>/dev/null
+}
+
+sync_profile() {
+  local src="$CHROME_USER_DATA_DIR" dst="$1"
+  [[ -d "$src" ]] || die "CHROME_USER_DATA_DIR not found: $src"
+  info "Syncing profile from ${DIM}${src}${RESET}"
+  rsync -a --delete \
+    --exclude='SingletonLock' \
+    --exclude='SingletonSocket' \
+    --exclude='SingletonCookie' \
+    --exclude='*/Sessions/*' \
+    --exclude='*/Current Session' \
+    --exclude='*/Current Tabs' \
+    --exclude='*/Last Session' \
+    --exclude='*/Last Tabs' \
+    "$src/" "$dst/"
+}
+
+find_free_port() {
+  local port=$DEFAULT_PORT
+  while lsof -iTCP:"${port}" -sTCP:LISTEN &>/dev/null; do
+    (( port++ ))
+  done
+  echo "$port"
+}
+
+# ─── CDP helpers ─────────────────────────────────────────────────────────────
+
+cdp_ws_url() {
+  curl -sf --max-time 3 "http://localhost:$1/json/version" 2>/dev/null \
+    | grep -o '"webSocketDebuggerUrl": *"[^"]*"' \
+    | grep -o 'ws://[^"]*'
+}
+
+wait_for_cdp() {
+  local port=$1 i
+  for i in $(seq 1 15); do
+    curl -sf --max-time 1 "http://localhost:${port}/json/version" &>/dev/null && return 0
+    sleep 0.3
+  done
+  return 1
+}
+
+# ─── Commands ────────────────────────────────────────────────────────────────
+
+cmd_start() {
+  local port="" name="" headless=false \
+        no_sandbox=false profile="" extra_flags="" new_profile=false
+
+  while [[ $# -gt 0 ]]; do
+    case $1 in
+      -p|--port)       port=$2;           shift 2 ;;
+      -n|--name)       name=$2;           shift 2 ;;
+      --headless)      headless=true;     shift ;;
+      --no-sandbox)    no_sandbox=true;   shift ;;
+      --profile)       profile=$2;        shift 2 ;;
+      --new-profile)   new_profile=true;  shift ;;
+      --extra-flags)   extra_flags=$2;    shift 2 ;;
+      -h|--help)       usage; exit 0 ;;
+      *) die "unknown option: $1" ;;
+    esac
+  done
+
+  if [[ -z "$port" ]]; then
+    port=$(find_free_port)
+  else
+    [[ "$port" =~ ^[0-9]+$ ]] || die "invalid port: $port"
+  fi
+
+  if is_alive "$port"; then
+    local existing; existing=$(get_state "$port" name)
+    warn "instance already running on port $port${existing:+ (name: $existing)}"
+    exit 1
+  fi
+
+  if [[ -n "$name" ]] && find_port_by_name "$name" &>/dev/null; then
+    die "an instance named '$name' already exists"
+  fi
+
+  if lsof -iTCP:"${port}" -sTCP:LISTEN &>/dev/null; then
+    die "port $port is already in use by another process"
+  fi
+
+  [[ -x "$CHROME_BIN" ]] || die "Chrome binary not found or not executable: $CHROME_BIN
+  Set CHROME_BIN env var or edit the default path in this script."
+
+  # Resolve and populate profile dir
+  local custom_profile=true
+  if [[ -z "$profile" ]]; then
+    custom_profile=false
+    profile=$(default_profile "$port" "$name")
+  fi
+
+  mkdir -p "$profile" "$LOG_DIR"
+
+  if [[ "$custom_profile" == "false" && "$new_profile" == "false" ]]; then
+    sync_profile "$profile"
+  fi
+  local log; log=$(log_file "$port")
+
+  local flags=(
+    "--remote-debugging-port=${port}"
+    "--remote-debugging-address=127.0.0.1"
+    "--user-data-dir=${profile}"
+    "--no-first-run"
+    "--no-default-browser-check"
+    "--disable-sync"
+    "--disable-default-apps"
+    "--window-size=1280,800"
+  )
+  [[ "$headless"   == "true" ]] && flags+=("--headless=new" "--disable-gpu")
+  [[ "$no_sandbox" == "true" ]] && flags+=("--no-sandbox" "--disable-setuid-sandbox")
+  if [[ -n "$extra_flags" ]]; then
+    read -ra extra_arr <<< "$extra_flags"
+    flags+=("${extra_arr[@]}")
+  fi
+  nohup "$CHROME_BIN" "${flags[@]}" >"$log" 2>&1 &
+  local pid=$!
+
+  if ! wait_for_cdp "$port"; then
+    die "Chrome started (PID $pid) but CDP never became available on port $port
+  See logs: $log"
+  fi
+
+  kill -0 "$pid" 2>/dev/null || die "Chrome exited unexpectedly. See logs: $log"
+
+  save_state "$port" "$pid" "$name" "$headless" "$profile" "$no_sandbox" "$extra_flags"
+
+  local label="${name:+${BOLD}${name}${RESET} }(port ${BOLD}${port}${RESET}, PID ${DIM}${pid}${RESET})"
+  info "Started ${label}"
+  echo "  ${DIM}CDP:     http://localhost:${port}${RESET}"
+  echo "  ${DIM}Targets: http://localhost:${port}/json${RESET}"
+  echo "  ${DIM}Profile: ${profile}${RESET}"
+  echo "  ${DIM}Log:     ${log}${RESET}"
+  local ws; ws=$(cdp_ws_url "$port")
+  [[ -n "$ws" ]] && echo "  ${DIM}WS:      ${ws}${RESET}"
+}
+
+cmd_stop() {
+  local port="" name="" stop_all=false clean=false
+
+  while [[ $# -gt 0 ]]; do
+    case $1 in
+      -p|--port) port=$2; shift 2 ;;
+      -n|--name) name=$2; shift 2 ;;
+      --all)     stop_all=true; shift ;;
+      --clean)   clean=true; shift ;;
+      -h|--help) usage; exit 0 ;;
+      *) die "unknown option: $1" ;;
+    esac
+  done
+
+  if [[ "$stop_all" == "true" ]]; then
+    local found=false p
+    while IFS= read -r p; do
+      found=true
+      _stop_instance "$p" "$clean"
+    done < <(list_ports)
+    [[ "$found" == "true" ]] || warn "no managed instances found"
+    return 0
+  fi
+
+  if [[ -n "$name" ]]; then
+    port=$(find_port_by_name "$name") || die "no instance named '$name'"
+  fi
+  _stop_instance "${port:-$DEFAULT_PORT}" "$clean"
+}
+
+_stop_instance() {
+  local port=$1 clean=${2:-false}
+  local pid;   pid=$(get_state "$port" pid)   || { warn "no state found for port $port"; return 1; }
+  local iname; iname=$(get_state "$port" name)
+  local dir;   dir=$(get_state "$port" dir)
+  local log;   log=$(log_file "$port")
+
+  local label
+  if [[ -n "$iname" ]]; then label="${BOLD}${iname}${RESET} (port ${port})"
+  else                        label="port ${BOLD}${port}${RESET}"
+  fi
+
+  if kill -0 "$pid" 2>/dev/null; then
+    kill "$pid" 2>/dev/null
+    local i=0
+    while kill -0 "$pid" 2>/dev/null && (( i++ < 10 )); do sleep 0.2; done
+    kill -9 "$pid" 2>/dev/null || true
+    info "Stopped ${label} (PID ${DIM}${pid}${RESET})"
+  else
+    warn "${label} — process not running, removing stale state"
+  fi
+
+  remove_state "$port"
+
+  if [[ "$clean" == "true" ]]; then
+    if [[ -n "$dir" && -d "$dir" ]]; then
+      rm -rf "$dir"
+      echo "  ${DIM}Removed profile: $dir${RESET}"
+    else
+      warn "no profile dir found for port $port"
+    fi
+    if [[ -f "$log" ]]; then
+      rm -f "$log"
+      echo "  ${DIM}Removed log:     $log${RESET}"
+    fi
+  fi
+}
+
+cmd_restart() {
+  local port="" name=""
+
+  while [[ $# -gt 0 ]]; do
+    case $1 in
+      -p|--port) port=$2; shift 2 ;;
+      -n|--name) name=$2; shift 2 ;;
+      *) shift ;;
+    esac
+  done
+
+  if [[ -n "$name" ]]; then
+    port=$(find_port_by_name "$name") || die "no instance named '$name'"
+  fi
+  port="${port:-$DEFAULT_PORT}"
+
+  # Read all saved flags before stopping (state file is removed on stop)
+  local saved_name saved_headless saved_dir saved_no_sandbox saved_extra_flags
+  saved_name=$(get_state "$port" name)        || die "no state found for port $port"
+  saved_headless=$(get_state "$port" headless)
+  saved_dir=$(get_state "$port" dir)
+  saved_no_sandbox=$(get_state "$port" no_sandbox)
+  saved_extra_flags=$(get_state "$port" extra_flags)
+
+  _stop_instance "$port" false
+
+  local start_args=("--port" "$port")
+  [[ -n "$saved_name" ]]            && start_args+=("--name"        "$saved_name")
+  [[ "$saved_headless" == "true" ]] && start_args+=("--headless")
+  [[ -n "$saved_dir" ]]             && start_args+=("--profile"     "$saved_dir")
+  [[ "$saved_no_sandbox" == "true" ]] && start_args+=("--no-sandbox")
+  [[ -n "$saved_extra_flags" ]]     && start_args+=("--extra-flags" "$saved_extra_flags")
+
+  cmd_start "${start_args[@]}"
+}
+
+cmd_list() {
+  local any=false port
+
+  while IFS= read -r port; do
+    if [[ "$any" == "false" ]]; then
+      printf "${BOLD}%-6s  %-8s  %-14s  %-9s  %s${RESET}\n" \
+        "PORT" "PID" "NAME" "MODE" "STATUS"
+      printf '%s\n' "────────────────────────────────────────────────────"
+      any=true
+    fi
+
+    local pid;      pid=$(get_state "$port" pid)
+    local iname;    iname=$(get_state "$port" name)
+    local headless; headless=$(get_state "$port" headless)
+    local mode;     [[ "$headless" == "true" ]] && mode="headless" || mode="headed"
+    local run_status
+
+    if is_alive "$port"; then run_status="${GREEN}running${RESET}"
+    else                      run_status="${RED}dead${RESET}"
+    fi
+
+    printf "%-6s  %-8s  %-14s  %-9s  $(echo -e "${run_status}")\n" \
+      "$port" "${pid:--}" "${iname:--}" "$mode"
+  done < <(list_ports)
+
+  [[ "$any" == "true" ]] || echo "${DIM}No managed instances.${RESET}"
+}
+
+cmd_info() {
+  local port; port=$(resolve_port "$@")
+  is_alive "$port" || die "instance on port $port is not running"
+
+  local pid;         pid=$(get_state "$port" pid)
+  local iname;       iname=$(get_state "$port" name)
+  local headless;    headless=$(get_state "$port" headless)
+  local dir;         dir=$(get_state "$port" dir)
+  local no_sandbox;  no_sandbox=$(get_state "$port" no_sandbox)
+  local extra_flags; extra_flags=$(get_state "$port" extra_flags)
+  local started;     started=$(get_state "$port" started)
+  local log;         log=$(log_file "$port")
+  local mode;        [[ "$headless" == "true" ]] && mode="headless" || mode="headed"
+  local since;       since=$(date -r "$started" "+%Y-%m-%d %H:%M:%S" 2>/dev/null \
+                          || date -d "@$started" "+%Y-%m-%d %H:%M:%S" 2>/dev/null)
+
+  echo "${BOLD}Instance on port ${port}${RESET}"
+  [[ -n "$iname" ]]              && echo "  Name:        $iname"
+  echo "  PID:         $pid"
+  echo "  Mode:        $mode"
+  echo "  Started:     $since"
+  [[ -n "$dir" ]]                && echo "  Profile:     $dir"
+  [[ -f "$log" ]]                && echo "  Log:         $log"
+  [[ "$no_sandbox" == "true" ]]  && echo "  No-sandbox:  yes"
+  [[ -n "$extra_flags" ]]        && echo "  Extra flags: $extra_flags"
+  echo "  CDP:         http://localhost:${port}"
+  echo "  Targets:     http://localhost:${port}/json"
+  echo "  Version:     http://localhost:${port}/json/version"
+  local ws; ws=$(cdp_ws_url "$port")
+  [[ -n "$ws" ]] && echo "  WS:          $ws"
+}
+
+
+cmd_logs() {
+  local port; port=$(resolve_port "$@")
+  local log; log=$(log_file "$port")
+  [[ -f "$log" ]] || die "no log file found for instance on port $port
+  Expected: $log"
+  tail -f "$log"
+}
+
+# ─── Main ────────────────────────────────────────────────────────────────────
+
+[[ $# -gt 0 ]] || { usage; exit 0; }
+
+cmd=$1; shift
+
+case $cmd in
+  start)           cmd_start   "$@" ;;
+  stop)            cmd_stop    "$@" ;;
+  restart)         cmd_restart "$@" ;;
+  list|ls)         cmd_list    "$@" ;;
+  info|status)     cmd_info    "$@" ;;
+  logs)            cmd_logs    "$@" ;;
+  -h|--help)       usage; exit 0 ;;
+  *)
+    echo "${RED}error:${RESET} unknown command: $cmd" >&2
+    echo "Run '$SCRIPT_NAME --help' for usage." >&2
+    exit 1
+    ;;
+esac

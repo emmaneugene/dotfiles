@@ -1,5 +1,7 @@
 # Shell completions
 
+This folder contains shell completions for binaries that are not provided by default or handled by `homebrew install`
+
 On ZSH, to find out where all your shell completions are sourced from:
 
 ```bash

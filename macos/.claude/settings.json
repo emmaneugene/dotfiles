@@ -65,8 +65,10 @@
     "command": "ccstatusline",
     "padding": 0
   },
+  "enabledPlugins": {},
   "outputStyle": "technical-concise",
   "syntaxHighlightingDisabled": false,
   "alwaysThinkingEnabled": true,
-  "autoUpdatesChannel": "stable"
+  "autoUpdatesChannel": "latest",
+  "skipDangerousModePermissionPrompt": true
 }

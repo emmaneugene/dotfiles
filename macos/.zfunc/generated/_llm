@@ -1,0 +1,324 @@
+#compdef llm
+# Source: Generated from llm --help
+# Regenerate: Manually update based on `llm --help` and subcommand help output
+# Version: 0.28
+
+local curcontext="$curcontext" state line
+typeset -A opt_args
+
+local -a commands
+commands=(
+  'prompt:Execute a prompt'
+  'aliases:Manage model aliases'
+  'chat:Hold an ongoing chat with a model'
+  'collections:View and manage collections of embeddings'
+  'embed:Embed text and store or return the result'
+  'embed-models:Manage available embedding models'
+  'embed-multi:Store embeddings for multiple strings at once'
+  'fragments:Manage fragments stored in the database'
+  'install:Install packages from PyPI into the LLM environment'
+  'keys:Manage stored API keys for different models'
+  'logs:Tools for exploring logged prompts and responses'
+  'models:Manage available models'
+  'plugins:List installed plugins'
+  'schemas:Manage stored schemas'
+  'similar:Return top N similar IDs from a collection'
+  'templates:Manage stored prompt templates'
+  'tools:Manage tools available to LLMs'
+  'uninstall:Uninstall Python packages from the LLM environment'
+)
+
+local -a aliases_commands
+aliases_commands=(
+  'list:List current aliases'
+  'path:Output the path to the aliases.json file'
+  'remove:Remove an alias'
+  'set:Set an alias for a model'
+)
+
+local -a collections_commands
+collections_commands=(
+  'list:View a list of collections'
+  'delete:Delete the specified collection'
+  'path:Output the path to the embeddings database'
+)
+
+local -a fragments_commands
+fragments_commands=(
+  'list:List current fragments'
+  'loaders:Show fragment loaders registered by plugins'
+  'remove:Remove a fragment alias'
+  'set:Set an alias for a fragment'
+  'show:Display the fragment stored under an alias or hash'
+)
+
+local -a keys_commands
+keys_commands=(
+  'list:List names of all stored keys'
+  'get:Return the value of a stored key'
+  'path:Output the path to the keys.json file'
+  'set:Save a key in the keys.json file'
+)
+
+local -a logs_commands
+logs_commands=(
+  'list:Show logged prompts and their responses'
+  'backup:Backup your logs database to this file'
+  'off:Turn off logging for all prompts'
+  'on:Turn on logging for all prompts'
+  'path:Output the path to the logs.db file'
+  'status:Show current status of database logging'
+)
+
+local -a models_commands
+models_commands=(
+  'list:List available models'
+  'default:Show or set the default model'
+  'options:Manage default options for models'
+)
+
+local -a templates_commands
+templates_commands=(
+  'list:List available prompt templates'
+  'edit:Edit the specified prompt template using $EDITOR'
+  'loaders:Show template loaders registered by plugins'
+  'path:Output the path to the templates directory'
+  'show:Show the specified prompt template'
+)
+
+local -a tools_commands
+tools_commands=(
+  'list:List available tools provided by plugins'
+)
+
+case $words[2] in
+  prompt)
+    _arguments \
+      '(-s --system)'{-s,--system}'[System prompt to use]:prompt:' \
+      '(-m --model)'{-m,--model}'[Model to use]:model:' \
+      '(-d --database)'{-d,--database}'[Path to log database]:file:_files' \
+      '(-q --query)'{-q,--query}'[Use first model matching these strings]:query:' \
+      '*'{-a,--attachment}'[Attachment path or URL or -]:attachment:_files' \
+      '*--at[Attachment with explicit mimetype]:attachment:_files' \
+      '*'{-T,--tool}'[Name of a tool to make available]:tool:' \
+      '--functions[Python code block or file path defining functions]:code:_files' \
+      '--td[Show full details of tool executions]' \
+      '--tools-debug[Show full details of tool executions]' \
+      '--ta[Manually approve every tool execution]' \
+      '--tools-approve[Manually approve every tool execution]' \
+      '--cl[How many chained tool responses to allow]:limit:' \
+      '--chain-limit[How many chained tool responses to allow]:limit:' \
+      '*'{-o,--option}'[key/value options for the model]:option:' \
+      '--schema[JSON schema, filepath or ID]:schema:_files' \
+      '--schema-multi[JSON schema to use for multiple results]:schema:' \
+      '*'{-f,--fragment}'[Fragment to add to the prompt]:fragment:' \
+      '--sf[Fragment to add to system prompt]:fragment:' \
+      '--system-fragment[Fragment to add to system prompt]:fragment:' \
+      '(-t --template)'{-t,--template}'[Template to use]:template:' \
+      '*'{-p,--param}'[Parameters for template]:param:' \
+      '--no-stream[Do not stream output]' \
+      '(-n --no-log)'{-n,--no-log}"[Don't log to database]" \
+      '--log[Log prompt and response to the database]' \
+      '(-c --continue)'{-c,--continue}'[Continue the most recent conversation]' \
+      '--cid[Continue the conversation with the given ID]:id:' \
+      '--conversation[Continue the conversation with the given ID]:id:' \
+      '--key[API key to use]:key:' \
+      '--save[Save prompt with this template name]:name:' \
+      '--async[Run prompt asynchronously]' \
+      '(-u --usage)'{-u,--usage}'[Show token usage]' \
+      '(-x --extract)'{-x,--extract}'[Extract first fenced code block]' \
+      '--xl[Extract last fenced code block]' \
+      '--extract-last[Extract last fenced code block]' \
+      '(-h --help)'{-h,--help}'[Show this message and exit]' \
+      '*:prompt:'
+    return
+    ;;
+  chat)
+    _arguments \
+      '(-s --system)'{-s,--system}'[System prompt to use]:prompt:' \
+      '(-m --model)'{-m,--model}'[Model to use]:model:' \
+      '(-c --continue)'{-c,--continue}'[Continue the most recent conversation]' \
+      '--cid[Continue the conversation with the given ID]:id:' \
+      '--conversation[Continue the conversation with the given ID]:id:' \
+      '*'{-f,--fragment}'[Fragment to add to the prompt]:fragment:' \
+      '--sf[Fragment to add to system prompt]:fragment:' \
+      '--system-fragment[Fragment to add to system prompt]:fragment:' \
+      '(-t --template)'{-t,--template}'[Template to use]:template:' \
+      '*'{-p,--param}'[Parameters for template]:param:' \
+      '*'{-o,--option}'[key/value options for the model]:option:' \
+      '(-d --database)'{-d,--database}'[Path to log database]:file:_files' \
+      '--no-stream[Do not stream output]' \
+      '--key[API key to use]:key:' \
+      '*'{-T,--tool}'[Name of a tool to make available]:tool:' \
+      '--functions[Python code block or file path defining functions]:code:_files' \
+      '--td[Show full details of tool executions]' \
+      '--tools-debug[Show full details of tool executions]' \
+      '--ta[Manually approve every tool execution]' \
+      '--tools-approve[Manually approve every tool execution]' \
+      '--cl[How many chained tool responses to allow]:limit:' \
+      '--chain-limit[How many chained tool responses to allow]:limit:' \
+      '(-h --help)'{-h,--help}'[Show this message and exit]'
+    return
+    ;;
+  aliases)
+    if (( CURRENT == 3 )); then
+      _describe 'aliases command' aliases_commands
+    else
+      case $words[3] in
+        set)
+          _arguments '(-h --help)'{-h,--help}'[Show help]' ':alias:' ':model:'
+          ;;
+        remove)
+          _arguments '(-h --help)'{-h,--help}'[Show help]' ':alias:'
+          ;;
+        *)
+          _arguments '(-h --help)'{-h,--help}'[Show help]'
+          ;;
+      esac
+    fi
+    return
+    ;;
+  collections)
+    if (( CURRENT == 3 )); then
+      _describe 'collections command' collections_commands
+    else
+      case $words[3] in
+        delete)
+          _arguments '(-h --help)'{-h,--help}'[Show help]' ':collection:'
+          ;;
+        *)
+          _arguments '(-h --help)'{-h,--help}'[Show help]'
+          ;;
+      esac
+    fi
+    return
+    ;;
+  embed)
+    _arguments \
+      '(-i --input)'{-i,--input}'[File to embed]:file:_files' \
+      '(-m --model)'{-m,--model}'[Embedding model to use]:model:' \
+      '--store[Store the text itself in the database]' \
+      '(-d --database)'{-d,--database}'[Database file]:file:_files' \
+      '(-c --content)'{-c,--content}'[Content to embed]:content:' \
+      '--binary[Treat input as binary data]' \
+      '--metadata[JSON object metadata to store]:json:' \
+      '(-f --format)'{-f,--format}'[Output format]:format:(json blob base64 hex)' \
+      '(-h --help)'{-h,--help}'[Show help]' \
+      '::collection:' \
+      '::id:'
+    return
+    ;;
+  fragments)
+    if (( CURRENT == 3 )); then
+      _describe 'fragments command' fragments_commands
+    else
+      case $words[3] in
+        set)
+          _arguments '(-h --help)'{-h,--help}'[Show help]' ':alias:' ':content:'
+          ;;
+        remove|show)
+          _arguments '(-h --help)'{-h,--help}'[Show help]' ':alias:'
+          ;;
+        *)
+          _arguments '(-h --help)'{-h,--help}'[Show help]'
+          ;;
+      esac
+    fi
+    return
+    ;;
+  keys)
+    if (( CURRENT == 3 )); then
+      _describe 'keys command' keys_commands
+    else
+      case $words[3] in
+        set|get)
+          _arguments '(-h --help)'{-h,--help}'[Show help]' ':name:'
+          ;;
+        *)
+          _arguments '(-h --help)'{-h,--help}'[Show help]'
+          ;;
+      esac
+    fi
+    return
+    ;;
+  logs)
+    if (( CURRENT == 3 )); then
+      _describe 'logs command' logs_commands
+    else
+      case $words[3] in
+        backup)
+          _arguments '(-h --help)'{-h,--help}'[Show help]' ':file:_files'
+          ;;
+        *)
+          _arguments '(-h --help)'{-h,--help}'[Show help]'
+          ;;
+      esac
+    fi
+    return
+    ;;
+  models)
+    if (( CURRENT == 3 )); then
+      _describe 'models command' models_commands
+    else
+      case $words[3] in
+        default)
+          _arguments '(-h --help)'{-h,--help}'[Show help]' '::model:'
+          ;;
+        *)
+          _arguments '(-h --help)'{-h,--help}'[Show help]'
+          ;;
+      esac
+    fi
+    return
+    ;;
+  plugins)
+    _arguments \
+      '--all[Include built-in default plugins]' \
+      '--hook[Filter for plugins that implement this hook]:hook:' \
+      '(-h --help)'{-h,--help}'[Show help]'
+    return
+    ;;
+  templates)
+    if (( CURRENT == 3 )); then
+      _describe 'templates command' templates_commands
+    else
+      case $words[3] in
+        edit|show)
+          _arguments '(-h --help)'{-h,--help}'[Show help]' ':template:'
+          ;;
+        *)
+          _arguments '(-h --help)'{-h,--help}'[Show help]'
+          ;;
+      esac
+    fi
+    return
+    ;;
+  tools)
+    if (( CURRENT == 3 )); then
+      _describe 'tools command' tools_commands
+    else
+      _arguments '(-h --help)'{-h,--help}'[Show help]'
+    fi
+    return
+    ;;
+  install)
+    _arguments '(-h --help)'{-h,--help}'[Show help]' '*:package:'
+    return
+    ;;
+  uninstall)
+    _arguments '(-h --help)'{-h,--help}'[Show help]' '*:package:'
+    return
+    ;;
+esac
+
+_arguments -s \
+  '--version[Show the version and exit]' \
+  '(-h --help)'{-h,--help}'[Show this message and exit]' \
+  '1:command:->command' \
+  '*:prompt:'
+
+case $state in
+  command)
+    _describe 'command' commands
+    ;;
+esac

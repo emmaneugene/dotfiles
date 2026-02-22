@@ -1,4 +1,6 @@
 #compdef progress
+# Source: https://github.com/Xfennec/progress/blob/master/_progress
+# Regenerate: curl -fsSL https://raw.githubusercontent.com/Xfennec/progress/master/_progress > _progress
 # ------------------------------------------------------------------------------
 # Description
 # -----------

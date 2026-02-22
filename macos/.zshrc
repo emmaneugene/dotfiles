@@ -54,7 +54,8 @@ manpath=(
 )
 # Shell completions
 fpath=(
-  "$HOME/.zfunc"                                # custom
+  "$HOME/.zfunc/generated"                      # custom-generated completions
+  "$HOME/.zfunc"                                # custom-sourced
   "$HOMEBREW_PREFIX/share/zsh/site-functions"   # homebrew
   $fpath
 )

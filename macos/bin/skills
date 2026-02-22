@@ -1,0 +1,198 @@
+#!/usr/bin/env -S uv run --script
+# /// script
+# dependencies = ["argcomplete"]
+# ///
+# PYTHON_ARGCOMPLETE_OK
+"""
+skills — load and track agent skills
+
+Usage:
+  skills load   [<name>] (--global | --project)
+  skills status
+"""
+
+import argcomplete
+import argparse
+import fnmatch
+import hashlib
+import shutil
+import sys
+from pathlib import Path
+
+# ── constants ─────────────────────────────────────────────────────────────────
+
+SOURCE_ROOT   = Path.home() / "config" / "agents"
+GLOBAL_SKILLS = Path.home() / ".agents" / "skills"
+SKILLS_SUBDIR = "skills"
+
+# ── ansi ──────────────────────────────────────────────────────────────────────
+
+RESET  = "\033[0m"
+BOLD   = "\033[1m"
+DIM    = "\033[2m"
+RED    = "\033[31m"
+GREEN  = "\033[32m"
+YELLOW = "\033[33m"
+CYAN   = "\033[36m"
+
+def col(text, *codes): return "".join(codes) + str(text) + RESET
+def ok(msg):   print(col("✓", GREEN, BOLD), msg)
+def err(msg):  print(col("✗", RED,   BOLD), msg, file=sys.stderr)
+def warn(msg): print(col("!", YELLOW, BOLD), msg)
+def info(msg): print(col("·", CYAN), msg)
+
+# ── helpers ───────────────────────────────────────────────────────────────────
+
+def get_scope_dir(scope: str) -> Path:
+    if scope == "global":  return GLOBAL_SKILLS
+    if scope == "project": return Path.cwd() / ".agents" / "skills"
+    raise ValueError(f"unknown scope: {scope}")
+
+def list_source_skills() -> list[str]:
+    skills_dir = SOURCE_ROOT / SKILLS_SUBDIR
+    if not skills_dir.exists():
+        return []
+    return sorted(d.name for d in skills_dir.iterdir()
+                  if d.is_dir() and not d.name.startswith("."))
+
+def gitignore_patterns(skill_path: Path) -> list[str]:
+    gitignore = skill_path / ".gitignore"
+    if not gitignore.exists():
+        return []
+    return [line.rstrip("/") for line in gitignore.read_text().splitlines()
+            if line.strip() and not line.startswith("#")]
+
+def hash_skill(skill_path: Path) -> str:
+    h = hashlib.sha256()
+    ignored = gitignore_patterns(skill_path)
+    for f in sorted(skill_path.rglob("*")):
+        if not f.is_file():
+            continue
+        rel = f.relative_to(skill_path)
+        if any(fnmatch.fnmatch(part, p) for part in rel.parts for p in ignored):
+            continue
+        h.update(str(rel).encode())
+        h.update(f.read_bytes())
+    return h.hexdigest()[:16]
+
+def copy_skill(src: Path, dst: Path):
+    shutil.copytree(src, dst)
+
+def prompt_choice(prompt: str, choices: list[str], default: int = 0) -> int:
+    print(f"\n{col(prompt, BOLD)}")
+    for i, c in enumerate(choices):
+        marker = col("▸", CYAN) if i == default else " "
+        print(f"  {marker} [{i + 1}] {c}")
+    while True:
+        try:
+            raw = input(f"\nChoice [1–{len(choices)}] (default {default + 1}): ").strip()
+        except (EOFError, KeyboardInterrupt):
+            print()
+            sys.exit(0)
+        if raw == "":
+            return default
+        try:
+            n = int(raw) - 1
+            if 0 <= n < len(choices):
+                return n
+        except ValueError:
+            pass
+        print(col(f"  Enter a number between 1 and {len(choices)}", RED))
+
+def prompt_select_skill(skills: list[str]) -> str | None:
+    if not skills:
+        return None
+    return skills[prompt_choice("Select a skill:", skills)]
+
+# ── commands ──────────────────────────────────────────────────────────────────
+
+def cmd_load(args):
+    scope_dir = get_scope_dir(args.scope)
+    name = args.name
+
+    if not name:
+        skills = list_source_skills()
+        if not skills:
+            err(f"No skills found in source ({SOURCE_ROOT / SKILLS_SUBDIR})")
+            sys.exit(1)
+        name = prompt_select_skill(skills)
+        if not name:
+            return
+
+    source_path = SOURCE_ROOT / SKILLS_SUBDIR / name
+    target_path = scope_dir / name
+
+    if not source_path.exists():
+        err(f"Skill '{name}' not found in source ({source_path})")
+        sys.exit(1)
+
+    if target_path.exists():
+        warn(f"'{name}' already exists in {args.scope} scope — run status to check for drift")
+        sys.exit(1)
+
+    info(f"Loading '{name}' into {args.scope} scope...")
+    copy_skill(source_path, target_path)
+    ok(f"'{name}' loaded into {args.scope} scope")
+
+
+def cmd_status(_args):
+    global_dir  = GLOBAL_SKILLS
+    project_dir = Path.cwd() / ".agents" / "skills"
+
+    scopes = [("global", global_dir), ("project", project_dir)]
+    if project_dir == global_dir:
+        scopes = [("global", global_dir)]
+
+    for scope, scope_dir in scopes:
+        print(f"\n{col(f'── {scope} scope', BOLD)}  {DIM}{scope_dir}{RESET}")
+
+        if not scope_dir.exists():
+            info("(scope directory does not exist)")
+            continue
+
+        skills = sorted(d.name for d in scope_dir.iterdir()
+                        if d.is_dir() and not d.name.startswith("."))
+        if not skills:
+            info("(no skills loaded)")
+            continue
+
+        for name in skills:
+            source_path = SOURCE_ROOT / SKILLS_SUBDIR / name
+            if not source_path.exists():
+                print(f"  {col('?', YELLOW, BOLD)} {col(name, BOLD)}  {col('not in source', YELLOW)}")
+            elif hash_skill(source_path) == hash_skill(scope_dir / name):
+                print(f"  {col('✓', GREEN,  BOLD)} {col(name, BOLD)}  {col('up to date', GREEN)}")
+            else:
+                print(f"  {col('·', YELLOW, BOLD)} {col(name, BOLD)}  {col('differs from source', YELLOW)}")
+
+# ── entry point ───────────────────────────────────────────────────────────────
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(prog="skills", description="Manage pi agent skills")
+    sub = parser.add_subparsers(dest="command", required=True)
+
+    def add_scope(p):
+        g = p.add_mutually_exclusive_group(required=True)
+        g.add_argument("--global",  dest="scope", action="store_const", const="global",
+                       help="Target global scope (~/.agents/skills)")
+        g.add_argument("--project", dest="scope", action="store_const", const="project",
+                       help="Target project scope ($PWD/.agents/skills)")
+
+    p_load = sub.add_parser("load", help="Load a skill into a scope")
+    p_load.add_argument("name", nargs="?", help="Skill name (interactive picker if omitted)")
+    add_scope(p_load)
+
+    sub.add_parser("status", help="Show skill status across all scopes")
+
+    return parser
+
+
+def main():
+    parser = build_parser()
+    argcomplete.autocomplete(parser)
+    args = parser.parse_args()
+    {"load": cmd_load, "status": cmd_status}[args.command](args)
+
+
+if __name__ == "__main__":
+    main()

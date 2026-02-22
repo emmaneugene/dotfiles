@@ -1,0 +1,25 @@
+# Global ignore patterns for fd/rg-style tools
+# Goal: reduce expensive recursive scans in $HOME while keeping code workspaces searchable.
+
+# OrbStack (VM/container internals)
+OrbStack/
+.orbstack/
+
+# macOS system/app data (very large, usually not useful for coding search)
+Library/
+.Trash/
+
+# Package/tool caches and SDK stores
+.cache/
+.npm/
+.bun/
+.rustup/
+.cargo/
+.gradle/
+.m2/
+.local/
+.sdkman/
+
+# Container/sync internals
+.docker/
+.dropbox/

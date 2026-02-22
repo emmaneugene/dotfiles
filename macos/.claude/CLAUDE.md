@@ -1,5 +1,6 @@
 ## Core Principles
 - Be as succinct as possible when writing documentation. Prefer concrete examples over description, and use mermaid or ASCII diagrams if helpful
+- Always read before modifying files
 
 ## Tool Usage
 
@@ -14,8 +15,3 @@
 - NEVER skip hooks (`--no-verify`)
 - Block-at-submit hooks for test validation preferred
 - Reference file locations as `path:line_number` in commits
-- Sign commits only if explicitly requested
-
-## File Operations
-- Always Read before Edit/Write
-- Preserve exact indentation when editing

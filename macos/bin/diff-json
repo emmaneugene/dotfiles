@@ -1,4 +1,4 @@
-#!/usr/bin/env zsh
+#!/usr/bin/env bash
 
 # Compare two JSON files semantically, with invariance to ordering and formatting
 
