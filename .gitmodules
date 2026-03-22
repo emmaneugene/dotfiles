@@ -1,0 +1,6 @@
+[submodule "macos/.claude"]
+	path = macos/.claude
+	url = git@github.com:emmaneugene/claude.git
+[submodule "macos/.pi"]
+	path = macos/.pi
+	url = git@github.com:emmaneugene/pi.git
