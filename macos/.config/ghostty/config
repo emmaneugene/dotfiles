@@ -1,7 +1,6 @@
 # Docs: https://ghostty.org/docs/config/reference
 # Preview: https://ghostty.zerebos.com/app/import-export
 
-adjust-cell-width = -10%
 clipboard-read = allow
 clipboard-write = allow
 confirm-close-surface = false
@@ -12,8 +11,10 @@ font-feature = -calt, -liga, -dlig
 font-size = 12
 font-thicken = true
 keybind = cmd+backspace=text:\x15
-# For claude code multi-line
-keybind = shift+enter=text:\n
+keybind = cmd+backslash=new_split:right
+keybind = cmd+shift+backslash=new_split:down
+keybind = cmd+d=unbind
+keybind = cmd+shift+d=unbind
 macos-option-as-alt = true
 quit-after-last-window-closed = true
 shell-integration-features = no-cursor

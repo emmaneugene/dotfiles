@@ -8,6 +8,7 @@ skills — load and track agent skills
 
 Usage:
   skills load   [<name>] (--global | --project)
+  skills sync   [<name>] (--global | --project)
   skills status
 """
 
@@ -15,6 +16,7 @@ import argcomplete
 import argparse
 import fnmatch
 import hashlib
+import shlex
 import shutil
 import sys
 from pathlib import Path
@@ -78,6 +80,15 @@ def hash_skill(skill_path: Path) -> str:
 def copy_skill(src: Path, dst: Path):
     shutil.copytree(src, dst)
 
+def remove_path(path: Path):
+    if path.is_dir() and not path.is_symlink():
+        shutil.rmtree(path)
+    else:
+        path.unlink()
+
+def diff_command(source_path: Path, target_path: Path) -> str:
+    return f"diff -ru {shlex.quote(str(source_path))} {shlex.quote(str(target_path))}"
+
 def prompt_choice(prompt: str, choices: list[str], default: int = 0) -> int:
     print(f"\n{col(prompt, BOLD)}")
     for i, c in enumerate(choices):
@@ -106,18 +117,21 @@ def prompt_select_skill(skills: list[str]) -> str | None:
 
 # ── commands ──────────────────────────────────────────────────────────────────
 
+def resolve_skill(name: str | None) -> str | None:
+    if name:
+        return name
+    skills = list_source_skills()
+    if not skills:
+        err(f"No skills found in source ({SOURCE_ROOT / SKILLS_SUBDIR})")
+        sys.exit(1)
+    return prompt_select_skill(skills)
+
+
 def cmd_load(args):
     scope_dir = get_scope_dir(args.scope)
-    name = args.name
-
+    name = resolve_skill(args.name)
     if not name:
-        skills = list_source_skills()
-        if not skills:
-            err(f"No skills found in source ({SOURCE_ROOT / SKILLS_SUBDIR})")
-            sys.exit(1)
-        name = prompt_select_skill(skills)
-        if not name:
-            return
+        return
 
     source_path = SOURCE_ROOT / SKILLS_SUBDIR / name
     target_path = scope_dir / name
@@ -127,12 +141,35 @@ def cmd_load(args):
         sys.exit(1)
 
     if target_path.exists():
-        warn(f"'{name}' already exists in {args.scope} scope — run status to check for drift")
+        warn(f"'{name}' already exists in {args.scope} scope — use sync to replace it")
         sys.exit(1)
 
     info(f"Loading '{name}' into {args.scope} scope...")
     copy_skill(source_path, target_path)
     ok(f"'{name}' loaded into {args.scope} scope")
+
+
+def cmd_sync(args):
+    scope_dir = get_scope_dir(args.scope)
+    name = resolve_skill(args.name)
+    if not name:
+        return
+
+    source_path = SOURCE_ROOT / SKILLS_SUBDIR / name
+    target_path = scope_dir / name
+
+    if not source_path.exists():
+        err(f"Skill '{name}' not found in source ({source_path})")
+        sys.exit(1)
+
+    if not target_path.exists():
+        warn(f"'{name}' is not loaded in {args.scope} scope — use load first")
+        sys.exit(1)
+
+    info(f"Syncing '{name}' into {args.scope} scope...")
+    remove_path(target_path)
+    copy_skill(source_path, target_path)
+    ok(f"'{name}' synced into {args.scope} scope")
 
 
 def cmd_status(_args):
@@ -163,12 +200,13 @@ def cmd_status(_args):
             elif hash_skill(source_path) == hash_skill(scope_dir / name):
                 print(f"  {col('✓', GREEN,  BOLD)} {col(name, BOLD)}  {col('up to date', GREEN)}")
             else:
-                print(f"  {col('·', YELLOW, BOLD)} {col(name, BOLD)}  {col('differs from source', YELLOW)}")
+                print(f"  {col('·', YELLOW, BOLD)} {col(name, BOLD)}  {col('differs from source — run skills sync after reviewing diff', YELLOW)}")
+                print(f"      {DIM}{diff_command(source_path, scope_dir / name)}{RESET}")
 
 # ── entry point ───────────────────────────────────────────────────────────────
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(prog="skills", description="Manage pi agent skills")
+    parser = argparse.ArgumentParser(prog="skills", description="Manage coding agent skills")
     sub = parser.add_subparsers(dest="command", required=True)
 
     def add_scope(p):
@@ -182,6 +220,10 @@ def build_parser() -> argparse.ArgumentParser:
     p_load.add_argument("name", nargs="?", help="Skill name (interactive picker if omitted)")
     add_scope(p_load)
 
+    p_sync = sub.add_parser("sync", help="Replace a loaded skill with the source version")
+    p_sync.add_argument("name", nargs="?", help="Skill name (interactive picker if omitted)")
+    add_scope(p_sync)
+
     sub.add_parser("status", help="Show skill status across all scopes")
 
     return parser
@@ -191,7 +233,7 @@ def main():
     parser = build_parser()
     argcomplete.autocomplete(parser)
     args = parser.parse_args()
-    {"load": cmd_load, "status": cmd_status}[args.command](args)
+    {"load": cmd_load, "sync": cmd_sync, "status": cmd_status}[args.command](args)
 
 
 if __name__ == "__main__":

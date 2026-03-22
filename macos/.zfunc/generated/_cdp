@@ -1,6 +1,6 @@
 #compdef cdp
-
-# Zsh completion for cdp — Chrome DevTools Protocol instance manager
+# Source: Generated from ~/bin/cdp
+# Regenerate: Update manually from changes in ~/bin/cdp
 
 _cdp() {
   local -a commands=(

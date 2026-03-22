@@ -1,0 +1,30 @@
+#compdef ser
+# Source: Generated from ~/bin/ser
+# Regenerate: Update manually from changes in ~/bin/ser
+
+local -a modes
+modes=(
+  'json-stringify:Wrap stdin as a JSON string (default)'
+  'json-parse:Unwrap a JSON string to raw text'
+  'b64:Base64 encode — standard alphabet (+/=)'
+  'b64d:Base64 decode (standard)'
+  'b64url:Base64 encode — URL-safe alphabet (-_ no padding)'
+  'b64urld:Base64 decode (URL-safe)'
+  'hex:Hex encode — plain lowercase hex string'
+  'hexd:Hex decode'
+  'urlencode:Percent-encode for use in URLs'
+  'urldecode:Percent-decode'
+  'html:HTML entity encode (<, >, &, ", '\'')'
+  'htmld:HTML entity decode'
+)
+
+_arguments -s \
+  '(-h --help)'{-h,--help}'[Show help]' \
+  '1:mode:->mode' \
+  '2:file:_files'
+
+case $state in
+  mode)
+    _describe 'mode' modes
+    ;;
+esac

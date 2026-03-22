@@ -1,0 +1,278 @@
+#compdef amp
+# Source: Generated from amp --help
+# Regenerate: Manually update based on `amp --help` and subcommand help output
+# Version: 0.0.1769314944
+
+local curcontext="$curcontext" state line
+typeset -A opt_args
+
+local -a commands
+commands=(
+  'logout:Log out by removing stored API key'
+  'login:Log in to Amp'
+  'threads:Manage threads'
+  't:Manage threads'
+  'thread:Manage threads'
+  'tools:Tool management commands'
+  'tool:Tool management commands'
+  'skill:Manage skills from GitHub or local sources'
+  'skills:Manage skills from GitHub or local sources'
+  'permissions:Manage permissions'
+  'permission:Manage permissions'
+  'mcp:Manage MCP servers'
+  'update:Update Amp CLI'
+)
+
+local -a threads_commands
+threads_commands=(
+  'new:Create a new thread'
+  'n:Create a new thread'
+  'continue:Continue an existing thread'
+  'c:Continue an existing thread'
+  'list:List all threads'
+  'l:List all threads'
+  'ls:List all threads'
+  'search:Search threads'
+  'find:Search threads'
+  'share:Share a thread'
+  's:Share a thread'
+  'rename:Rename a thread'
+  'r:Rename a thread'
+  'archive:Archive a thread'
+  'delete:Delete a thread'
+  'handoff:Create a handoff thread from an existing thread'
+  'h:Create a handoff thread from an existing thread'
+  'markdown:Render thread as markdown'
+  'md:Render thread as markdown'
+  'replay:Replay a thread'
+  'p:Replay a thread'
+)
+
+local -a tools_commands
+tools_commands=(
+  'list:List all active tools (including MCP tools)'
+  'ls:List all active tools (including MCP tools)'
+  'show:Show details about an active tool'
+  'make:Sets up a skeleton tool in your toolbox'
+  'use:Invoke a tool with arguments or JSON input from stdin'
+)
+
+local -a skill_commands
+skill_commands=(
+  'add:Install skills from a source'
+  'list:List all available skills'
+  'ls:List all available skills'
+  'remove:Remove an installed skill'
+  'rm:Remove an installed skill'
+  'info:Show information about a skill'
+)
+
+local -a permissions_commands
+permissions_commands=(
+  'list:List permissions'
+  'ls:List permissions'
+  'test:Test permissions'
+  'edit:Edit permissions'
+  'add:Add permission rule'
+)
+
+local -a mcp_commands
+mcp_commands=(
+  'add:Add an MCP server configuration'
+  'list:List all MCP server configurations'
+  'remove:Remove an MCP server configuration'
+  'oauth:Manage OAuth authentication for MCP servers'
+  'doctor:Check MCP server status'
+)
+
+local -a mcp_oauth_commands
+mcp_oauth_commands=(
+  'login:Register OAuth client credentials for an MCP server'
+  'logout:Remove OAuth credentials for an MCP server'
+  'status:Show OAuth status for an MCP server'
+)
+
+local -a global_options
+global_options=(
+  '--visibility[Set thread visibility]:visibility:(private public workspace group)'
+  '(-V --version)'{-V,--version}'[Print the version number and exit]'
+  '--notifications[Enable sound notifications]'
+  '--no-notifications[Disable sound notifications]'
+  '--settings-file[Custom settings file path]:file:_files'
+  '--log-level[Set log level]:level:(error warn info debug audit)'
+  '--log-file[Set log file location]:file:_files'
+  '--dangerously-allow-all[Disable all command confirmation prompts]'
+  '--jetbrains[Enable JetBrains integration]'
+  '--no-jetbrains[Disable JetBrains integration]'
+  '--ide[Enable IDE connection]'
+  '--no-ide[Disable IDE connection]'
+  '--mcp-config[JSON configuration or file path for MCP servers]:config:_files'
+  '(-m --mode)'{-m,--mode}'[Set the agent mode]:mode:(free rush smart)'
+  '(-x --execute)'{-x,--execute}'[Use execute mode, optionally with user message]::message:'
+  '--stream-json[Output in Claude Code-compatible stream JSON format]'
+  '--stream-json-thinking[Include thinking blocks in stream JSON output]'
+  '--stream-json-input[Read JSON Lines user messages from stdin]'
+  '*'{-l,--label}'[Add a label to the thread]:label:'
+)
+
+case $words[2] in
+  threads|t|thread)
+    if (( CURRENT == 3 )); then
+      _describe 'threads command' threads_commands
+    else
+      case $words[3] in
+        new|n)
+          _arguments $global_options
+          ;;
+        continue|c)
+          _arguments \
+            '--last[Continue the last thread directly without showing the picker]' \
+            '--pick[Pick a thread interactively from a list (DEPRECATED)]' \
+            $global_options \
+            '::threadId:'
+          ;;
+        list|l|ls|search|find|archive|delete)
+          _arguments $global_options
+          ;;
+        share|s|rename|r|handoff|h|markdown|md|replay|p)
+          _arguments $global_options ':threadId:'
+          ;;
+        *)
+          _message 'no more arguments'
+          ;;
+      esac
+    fi
+    return
+    ;;
+  tools|tool)
+    if (( CURRENT == 3 )); then
+      _describe 'tools command' tools_commands
+    else
+      case $words[3] in
+        list|ls)
+          _arguments $global_options
+          ;;
+        show|use)
+          _arguments $global_options ':tool:'
+          ;;
+        make)
+          _arguments $global_options ':name:'
+          ;;
+        *)
+          _message 'no more arguments'
+          ;;
+      esac
+    fi
+    return
+    ;;
+  skill|skills)
+    if (( CURRENT == 3 )); then
+      _describe 'skill command' skill_commands
+    else
+      case $words[3] in
+        add)
+          _arguments \
+            '--target[Target directory for skills]:dir:_files -/' \
+            '--global[Install to global skills directory]' \
+            '--overwrite[Overwrite existing skill with the same name]' \
+            '--name[Install with a custom local name]:name:' \
+            $global_options \
+            ':source:'
+          ;;
+        list|ls)
+          _arguments $global_options
+          ;;
+        remove|rm|info)
+          _arguments $global_options ':skill:'
+          ;;
+        *)
+          _message 'no more arguments'
+          ;;
+      esac
+    fi
+    return
+    ;;
+  permissions|permission)
+    if (( CURRENT == 3 )); then
+      _describe 'permissions command' permissions_commands
+    else
+      case $words[3] in
+        list|ls|edit)
+          _arguments $global_options
+          ;;
+        test|add)
+          _arguments $global_options '*:args:'
+          ;;
+        *)
+          _message 'no more arguments'
+          ;;
+      esac
+    fi
+    return
+    ;;
+  mcp)
+    if (( CURRENT == 3 )); then
+      _describe 'mcp command' mcp_commands
+    else
+      case $words[3] in
+        add)
+          _arguments \
+            '*--env[Environment variables as KEY=VALUE pairs]:kv:' \
+            '*--header[HTTP headers as KEY=VALUE pairs]:kv:' \
+            '--workspace[Target workspace settings instead of global settings]' \
+            $global_options \
+            ':name:' \
+            '*:args:'
+          ;;
+        list|doctor)
+          _arguments $global_options
+          ;;
+        remove)
+          _arguments $global_options ':name:'
+          ;;
+        oauth)
+          if (( CURRENT == 4 )); then
+            _describe 'oauth command' mcp_oauth_commands
+          else
+            case $words[4] in
+              login)
+                _arguments \
+                  '--server-url[Server URL]:url:' \
+                  '--client-id[Client ID]:id:' \
+                  '--client-secret[Client secret]:secret:' \
+                  '--scopes[OAuth scopes]:scopes:' \
+                  $global_options \
+                  ':server-name:'
+                ;;
+              logout|status)
+                _arguments $global_options ':server-name:'
+                ;;
+              *)
+                _message 'no more arguments'
+                ;;
+            esac
+          fi
+          ;;
+        *)
+          _message 'no more arguments'
+          ;;
+      esac
+    fi
+    return
+    ;;
+  login|logout|update)
+    _arguments $global_options
+    return
+    ;;
+esac
+
+_arguments -s \
+  $global_options \
+  '1:command:->command' \
+  '*:prompt:'
+
+case $state in
+  command)
+    _describe 'command' commands
+    ;;
+esac

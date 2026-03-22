@@ -1,0 +1,6 @@
+cmd/go
+cmd/gofmt
+github.com/Gelio/go-global-update
+github.com/x-motemen/gore/cmd/gore
+golang.org/x/tools/gopls
+honnef.co/go/tools/cmd/staticcheck

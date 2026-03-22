@@ -1,0 +1,73 @@
+// Zed keymap
+//
+// For information on binding keys, see the Zed
+// documentation: https://zed.dev/docs/key-bindings
+//
+// To see the default key bindings run `zed: open default keymap`
+// from the command palette.
+[
+  {
+    "bindings": {
+      "ctrl-h": "git::FileHistory",
+    },
+  },
+  {
+    "context": "AcpThread",
+    "bindings": {
+      "cmd-[": "pane::GoBack",
+    },
+  },
+  {
+    "context": "AgentConfiguration",
+    "bindings": {
+      "cmd-[": "pane::GoBack",
+    },
+  },
+  {
+    "context": "BufferSearchBar",
+    "bindings": {
+      "alt-cmd-o": "outline::Toggle",
+    },
+  },
+  {
+    "context": "Editor",
+    "bindings": {
+      "cmd-shift-i": null,
+      "ctrl-h": null,
+      "shift-f12": null,
+      "alt-shift-f": "editor::Format",
+      "alt-cmd-u": "editor::FindAllReferences",
+      "alt-cmd-j": "editor::GoToImplementation",
+    },
+  },
+  {
+    "context": "(Editor && mode == full)",
+    "bindings": {
+      "alt-cmd-o": "outline::Toggle",
+    },
+  },
+  {
+    "context": "Pane",
+    "bindings": {
+      "cmd-[": "pane::GoBack",
+      "cmd-]": "pane::GoForward",
+    },
+  },
+  {
+    "context": "ThreadHistory",
+    "bindings": {
+      "cmd-[": "pane::GoBack",
+    },
+  },
+  {
+    "context": "Workspace",
+    "bindings": {
+      "cmd-r": null,
+      "alt-cmd-o": null,
+      "alt-cmd-j": null,
+      "cmd-shift-b": "workspace::ToggleLeftDock",
+      "ctrl-shift-o": "outline_panel::ToggleFocus",
+      "cmd-b": "workspace::ToggleRightDock",
+    },
+  },
+]

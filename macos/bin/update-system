@@ -70,6 +70,16 @@ if command -v brew &>/dev/null; then
   brew cleanup
 fi
 
+if command -v mise &>/dev/null; then
+  echo "\e[34m=== mise ===\e[0m"
+  confirm "Update mise-managed tools?" \
+    "{
+      echo '\e[33mUpgradable mise tools\e[0m:';
+      mise outdated || true;
+    }" \
+    "{ mise upgrade }"
+fi
+
 if command -v rustup &>/dev/null && command -v cargo &>/dev/null; then
   echo "\e[34m=== Rust and Cargo packages ===\e[0m"
   confirm "Update Rust and global Rust packages?" \
@@ -93,14 +103,14 @@ if command -v go-global-update &>/dev/null; then
     "{ go-global-update }"
 fi
 
-if command -v bun &>/dev/null; then
-  echo "\e[34m=== Bun packages ===\e[0m"
-  confirm "Update global Bun packages?" \
+if command -v npm &>/dev/null; then
+  npm install -g npm
+  echo "\e[34m=== Node packages ===\e[0m"
+  confirm "Update global Node packages?" \
     "{
-      echo '\e[33mFresh buns\e[0m:';
-      bun outdated --global
+      echo '\e[33mNew nodes\e[0m:'; npm outdated -g
     }" \
-    "{ bun update --global }"
+    "{ npm update -g }"
 fi
 
 if command -v uv &>/dev/null; then
@@ -120,11 +130,11 @@ if command -v mas &>/dev/null; then
     "{ mas update }"
 fi
 
-if command -v claude &>/dev/null; then
-  echo "\e[34m=== Claude Code ===\e[0m"
-  confirm "Update Claude Code?" \
+if [[ -x "$HOME/.tmux/plugins/tpm/bin/update_plugins" ]]; then
+  echo "\e[34m=== tmux plugins ===\e[0m"
+  confirm "Update tmux plugins?" \
     "" \
-    "{ claude update }"
+    "{ ~/.tmux/plugins/tpm/bin/update_plugins all }"
 fi
 
 if command -v amp &>/dev/null; then
@@ -132,6 +142,36 @@ if command -v amp &>/dev/null; then
   confirm "Update Amp?" \
     "" \
     "{ amp update }"
+fi
+
+# Refresh mise default package lists
+echo "\e[34m=== mise default packages ===\e[0m"
+
+if command -v go &>/dev/null; then
+  echo "Exporting Go default packages..."
+  GOBIN="$(go env GOBIN)"
+  GOPATH="$(go env GOPATH)"
+  BIN_DIR="${GOBIN:-$GOPATH/bin}"
+  if [[ -d "$BIN_DIR" ]]; then
+    if {
+      for bin in "$BIN_DIR"/*; do
+        go version -m "$bin" 2>/dev/null | awk '/^\tpath/ {print $2}'
+      done
+    } | sort -u > ~/.default-go-packages; then
+      echo "✓ Go default packages exported"
+    else
+      echo "✗ Go default packages export failed"
+    fi
+  fi
+fi
+
+if command -v npm &>/dev/null; then
+  echo "Exporting npm default packages..."
+  if npm list -g --json 2>/dev/null | jq -r '.dependencies | keys[] | select(. != "npm" and . != "corepack")' | sort > ~/.default-npm-packages; then
+    echo "✓ npm default packages exported"
+  else
+    echo "✗ npm default packages export failed"
+  fi
 fi
 
 echo "\e[32mSystem update complete!\e[0m"

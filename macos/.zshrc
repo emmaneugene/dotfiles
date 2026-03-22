@@ -42,6 +42,7 @@ path=(
   "$HOME/.bun/bin"        # bun (replaces npm)
   "$HOMEBREW_PREFIX/bin"  # homebrew
   "$HOMEBREW_PREFIX/sbin" # homebrew
+  "/Applications/Obsidian.app/Contents/MacOS" # obsidian CLI
   $path
 )
 # Man pages
@@ -73,7 +74,7 @@ plugins=(
   command-not-found
   docker
   docker-compose
-  dotenv
+
   golang
   history-substring-search
   macos
@@ -89,8 +90,6 @@ source "$HOME/.config/secrets.sh"
 source "$HOME/.config/helpers.sh"
 # Interactive Python
 export PYTHONSTARTUP="$HOME/.config/pythonstartup.py"
-# Claude Code
-export MAX_MCP_OUTPUT_TOKENS=100000
 # fzf
 export FZF_DEFAULT_OPTS='--walker file,dir,hidden'
 source <(fzf --zsh)

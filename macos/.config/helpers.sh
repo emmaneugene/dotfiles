@@ -1,6 +1,6 @@
 #!/usr/bin/env zsh
 
-# Collection of aliases, helper functions and scripts for UNIX-based systems
+# Collection of personal aliases, helper functions and env vars
 # Core
 alias c="clear"
 alias l="eza -lAh --icons=always --time-style='+%Y-%m-%d %H:%M'"
@@ -10,14 +10,25 @@ alias f="file --no-dereference"
 alias ide="code"
 alias ldo="lazydocker"
 alias lg="lazygit"
-alias cco="claude"
+alias cc="claude --verbose"
 alias oc="opencode"
+export VAULT_DIR="~/vault/"
 
 # git
 alias g=git
 alias ga="git add"
 alias gb="git branch"
 alias gbv="git branch -vv"
+gbd() {
+  local branch="$1"
+
+  if [[ -z "$branch" ]]; then
+    echo "Usage: gbd <branch>"
+    return 1
+  fi
+
+  git branch -D "$branch" && git push --delete origin "$branch"
+}
 gba() {
   git branch -a --format='%(if)%(HEAD)%(then)* %(else) %(end)%(refname)
     | %(objectname:short) | %(committerdate:relative) | %(authorname) %(authoremail)' \

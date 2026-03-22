@@ -1,0 +1,108 @@
+// Zed settings
+//
+// For information on how to configure Zed, see the Zed
+// documentation: https://zed.dev/docs/configuring-zed
+//
+// To see all of Zed's default settings without changing your
+// custom settings, run `zed: open default settings` from the
+// command palette (cmd-shift-p / ctrl-shift-p)
+{
+  "notification_panel": {
+    "dock": "left",
+  },
+  "outline_panel": {
+    "dock": "right",
+  },
+  "agent_servers": {
+    "pi-acp": {
+      "type": "registry",
+    },
+    "amp-acp": {
+      "type": "registry",
+    },
+  },
+  "agent": {
+    "tool_permissions": {
+      "default": "confirm",
+      "tools": {
+        "terminal": {
+          "default": "allow",
+        },
+      },
+    },
+    "dock": "left",
+    "inline_assistant_model": {
+      "provider": "copilot_chat",
+      "model": "claude-sonnet-4.6",
+      "enable_thinking": false,
+    },
+    "default_model": {
+      "provider": "copilot_chat",
+      "model": "claude-sonnet-4.6",
+      "enable_thinking": false,
+    },
+    "favorite_models": [
+      {
+        "provider": "copilot_chat",
+        "model": "claude-sonnet-4.6",
+        "enable_thinking": false,
+      },
+    ],
+    "model_parameters": [],
+  },
+  "ui_font_family": ".ZedSans",
+  "edit_predictions": {
+    "mode": "subtle",
+    "provider": "copilot",
+  },
+  "use_system_window_tabs": true,
+  "git_panel": {
+    "tree_view": true,
+    "dock": "right",
+  },
+  "project_panel": {
+    "dock": "right",
+  },
+  "session": {
+    "trust_all_worktrees": true,
+  },
+  "terminal": {
+    "font_size": 12.0,
+    "max_scroll_history_lines": 99999,
+  },
+  "telemetry": {
+    "diagnostics": false,
+    "metrics": false,
+  },
+  "git": {
+    "inline_blame": {
+      "show_commit_summary": true,
+      "enabled": true,
+    },
+  },
+  "base_keymap": "VSCode",
+  "gutter": {
+    "line_numbers": true,
+  },
+  "autosave": "on_focus_change",
+  "buffer_font_fallbacks": [".ZedMono"],
+  "buffer_font_family": "Hack Nerd Font Mono",
+  "colorize_brackets": false,
+  "show_whitespaces": "selection",
+  "show_edit_predictions": true,
+  "ensure_final_newline_on_save": true,
+  "wrap_guides": [100],
+  "soft_wrap": "editor_width",
+  "icon_theme": {
+    "mode": "system",
+    "light": "Colored Zed Icons Theme Dark",
+    "dark": "Colored Zed Icons Theme Dark",
+  },
+  "ui_font_size": 13.0,
+  "buffer_font_size": 12.0,
+  "theme": {
+    "mode": "dark",
+    "light": "One Light",
+    "dark": "One Dark",
+  },
+}

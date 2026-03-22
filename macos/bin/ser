@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+# ser: serialize/deserialize stdin or a file
+# Usage: ser <mode> [file]
+# Modes: json-stringify, json-parse, b64, b64d, b64url, b64urld, hex, hexd, urlencode, urldecode, html, htmld
+
+usage() {
+  cat <<EOF
+Usage: ser <mode> [file]
+
+Serialize or deserialize stdin, or a file if provided.
+
+Modes:
+  json-stringify   Wrap stdin as a JSON string — e.g. embed raw text inside JSON (default)
+  json-parse       Unwrap a JSON string to raw text
+
+  b64              Base64 encode — standard alphabet (+/=); use for PEM certs, Basic Auth
+                   headers, data URIs, MIME attachments, or any generic blob
+  b64d             Base64 decode (standard)
+
+  b64url           Base64 encode — URL-safe alphabet (-_ no padding); use for JWTs,
+                   OAuth tokens, or anything embedded directly in a URL
+  b64urld          Base64 decode (URL-safe)
+
+  hex              Hex encode — plain lowercase hex string, no spaces
+  hexd             Hex decode
+
+  urlencode        Percent-encode — safe to embed in a URL query string or path segment
+  urldecode        Percent-decode
+
+  html             HTML entity encode — escapes <, >, &, ", ' for safe use in HTML
+  htmld            HTML entity decode
+
+  -h, --help       Show this help
+EOF
+}
+
+mode="${1:-json-stringify}"
+
+# If a file argument is given, redirect it to stdin so all modes work transparently
+if [[ -n "${2:-}" ]]; then
+  [[ -f "$2" ]] || { echo "ser: file not found: $2" >&2; exit 1; }
+  exec < "$2"
+fi
+
+case "$mode" in
+  -h|--help)      usage; exit 0 ;;
+  json-stringify) jq -Rs . ;;
+  json-parse)     jq -r . ;;
+  b64)            base64 ;;
+  b64d)           base64 -d ;;
+  b64url)         python3 -c "import base64,sys; print(base64.urlsafe_b64encode(sys.stdin.buffer.read()).rstrip(b'=').decode())" ;;
+  b64urld)        python3 -c "import base64,sys; d=sys.stdin.read().strip(); d+='='*(-len(d)%4); print(base64.urlsafe_b64decode(d).decode())" ;;
+  hex)            xxd -p | tr -d '\n'; echo ;;
+  hexd)           xxd -p -r ;;
+  urlencode)      python3 -c "import urllib.parse,sys; print(urllib.parse.quote(sys.stdin.read().strip()))" ;;
+  urldecode)      python3 -c "import urllib.parse,sys; print(urllib.parse.unquote(sys.stdin.read().strip()))" ;;
+  html)           python3 -c "import html,sys; print(html.escape(sys.stdin.read().strip()))" ;;
+  htmld)          python3 -c "import html,sys; print(html.unescape(sys.stdin.read().strip()))" ;;
+  *)              echo "Unknown mode: $mode" >&2; echo "Run 'ser --help' for usage." >&2; exit 1 ;;
+esac

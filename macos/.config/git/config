@@ -7,12 +7,11 @@
 [column]
 	ui = never
 [commit]
-	template = ~/.gitmessage
+	template = ~/.config/git/message
 	verbose = true
 [core]
 	autocrlf = false
 	editor = nvim
-	excludesfile = ~/.gitignore
 	hooksPath = .githooks
 	ignorecase = false
 [diff]
@@ -23,6 +22,9 @@
 	prompt = false
 [difftool "difftastic"]
 	cmd = difft "$LOCAL" "$REMOTE"
+[difftool "sourcetree"]
+	cmd = opendiff \"$LOCAL\" \"$REMOTE\"
+	path =
 [fetch]
 	prune = true
 	pruneTags = true
@@ -41,6 +43,9 @@
 [merge]
 	conflictstyle = zdiff3
 	tool = nvimdiff
+[merge "mergiraf"]
+    name = mergiraf
+    driver = mergiraf merge --git %O %A %B -s %S -x %X -y %Y -p %P -l %L
 [mergetool "sourcetree"]
 	cmd = /Applications/Sourcetree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
 	trustExitCode = true
@@ -63,6 +68,3 @@
 	bareRepository = explicit
 [tag]
 	sort = -creatordate
-[difftool "sourcetree"]
-	cmd = opendiff \"$LOCAL\" \"$REMOTE\"
-	path =

@@ -1,8 +1,5 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "keybinds": {
-    "leader": "ctrl+s",
-  },
   "permission": {
     "webfetch": "allow",
     "websearch": "allow",
@@ -12,7 +9,7 @@
       "**/.env.*": "deny",
       "**/.env.example": "allow"
     },
-    "edit": "ask",
+    "edit": "allow",
     "glob": "allow",
     "grep": "allow",
     "bash": {
@@ -59,8 +56,7 @@
       "python *": "allow",
       "node *": "allow",
       "docker *": "allow",
-      "docker-compose *": "allow",
-    },
-  },
-  "theme": "system"
+      "docker-compose *": "allow"
+    }
+  }
 }
