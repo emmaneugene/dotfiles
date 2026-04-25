@@ -1,7 +1,0 @@
-{
-  "$schema": "https://opencode.ai/tui.json",
-  "theme": "nord",
-  "keybinds": {
-    "leader": "ctrl+s"
-  }
-}
