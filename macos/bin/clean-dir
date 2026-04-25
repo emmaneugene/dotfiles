@@ -1,0 +1,137 @@
+#!/usr/bin/env -S uv run --script
+# /// script
+# dependencies = ["argcomplete"]
+# ///
+# PYTHON_ARGCOMPLETE_OK
+
+"""
+Recursively clean a directory:
+  - Remove junk files (.DS_Store, Thumbs.db, desktop.ini, .localized)
+  - Remove broken symlinks
+  - Prune empty directories
+
+Usage: clean-dir [OPTIONS] [PATH]
+"""
+
+import argparse
+import os
+import sys
+from pathlib import Path
+
+import argcomplete
+
+JUNK_FILES = {".DS_Store", "Thumbs.db", "desktop.ini", ".localized"}
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(
+        description="Recursively clean a directory: remove junk files, broken symlinks, and empty directories.",
+        epilog="""
+Examples:
+  clean-dir                  # Clean current directory
+  clean-dir -d ~/Downloads   # Dry run on ~/Downloads
+  clean-dir -v /tmp/project  # Clean with verbose output
+        """,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    parser.add_argument(
+        "directory",
+        nargs="?",
+        default=".",
+        help="Directory to clean (default: current directory)",
+    ).completer = argcomplete.completers.DirectoriesCompleter()
+    parser.add_argument(
+        "-d", "--dry-run",
+        action="store_true",
+        help="Show what would be removed without actually removing anything",
+    )
+    parser.add_argument(
+        "-v", "--verbose",
+        action="store_true",
+        help="Show additional detail during processing",
+    )
+
+    argcomplete.autocomplete(parser)
+    args = parser.parse_args()
+
+    target = Path(args.directory).resolve()
+
+    if not target.exists():
+        print(f"Error: path does not exist: {target}", file=sys.stderr)
+        sys.exit(1)
+    if not target.is_dir():
+        print(f"Error: not a directory: {target}", file=sys.stderr)
+        sys.exit(1)
+
+    if args.dry_run:
+        print("DRY RUN — no files will be removed")
+    if args.verbose:
+        print(f"Cleaning: {target}")
+
+    def remove_file(path: Path, reason: str) -> bool:
+        label = "Would remove" if args.dry_run else "Removing"
+        print(f"{label} {reason}: {path}")
+        if not args.dry_run:
+            try:
+                path.unlink()
+                return True
+            except OSError as e:
+                print(f"Error removing {path}: {e}", file=sys.stderr)
+                return False
+        return True
+
+    def remove_dir(path: Path) -> bool:
+        label = "Would remove" if args.dry_run else "Removing"
+        print(f"{label} empty dir: {path}")
+        if not args.dry_run:
+            try:
+                path.rmdir()
+                return True
+            except OSError as e:
+                print(f"Error removing {path}: {e}", file=sys.stderr)
+                return False
+        return True
+
+    junk = broken = empty = 0
+
+    # topdown=False ensures we visit children before parents (needed for empty-dir pruning)
+    for dirpath, dirnames, filenames in os.walk(str(target), topdown=False, followlinks=False):
+        current = Path(dirpath)
+
+        # filenames covers regular files and symlinks to files;
+        # dirnames covers subdirectories and symlinks to directories
+        for name in filenames + dirnames:
+            item = current / name
+            if item.is_symlink() and not item.exists():
+                if remove_file(item, "broken symlink"):
+                    broken += 1
+            elif name in JUNK_FILES and not item.is_dir():
+                if remove_file(item, "junk file"):
+                    junk += 1
+
+        # Prune the directory itself if now empty (skip the root target)
+        if current != target:
+            try:
+                if not any(current.iterdir()):
+                    if remove_dir(current):
+                        empty += 1
+            except OSError:
+                pass
+
+    total = junk + broken + empty
+    if total == 0:
+        print("Nothing to remove.")
+    else:
+        verb = "Would remove" if args.dry_run else "Removed"
+        parts = []
+        if junk:
+            parts.append(f"{junk} junk file(s)")
+        if broken:
+            parts.append(f"{broken} broken symlink(s)")
+        if empty:
+            parts.append(f"{empty} empty dir(s)")
+        print(f"{verb} {', '.join(parts)}.")
+
+
+if __name__ == "__main__":
+    main()

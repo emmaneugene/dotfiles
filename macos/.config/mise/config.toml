@@ -4,5 +4,5 @@ java = "liberica-21"
 lua = "5.1"
 node = "24.14.0"
 ruby = "4.0.1"
-rust = "latest" # Cargo backend
-uv = "latest"
+rust = "1.94.1" # Cargo backend
+uv = "0.11.2"

@@ -1,0 +1,827 @@
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.9"
+# dependencies = ["argcomplete"]
+# ///
+# PYTHON_ARGCOMPLETE_OK
+"""Opinionated tmux controller for agent workflows."""
+
+from __future__ import annotations
+
+import argparse
+import json
+import argcomplete
+import os
+import re
+import shutil
+import stat
+import subprocess
+import sys
+import time
+from pathlib import Path
+
+DEFAULT_LINES = 200
+DEFAULT_WAIT_LINES = 1000
+DEFAULT_WAIT_TIMEOUT = 15
+DEFAULT_WAIT_INTERVAL = 0.5
+
+
+class CliError(Exception):
+    def __init__(
+        self, message: str, *, exit_code: int = 1, details: dict | None = None
+    ):
+        super().__init__(message)
+        self.message = message
+        self.exit_code = exit_code
+        self.details = details or {}
+
+
+def normalize_args(argv: list[str]) -> tuple[list[str], bool]:
+    json_output = False
+    if argv and argv[0] == "--json":
+        json_output = True
+        argv = argv[1:]
+    return argv, json_output
+
+
+def default_socket_dir() -> Path:
+    base = os.environ.get("AGENT_TMUX_SOCKET_DIR") or os.path.join(
+        os.environ.get("TMPDIR", "/tmp"), "agent-tmux-sockets"
+    )
+    return Path(base).expanduser()
+
+
+def resolve_socket_path(socket: str | None) -> Path:
+    if socket:
+        return Path(socket).expanduser()
+    return default_socket_dir() / "agent.sock"
+
+
+def tmux_command(socket: Path, *, use_user_config: bool) -> list[str]:
+    cmd = ["tmux"]
+    if not use_user_config:
+        cmd.extend(["-f", "/dev/null"])
+    cmd.extend(["-S", str(socket)])
+    return cmd
+
+
+def run_tmux(
+    socket: Path,
+    *args: str,
+    use_user_config: bool = False,
+    check: bool = True,
+) -> subprocess.CompletedProcess[str]:
+    cmd = [*tmux_command(socket, use_user_config=use_user_config), *args]
+    result = subprocess.run(cmd, capture_output=True, text=True)
+    if check and result.returncode != 0:
+        raise CliError(
+            f"tmux command failed: {' '.join(args)}",
+            details={
+                "command": cmd,
+                "stdout": result.stdout,
+                "stderr": result.stderr,
+                "returncode": result.returncode,
+                "socket_path": str(socket),
+            },
+        )
+    return result
+
+
+def ensure_socket_dir(path: Path) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+
+
+def normalize_target(target: str) -> str:
+    if ":" not in target:
+        return f"{target}:0.0"
+    session, rest = target.split(":", 1)
+    if not rest:
+        return f"{session}:0.0"
+    if "." not in rest:
+        return f"{session}:{rest}.0"
+    return target
+
+
+def attach_command(socket: Path, session: str) -> str:
+    return f'tmux -S "{socket}" attach -t {session}'
+
+
+def capture_command(socket: Path, target: str, lines: int = DEFAULT_LINES) -> str:
+    return f'tmux -S "{socket}" capture-pane -p -J -t {target} -S -{lines}'
+
+
+def session_exists(socket: Path, session: str, *, use_user_config: bool) -> bool:
+    result = run_tmux(
+        socket,
+        "has-session",
+        "-t",
+        session,
+        use_user_config=use_user_config,
+        check=False,
+    )
+    return result.returncode == 0
+
+
+def socket_status(socket: Path) -> dict:
+    exists = socket.exists()
+    is_socket = exists and stat.S_ISSOCK(socket.stat().st_mode)
+    return {
+        "path": str(socket),
+        "exists": exists,
+        "is_socket": is_socket,
+    }
+
+
+def scan_managed_sockets() -> list[Path]:
+    directory = default_socket_dir()
+    if not directory.exists():
+        return []
+    paths = []
+    for child in sorted(directory.iterdir()):
+        try:
+            mode = child.stat().st_mode
+        except FileNotFoundError:
+            continue
+        if stat.S_ISSOCK(mode):
+            paths.append(child)
+    return paths
+
+
+def list_sessions_for_socket(
+    socket: Path, *, query: str | None, use_user_config: bool
+) -> dict:
+    result = run_tmux(
+        socket,
+        "list-sessions",
+        "-F",
+        "#{session_name}\t#{session_attached}\t#{session_created_string}",
+        use_user_config=use_user_config,
+        check=False,
+    )
+    if result.returncode != 0:
+        return {
+            "socket_path": str(socket),
+            "sessions": [],
+            "server_running": False,
+            "stderr": result.stderr.strip(),
+        }
+
+    sessions = []
+    for line in result.stdout.splitlines():
+        if not line.strip():
+            continue
+        name, attached, created = (line.split("\t", 2) + ["", "", ""])[:3]
+        if query and query.lower() not in name.lower():
+            continue
+        sessions.append(
+            {
+                "name": name,
+                "attached": attached == "1",
+                "created": created,
+            }
+        )
+
+    return {
+        "socket_path": str(socket),
+        "sessions": sessions,
+        "server_running": True,
+        "stderr": "",
+    }
+
+
+def add_common_json(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument(
+        "--json",
+        action="store_true",
+        dest="json_output",
+        help="Emit machine-readable JSON",
+    )
+
+
+def add_socket_arg(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument(
+        "--socket", help="tmux socket path (default: managed agent socket)"
+    )
+
+
+def add_config_arg(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument(
+        "--use-user-config",
+        action="store_true",
+        help="Use the user's tmux config instead of a clean '-f /dev/null' config",
+    )
+
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        prog="agent-tmux",
+        description="Agent-friendly tmux controller using managed private sockets.",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=(
+            "Typical workflow:\n"
+            "  agent-tmux session start --name build --cwd /my/project\n"
+            "  agent-tmux pane send --target build --literal 'make test' --enter\n"
+            "  agent-tmux pane wait --target build --pattern 'PASSED'\n"
+            "  agent-tmux pane capture --target build\n"
+            "  agent-tmux monitor show --session build"
+        ),
+    )
+    subparsers = parser.add_subparsers(dest="command", required=True)
+
+    doctor = subparsers.add_parser(
+        "doctor",
+        help="Check tmux and managed socket state",
+        description="Check that tmux is installed and show the state of the managed agent socket.",
+    )
+    add_socket_arg(doctor)
+    add_common_json(doctor)
+
+    session = subparsers.add_parser(
+        "session",
+        help="Manage tmux sessions",
+        description="Create, list, and kill tmux sessions on the managed agent socket.",
+    )
+    session_sub = session.add_subparsers(dest="session_command", required=True)
+
+    start = session_sub.add_parser(
+        "start",
+        help="Create a detached session",
+        description="Create a new named detached tmux session. Outputs the default pane target and convenience attach/capture commands.",
+    )
+    start.add_argument("--name", required=True, help="Session name")
+    start.add_argument("--cwd", help="Working directory for the new session")
+    start.add_argument("--window", default="shell", help="Window name (default: shell)")
+    add_socket_arg(start)
+    add_config_arg(start)
+    add_common_json(start)
+
+    list_parser = session_sub.add_parser(
+        "list",
+        help="List sessions",
+        description="List sessions across the managed socket, or across all managed sockets with --all-sockets.",
+    )
+    add_socket_arg(list_parser)
+    add_config_arg(list_parser)
+    list_parser.add_argument(
+        "--all-sockets", action="store_true", help="Scan all managed sockets"
+    )
+    list_parser.add_argument(
+        "--query", help="Case-insensitive substring filter on session name"
+    )
+    add_common_json(list_parser)
+
+    kill = session_sub.add_parser(
+        "kill",
+        help="Kill one session",
+        description="Kill a named session and all its panes.",
+    )
+    kill.add_argument("--name", required=True, help="Session name")
+    add_socket_arg(kill)
+    add_config_arg(kill)
+    add_common_json(kill)
+
+    server = subparsers.add_parser(
+        "server",
+        help="Manage tmux servers",
+        description="Manage the underlying tmux server process.",
+    )
+    server_sub = server.add_subparsers(dest="server_command", required=True)
+
+    server_kill = server_sub.add_parser(
+        "kill",
+        help="Kill one server or all managed sockets",
+        description="Kill the tmux server and all its sessions on the managed socket.",
+    )
+    add_socket_arg(server_kill)
+    add_config_arg(server_kill)
+    server_kill.add_argument(
+        "--all-sockets", action="store_true", help="Kill all managed sockets"
+    )
+    add_common_json(server_kill)
+
+    pane = subparsers.add_parser(
+        "pane",
+        help="Interact with tmux panes",
+        description="Send input to, capture output from, or wait on a pane.",
+    )
+    pane_sub = pane.add_subparsers(dest="pane_command", required=True)
+
+    send = pane_sub.add_parser(
+        "send",
+        help="Send literal text or keys to a pane",
+        description="Send literal text or key sequences to a pane. Use --literal for shell commands and --enter to submit.",
+    )
+    send.add_argument(
+        "--target",
+        required=True,
+        help="tmux target, defaults bare session names to :0.0",
+    )
+    add_socket_arg(send)
+    add_config_arg(send)
+    group = send.add_mutually_exclusive_group(required=True)
+    group.add_argument("--literal", help="Literal text to send via 'send-keys -l'")
+    group.add_argument(
+        "--key", action="append", help="tmux key to send; repeat to send multiple keys"
+    )
+    send.add_argument(
+        "--enter", action="store_true", help="Send Enter after the literal text"
+    )
+    add_common_json(send)
+
+    capture = pane_sub.add_parser(
+        "capture",
+        help="Capture pane output",
+        description="Print the current scrollback buffer of a pane to stdout.",
+    )
+    capture.add_argument(
+        "--target",
+        required=True,
+        help="tmux target, defaults bare session names to :0.0",
+    )
+    add_socket_arg(capture)
+    add_config_arg(capture)
+    capture.add_argument(
+        "--lines",
+        type=int,
+        default=DEFAULT_LINES,
+        help=f"History lines to capture (default: {DEFAULT_LINES})",
+    )
+    capture.add_argument(
+        "--joined", action="store_true", help="Join wrapped lines (default behavior)"
+    )
+    add_common_json(capture)
+
+    wait = pane_sub.add_parser(
+        "wait",
+        help="Poll pane output until a pattern appears",
+        description="Poll a pane's scrollback buffer until a regex pattern appears or the timeout elapses. Exits non-zero on timeout.",
+    )
+    wait.add_argument(
+        "--target",
+        required=True,
+        help="tmux target, defaults bare session names to :0.0",
+    )
+    add_socket_arg(wait)
+    add_config_arg(wait)
+    wait.add_argument("--pattern", required=True, help="Regex pattern to match")
+    wait.add_argument(
+        "--fixed", action="store_true", help="Treat pattern as a fixed string"
+    )
+    wait.add_argument(
+        "--timeout",
+        type=int,
+        default=DEFAULT_WAIT_TIMEOUT,
+        help=f"Timeout in seconds (default: {DEFAULT_WAIT_TIMEOUT})",
+    )
+    wait.add_argument(
+        "--interval",
+        type=float,
+        default=DEFAULT_WAIT_INTERVAL,
+        help=f"Polling interval in seconds (default: {DEFAULT_WAIT_INTERVAL})",
+    )
+    wait.add_argument(
+        "--lines",
+        type=int,
+        default=DEFAULT_WAIT_LINES,
+        help=f"History lines to inspect (default: {DEFAULT_WAIT_LINES})",
+    )
+    add_common_json(wait)
+
+    monitor = subparsers.add_parser(
+        "monitor",
+        help="Show attach/capture commands",
+        description="Get the attach and capture-pane commands for a session, for human monitoring.",
+    )
+    monitor_sub = monitor.add_subparsers(dest="monitor_command", required=True)
+    monitor_show = monitor_sub.add_parser(
+        "show",
+        help="Show monitor commands for a session",
+        description="Print the tmux attach and capture-pane shell commands for a session.",
+    )
+    monitor_show.add_argument("--session", required=True, help="Session name")
+    add_socket_arg(monitor_show)
+    add_config_arg(monitor_show)
+    add_common_json(monitor_show)
+
+    return parser
+
+
+def command_doctor(args: argparse.Namespace) -> dict:
+    socket = resolve_socket_path(args.socket)
+    tmux_path = shutil.which("tmux")
+    version_result = subprocess.run(["tmux", "-V"], capture_output=True, text=True)
+    status = socket_status(socket)
+    server = (
+        list_sessions_for_socket(socket, query=None, use_user_config=False)
+        if status["is_socket"]
+        else {
+            "server_running": False,
+            "sessions": [],
+            "stderr": "",
+        }
+    )
+    return {
+        "ok": bool(tmux_path),
+        "command": "doctor",
+        "tmux_path": tmux_path,
+        "tmux_version": version_result.stdout.strip()
+        if version_result.returncode == 0
+        else None,
+        "socket_dir": str(default_socket_dir()),
+        "default_socket_path": str(resolve_socket_path(None)),
+        "resolved_socket_path": str(socket),
+        "socket_exists": status["exists"],
+        "socket_is_socket": status["is_socket"],
+        "server_running": server["server_running"],
+        "session_count": len(server["sessions"]),
+    }
+
+
+def command_session_start(args: argparse.Namespace) -> dict:
+    socket = resolve_socket_path(args.socket)
+    ensure_socket_dir(socket)
+    run_tmux(
+        socket,
+        "new-session",
+        "-d",
+        "-s",
+        args.name,
+        "-n",
+        args.window,
+        *(["-c", args.cwd] if args.cwd else []),
+        use_user_config=args.use_user_config,
+    )
+    target = normalize_target(args.name)
+    return {
+        "ok": True,
+        "command": "session start",
+        "socket_path": str(socket),
+        "session": args.name,
+        "target": target,
+        "attach_command": attach_command(socket, args.name),
+        "capture_command": capture_command(socket, target),
+        "cwd": args.cwd,
+        "window": args.window,
+    }
+
+
+def command_session_list(args: argparse.Namespace) -> dict:
+    if args.all_sockets and args.socket:
+        raise CliError("Cannot combine --all-sockets with --socket.")
+    sockets = (
+        scan_managed_sockets()
+        if args.all_sockets
+        else [resolve_socket_path(args.socket)]
+    )
+    if args.all_sockets and not sockets:
+        return {
+            "ok": True,
+            "command": "session list",
+            "all_sockets": True,
+            "results": [],
+        }
+    results = [
+        list_sessions_for_socket(
+            socket, query=args.query, use_user_config=args.use_user_config
+        )
+        for socket in sockets
+    ]
+    return {
+        "ok": True,
+        "command": "session list",
+        "all_sockets": bool(args.all_sockets),
+        "query": args.query,
+        "results": results,
+    }
+
+
+def command_session_kill(args: argparse.Namespace) -> dict:
+    socket = resolve_socket_path(args.socket)
+    run_tmux(
+        socket,
+        "kill-session",
+        "-t",
+        args.name,
+        use_user_config=args.use_user_config,
+    )
+    return {
+        "ok": True,
+        "command": "session kill",
+        "socket_path": str(socket),
+        "session": args.name,
+    }
+
+
+def command_server_kill(args: argparse.Namespace) -> dict:
+    if args.all_sockets and args.socket:
+        raise CliError("Cannot combine --all-sockets with --socket.")
+    sockets = (
+        scan_managed_sockets()
+        if args.all_sockets
+        else [resolve_socket_path(args.socket)]
+    )
+    killed = []
+    for socket in sockets:
+        result = run_tmux(
+            socket,
+            "kill-server",
+            use_user_config=args.use_user_config,
+            check=False,
+        )
+        killed.append(
+            {
+                "socket_path": str(socket),
+                "ok": result.returncode == 0,
+                "stderr": result.stderr.strip(),
+            }
+        )
+    return {
+        "ok": all(item["ok"] for item in killed) if killed else True,
+        "command": "server kill",
+        "all_sockets": bool(args.all_sockets),
+        "killed": killed,
+    }
+
+
+def command_pane_send(args: argparse.Namespace) -> dict:
+    socket = resolve_socket_path(args.socket)
+    target = normalize_target(args.target)
+    if args.literal is not None:
+        run_tmux(
+            socket,
+            "send-keys",
+            "-t",
+            target,
+            "-l",
+            "--",
+            args.literal,
+            use_user_config=args.use_user_config,
+        )
+        sent = {"mode": "literal", "literal": args.literal}
+        if args.enter:
+            run_tmux(
+                socket,
+                "send-keys",
+                "-t",
+                target,
+                "Enter",
+                use_user_config=args.use_user_config,
+            )
+            sent["enter"] = True
+    else:
+        for key in args.key or []:
+            run_tmux(
+                socket,
+                "send-keys",
+                "-t",
+                target,
+                key,
+                use_user_config=args.use_user_config,
+            )
+        sent = {"mode": "keys", "keys": args.key or []}
+    return {
+        "ok": True,
+        "command": "pane send",
+        "socket_path": str(socket),
+        "target": target,
+        "sent": sent,
+    }
+
+
+def capture_text(
+    socket: Path, target: str, *, lines: int, joined: bool, use_user_config: bool
+) -> str:
+    args = ["capture-pane", "-p"]
+    if joined:
+        args.append("-J")
+    args.extend(["-t", target, "-S", f"-{lines}"])
+    result = run_tmux(socket, *args, use_user_config=use_user_config)
+    return result.stdout
+
+
+def command_pane_capture(args: argparse.Namespace) -> dict:
+    socket = resolve_socket_path(args.socket)
+    target = normalize_target(args.target)
+    text = capture_text(
+        socket,
+        target,
+        lines=args.lines,
+        joined=True,
+        use_user_config=args.use_user_config,
+    )
+    return {
+        "ok": True,
+        "command": "pane capture",
+        "socket_path": str(socket),
+        "target": target,
+        "lines": args.lines,
+        "joined": True,
+        "text": text,
+    }
+
+
+def command_pane_wait(args: argparse.Namespace) -> dict:
+    socket = resolve_socket_path(args.socket)
+    target = normalize_target(args.target)
+    deadline = time.monotonic() + args.timeout
+    if args.fixed:
+        matcher = lambda text: args.pattern in text
+    else:
+        regex = re.compile(args.pattern)
+        matcher = lambda text: bool(regex.search(text))
+    last_text = ""
+    while True:
+        last_text = capture_text(
+            socket,
+            target,
+            lines=args.lines,
+            joined=True,
+            use_user_config=args.use_user_config,
+        )
+        if matcher(last_text):
+            return {
+                "ok": True,
+                "command": "pane wait",
+                "socket_path": str(socket),
+                "target": target,
+                "pattern": args.pattern,
+                "fixed": bool(args.fixed),
+                "timeout": args.timeout,
+                "interval": args.interval,
+                "lines": args.lines,
+                "matched": True,
+            }
+        if time.monotonic() >= deadline:
+            raise CliError(
+                f"Timed out after {args.timeout}s waiting for pattern: {args.pattern}",
+                details={
+                    "command": "pane wait",
+                    "socket_path": str(socket),
+                    "target": target,
+                    "pattern": args.pattern,
+                    "fixed": bool(args.fixed),
+                    "timeout": args.timeout,
+                    "interval": args.interval,
+                    "lines": args.lines,
+                    "last_text": last_text,
+                },
+            )
+        time.sleep(args.interval)
+
+
+def command_monitor_show(args: argparse.Namespace) -> dict:
+    socket = resolve_socket_path(args.socket)
+    if not session_exists(socket, args.session, use_user_config=args.use_user_config):
+        raise CliError(
+            f"Session not found: {args.session}",
+            details={"socket_path": str(socket), "session": args.session},
+        )
+    target = normalize_target(args.session)
+    return {
+        "ok": True,
+        "command": "monitor show",
+        "socket_path": str(socket),
+        "session": args.session,
+        "target": target,
+        "attach_command": attach_command(socket, args.session),
+        "capture_command": capture_command(socket, target),
+    }
+
+
+def emit_result(payload: dict, *, json_output: bool) -> None:
+    if json_output:
+        print(json.dumps(payload, indent=2, sort_keys=True))
+        return
+
+    command = payload["command"]
+    if command == "doctor":
+        print(f"tmux: {payload['tmux_path'] or 'missing'}")
+        print(f"version: {payload['tmux_version'] or 'unknown'}")
+        print(f"socket dir: {payload['socket_dir']}")
+        print(f"default socket: {payload['default_socket_path']}")
+        print(f"resolved socket: {payload['resolved_socket_path']}")
+        print(f"server running: {'yes' if payload['server_running'] else 'no'}")
+        print(f"session count: {payload['session_count']}")
+        return
+
+    if command == "session start":
+        print(f"Started session '{payload['session']}' on {payload['socket_path']}")
+        print(f"Default pane target: {payload['target']}")
+        print("\nTo monitor this session yourself:")
+        print(f"  {payload['attach_command']}")
+        print("\nOr to capture the output once:")
+        print(f"  {payload['capture_command']}")
+        return
+
+    if command == "session list":
+        if not payload["results"]:
+            print("No managed tmux sockets found.")
+            return
+        for result in payload["results"]:
+            print(f"Socket: {result['socket_path']}")
+            if not result["server_running"]:
+                print("  No tmux server found")
+                continue
+            if not result["sessions"]:
+                print("  No sessions found")
+                continue
+            for session in result["sessions"]:
+                state = "attached" if session["attached"] else "detached"
+                print(f"  - {session['name']} ({state}, started {session['created']})")
+        return
+
+    if command == "session kill":
+        print(f"Killed session '{payload['session']}' on {payload['socket_path']}")
+        return
+
+    if command == "server kill":
+        if not payload["killed"]:
+            print("No managed sockets found.")
+            return
+        for item in payload["killed"]:
+            status = "killed" if item["ok"] else "not running"
+            print(f"{item['socket_path']}: {status}")
+        return
+
+    if command == "pane send":
+        print(f"Sent input to {payload['target']} on {payload['socket_path']}")
+        return
+
+    if command == "pane capture":
+        sys.stdout.write(payload["text"])
+        return
+
+    if command == "pane wait":
+        print(f"Matched pattern on {payload['target']}")
+        return
+
+    if command == "monitor show":
+        print("To monitor this session yourself:")
+        print(f"  {payload['attach_command']}")
+        print("\nOr to capture the output once:")
+        print(f"  {payload['capture_command']}")
+        return
+
+    raise CliError(f"Unknown output command: {command}")
+
+
+def emit_error(error: CliError, *, json_output: bool) -> None:
+    if json_output:
+        print(
+            json.dumps(
+                {
+                    "ok": False,
+                    "error": {"message": error.message, "details": error.details},
+                },
+                indent=2,
+                sort_keys=True,
+            ),
+            file=sys.stderr,
+        )
+        return
+    print(f"Error: {error.message}", file=sys.stderr)
+    last_text = error.details.get("last_text")
+    if last_text:
+        print(last_text, file=sys.stderr)
+    elif error.details.get("stderr"):
+        print(error.details["stderr"], file=sys.stderr)
+
+
+def main(argv: list[str] | None = None) -> int:
+    argv = list(sys.argv[1:] if argv is None else argv)
+    argv, global_json_output = normalize_args(argv)
+    parser = build_parser()
+    argcomplete.autocomplete(parser)
+    args = parser.parse_args(argv)
+    json_output = global_json_output or getattr(args, "json_output", False)
+
+    try:
+        if args.command == "doctor":
+            payload = command_doctor(args)
+        elif args.command == "session" and args.session_command == "start":
+            payload = command_session_start(args)
+        elif args.command == "session" and args.session_command == "list":
+            payload = command_session_list(args)
+        elif args.command == "session" and args.session_command == "kill":
+            payload = command_session_kill(args)
+        elif args.command == "server" and args.server_command == "kill":
+            payload = command_server_kill(args)
+        elif args.command == "pane" and args.pane_command == "send":
+            payload = command_pane_send(args)
+        elif args.command == "pane" and args.pane_command == "capture":
+            payload = command_pane_capture(args)
+        elif args.command == "pane" and args.pane_command == "wait":
+            payload = command_pane_wait(args)
+        elif args.command == "monitor" and args.monitor_command == "show":
+            payload = command_monitor_show(args)
+        else:
+            raise CliError("Unsupported command.")
+        emit_result(payload, json_output=json_output)
+        return 0
+    except CliError as error:
+        emit_error(error, json_output=json_output)
+        return error.exit_code
+
+
+if __name__ == "__main__":
+    sys.exit(main())

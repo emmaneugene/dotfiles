@@ -1,65 +1,17 @@
 # duti settings — applied via: duti ~/.duti
-# Format: app_id  UTI/extension  role
+# Format: app_id  UTI  role
+# To change your default editor, update the app_id on each line.
 
-# VS Code: default editor for all plain/ASCII text documents
-com.microsoft.VSCode    public.plain-text         all
-com.microsoft.VSCode    public.utf8-plain-text    all
+# Catch-alls: all natively-typed plain text and source code
+dev.zed.Zed    public.plain-text                   all
+dev.zed.Zed    public.source-code                  all
 
-# VS Code: source code & markup (by UTI where clean, extension otherwise)
-com.microsoft.VSCode    public.css                          all
-com.microsoft.VSCode    net.daringfireball.markdown         all
-com.microsoft.VSCode    .js                                 all
-com.microsoft.VSCode    .jsx                                all
-com.microsoft.VSCode    .ts                                 all
-com.microsoft.VSCode    .tsx                                all
-com.microsoft.VSCode    .go                                 all
-com.microsoft.VSCode    .rs                                 all
-com.microsoft.VSCode    .c                                  all
-com.microsoft.VSCode    .cpp                                all
-com.microsoft.VSCode    .h                                  all
-com.microsoft.VSCode    .swift                              all
-com.microsoft.VSCode    .toml                               all
-com.microsoft.VSCode    .erb                                all
-com.microsoft.VSCode    .ex                                 all
-com.microsoft.VSCode    .exs                                all
-com.microsoft.VSCode    .gemfile                            all
-com.microsoft.VSCode    .hh                                 all
-com.microsoft.VSCode    .hpp                                all
-com.microsoft.VSCode    .h++                                all
-com.microsoft.VSCode    .rkt                                all
-com.microsoft.VSCode    .scm                                all
-
-# Additional extensions registered by Zed
-com.microsoft.VSCode    public.comma-separated-values-text  all
-com.microsoft.VSCode    com.apple.log                       all
-com.microsoft.VSCode    com.apple.terminal.shell-script     all
-com.microsoft.VSCode    com.sun.java-source                 all
-com.microsoft.VSCode    public.bash-script                  all
-com.microsoft.VSCode    .jsonl                              all
-com.microsoft.VSCode    .kt                                 all
-com.microsoft.VSCode    .kts                                all
-com.microsoft.VSCode    .less                               all
-com.microsoft.VSCode    .lua                                all
-com.microsoft.VSCode    .adoc                               all
-com.microsoft.VSCode    .cfg                                all
-com.microsoft.VSCode    .cjs                                all
-com.microsoft.VSCode    .conf                               all
-com.microsoft.VSCode    .clj                                all
-com.microsoft.VSCode    .cljs                               all
-com.microsoft.VSCode    .cmake                              all
-com.microsoft.VSCode    .cs                                 all
-com.microsoft.VSCode    .fish                               all
-com.microsoft.VSCode    .gql                                all
-com.microsoft.VSCode    .graphql                            all
-com.microsoft.VSCode    .groovy                             all
-com.microsoft.VSCode    .ini                                all
-com.microsoft.VSCode    .jl                                 all
-com.microsoft.VSCode    .jsonc                              all
-com.microsoft.VSCode    .rst                                all
-com.microsoft.VSCode    .scala                              all
-com.microsoft.VSCode    .scss                               all
-com.microsoft.VSCode    .sass                               all
-com.microsoft.VSCode    .sql                                all
-com.microsoft.VSCode    .svelte                             all
-com.microsoft.VSCode    .vb                                 all
-com.microsoft.VSCode    .vue                                all
+# Data and config formats (native UTIs, don't conform to public.source-code)
+dev.zed.Zed    net.daringfireball.markdown         all
+dev.zed.Zed    public.json                         all
+dev.zed.Zed    public.xml                          all
+dev.zed.Zed    public.yaml                         all
+dev.zed.Zed    public.toml                         all
+dev.zed.Zed    org.iso.sql                         all
+dev.zed.Zed    public.comma-separated-values-text  all
+dev.zed.Zed    com.apple.log                       all

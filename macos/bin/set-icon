@@ -1,0 +1,104 @@
+#!/usr/bin/env swift
+import AppKit
+import Foundation
+
+struct Stderr: TextOutputStream {
+    mutating func write(_ string: String) { FileHandle.standardError.write(Data(string.utf8)) }
+}
+var err = Stderr()
+
+func usage(_ exitCode: Int32 = 64) -> Never {
+    print("""
+usage:
+  set-icon <target-path> <image-path>
+  set-icon --clear <target-path>
+
+examples:
+  set-icon /Applications/Zen.app ~/Pictures/zen_orange_icon_1024.png
+  set-icon --clear /Applications/Zen.app
+
+notes:
+  - target-path can be an app, file, or folder.
+  - image-path should be a readable image file; PNG is safest.
+  - /Applications apps may require sudo depending on ownership/permissions.
+""", to: &err)
+    exit(exitCode)
+}
+
+func expandTilde(_ path: String) -> String {
+    NSString(string: path).expandingTildeInPath
+}
+
+func normalizedPath(_ path: String) -> String {
+    let expanded = expandTilde(path)
+    let url: URL
+    if expanded.hasPrefix("/") {
+        url = URL(fileURLWithPath: expanded)
+    } else {
+        url = URL(fileURLWithPath: expanded, relativeTo: URL(fileURLWithPath: FileManager.default.currentDirectoryPath))
+    }
+    return url.standardizedFileURL.path
+}
+
+let args = CommandLine.arguments.dropFirst()
+if args.isEmpty {
+    usage(64)
+}
+if let first = args.first, first == "--help" || first == "-h" {
+    usage(0)
+}
+
+let workspace = NSWorkspace.shared
+let fm = FileManager.default
+
+if args.first == "--clear" {
+    guard args.count == 2 else { usage() }
+    let target = normalizedPath(String(args.dropFirst().first!))
+
+    guard fm.fileExists(atPath: target) else {
+        print("error: target does not exist: \(target)", to: &err)
+        exit(66)
+    }
+
+    guard workspace.setIcon(nil, forFile: target, options: []) else {
+        print("error: failed to clear icon for: \(target)", to: &err)
+        print("hint: check permissions; try running with sudo if this is in /Applications", to: &err)
+        exit(1)
+    }
+
+    print("cleared icon: \(target)")
+    exit(0)
+}
+
+guard args.count == 2 else { usage() }
+
+let target = normalizedPath(String(args.first!))
+let imagePath = normalizedPath(String(args.dropFirst().first!))
+
+guard fm.fileExists(atPath: target) else {
+    print("error: target does not exist: \(target)", to: &err)
+    exit(66)
+}
+
+guard fm.fileExists(atPath: imagePath) else {
+    print("error: image does not exist: \(imagePath)", to: &err)
+    exit(66)
+}
+
+guard let image = NSImage(contentsOfFile: imagePath) else {
+    print("error: could not read image: \(imagePath)", to: &err)
+    exit(65)
+}
+
+guard image.isValid else {
+    print("error: image is invalid: \(imagePath)", to: &err)
+    exit(65)
+}
+
+guard workspace.setIcon(image, forFile: target, options: []) else {
+    print("error: failed to set icon for: \(target)", to: &err)
+    print("hint: check permissions; try running with sudo if this is in /Applications", to: &err)
+    exit(1)
+}
+
+print("set icon: \(target)")

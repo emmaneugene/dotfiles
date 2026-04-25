@@ -1,6 +1,8 @@
 # Shell completions
 
-This folder contains shell completions for binaries that are not provided by default or handled by `homebrew install`
+This folder contains shell completions for binaries that are not provided by default or handled by Homebrew.
+
+In particular, all the completions in `generated/` have been created with the help of AI.
 
 On ZSH, to find out where all your shell completions are sourced from:
 

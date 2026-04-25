@@ -6,48 +6,16 @@
 // To see the default key bindings run `zed: open default keymap`
 // from the command palette.
 [
-  {
-    "bindings": {
-      "ctrl-h": "git::FileHistory",
-    },
-  },
+  // Agent / thread navigation
   {
     "context": "AcpThread",
     "bindings": {
       "cmd-[": "pane::GoBack",
+      "cmd-]": "pane::GoForward",
     },
   },
   {
     "context": "AgentConfiguration",
-    "bindings": {
-      "cmd-[": "pane::GoBack",
-    },
-  },
-  {
-    "context": "BufferSearchBar",
-    "bindings": {
-      "alt-cmd-o": "outline::Toggle",
-    },
-  },
-  {
-    "context": "Editor",
-    "bindings": {
-      "cmd-shift-i": null,
-      "ctrl-h": null,
-      "shift-f12": null,
-      "alt-shift-f": "editor::Format",
-      "alt-cmd-u": "editor::FindAllReferences",
-      "alt-cmd-j": "editor::GoToImplementation",
-    },
-  },
-  {
-    "context": "(Editor && mode == full)",
-    "bindings": {
-      "alt-cmd-o": "outline::Toggle",
-    },
-  },
-  {
-    "context": "Pane",
     "bindings": {
       "cmd-[": "pane::GoBack",
       "cmd-]": "pane::GoForward",
@@ -57,17 +25,93 @@
     "context": "ThreadHistory",
     "bindings": {
       "cmd-[": "pane::GoBack",
+      "cmd-]": "pane::GoForward",
+    },
+  },
+
+  // Editor
+  {
+    "context": "BufferSearchBar",
+    "bindings": {
+      "alt-cmd-o": "outline::Toggle",
+    },
+  },
+  {
+    "context": "Editor",
+    "bindings": {
+      "alt-cmd-j": "editor::GoToImplementation",
+      "alt-cmd-u": "editor::FindAllReferences",
+      "alt-shift-f": "editor::Format",
+      "cmd-[": "pane::GoBack",
+      "cmd-]": "pane::GoForward",
+      "ctrl-h": "git::FileHistory",
+    },
+    "unbind": {
+      "cmd-shift-i": "editor::Format",
+      "shift-f12": "editor::GoToImplementation",
+    },
+  },
+  {
+    "context": "(Editor && mode == full)",
+    "bindings": {
+      "alt-cmd-o": "outline::Toggle",
+    },
+  },
+
+  // File lists / panels
+  {
+    "context": "GitPanel && ChangesList",
+    "bindings": {
+      "ctrl-h": "git::FileHistory",
+    },
+  },
+  {
+    "context": "ProjectPanel && not_editing",
+    "bindings": {
+      "ctrl-h": "git::FileHistory",
+    },
+  },
+  {
+    "context": "Pane",
+    "bindings": {
+      "cmd-[": "pane::GoBack",
+      "cmd-]": "pane::GoForward",
+    },
+  },
+
+  // Workspace
+  {
+    "context": "Workspace",
+    "bindings": {
+      "cmd-b": "workspace::ToggleRightDock",
+      "alt-cmd-b": "multi_workspace::ToggleWorkspaceSidebar",
+      "cmd-shift-b": "workspace::ToggleLeftDock",
+      "ctrl-shift-o": "outline_panel::ToggleFocus",
+    },
+    "unbind": {
+      "alt-cmd-;": "multi_workspace::FocusWorkspaceSidebar",
+      "alt-cmd-b": "workspace::ToggleRightDock",
+      "alt-cmd-j": "multi_workspace::ToggleWorkspaceSidebar",
+      "alt-cmd-o": [
+        "projects::OpenRecent",
+        {
+          "create_new_window": false,
+        },
+      ],
+      "cmd-r": "workspace::ToggleRightDock",
+    },
+  },
+
+  // All contexts
+  {
+    "bindings": {
+      "ctrl-o": "workspace::ToggleZoom",
     },
   },
   {
     "context": "Workspace",
-    "bindings": {
-      "cmd-r": null,
-      "alt-cmd-o": null,
-      "alt-cmd-j": null,
-      "cmd-shift-b": "workspace::ToggleLeftDock",
-      "ctrl-shift-o": "outline_panel::ToggleFocus",
-      "cmd-b": "workspace::ToggleRightDock",
+    "unbind": {
+      "cmd-r": "workspace::ToggleRightDock",
     },
   },
 ]

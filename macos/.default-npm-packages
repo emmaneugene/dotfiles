@@ -1,7 +1,13 @@
+@marckrenn/pi-sub-bar
+@mariozechner/pi-ai
 @mariozechner/pi-coding-agent
+@mariozechner/pi-tui
+@plannotator/pi-extension
 ccstatusline
+dev-browser
 editorconfig
 forever
+glimpseui
 live-server
 neovim
 pi-mcp-adapter

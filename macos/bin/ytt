@@ -20,19 +20,20 @@ Examples:
   ytt dQw4w9WgXcQ
 """
 
-import sys
 import re
+import sys
+
 from youtube_transcript_api import YouTubeTranscriptApi
 from youtube_transcript_api.formatters import TextFormatter
 
 if len(sys.argv) < 2:
-    print('Usage: provide YouTube URL or video_id as argument', file=sys.stderr)
+    print("Usage: provide YouTube URL or video_id as argument", file=sys.stderr)
     sys.exit(1)
 
 url_or_id = sys.argv[1]
 
 # Extract video ID from URL if it's a full URL
-video_id_match = re.search(r'(?:v=|/)([a-zA-Z0-9_-]{11})', url_or_id)
+video_id_match = re.search(r"(?:v=|/)([a-zA-Z0-9_-]{11})", url_or_id)
 if video_id_match:
     video_id = video_id_match.group(1)
 else:
@@ -45,5 +46,5 @@ try:
     formatter = TextFormatter()
     print(formatter.format_transcript(transcript))
 except Exception as e:
-    print(f'Error: {e}', file=sys.stderr)
+    print(f"Error: {e}", file=sys.stderr)
     sys.exit(1)

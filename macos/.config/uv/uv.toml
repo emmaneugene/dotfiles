@@ -1,0 +1,3 @@
+# Dependency cooldown
+# Respected by `uv tool install`, `uv tool run` (uvx), and `uv pip install`.
+# exclude-newer = "7 days"

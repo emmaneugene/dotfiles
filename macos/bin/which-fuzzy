@@ -1,24 +1,30 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run --script
+# /// script
+# dependencies = ["argcomplete"]
+# ///
+# PYTHON_ARGCOMPLETE_OK
 
 """
 Find all instances of executables in PATH that match a regex pattern
 """
 
+import argparse
 import os
 import re
 import sys
-import argparse
+
+import argcomplete
 
 
 def find_executables(pattern=None):
     """Find all executables in PATH, or filter by a regex pattern"""
     found = False
-    path_dirs = os.environ.get('PATH', '').split(':')
+    path_dirs = os.environ.get("PATH", "").split(":")
 
     for dir_path in path_dirs:
         # Handle empty directory entries
         if not dir_path:
-            dir_path = '.'
+            dir_path = "."
 
         # Skip non-existent directories
         if not os.path.isdir(dir_path):
@@ -47,28 +53,30 @@ def find_executables(pattern=None):
 
 def main():
     parser = argparse.ArgumentParser(
-        description='Find all instances of executables in PATH that match a regex pattern',
+        description="Find all instances of executables in PATH that match a regex pattern",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog='''examples:
-  which-all              List all executables in PATH
-  which-all py        Find all executables containing "py"
-  which-all "^git"  Find all executables starting with "git"'''
+  which-fuzzy              List all executables in PATH
+  which-fuzzy py        Find all executables containing "py"
+  which-fuzzy "^git"  Find all executables starting with "git"''',
     )
-    parser.add_argument('pattern', nargs='?',
-                        help='Pattern to search for')
+    parser.add_argument("pattern", nargs="?", help="Pattern to search for")
 
+    argcomplete.autocomplete(parser)
     args = parser.parse_args()
 
     try:
         found = find_executables(args.pattern)
 
         if not found and args.pattern:
-            print(f"No commands matching '{args.pattern}' found in PATH", file=sys.stderr)
+            print(
+                f"No commands matching '{args.pattern}' found in PATH", file=sys.stderr
+            )
             sys.exit(1)
     except re.error as e:
         print(f"Invalid regex pattern: {e}", file=sys.stderr)
         sys.exit(1)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

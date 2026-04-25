@@ -1,13 +1,10 @@
 {
-  "$schema": "https://schema.linearmouse.app/0.10.0",
+  "$schema": "https:\/\/schema.linearmouse.app\/0.10.4",
   "schemes": [
     {
       "if": {
         "device": {
-          "category": "trackpad",
-          "vendorID": "0x5ac",
-          "productID": "0x342",
-          "productName": "Apple Internal Keyboard / Trackpad"
+          "category": "trackpad"
         }
       },
       "scrolling": {
@@ -19,27 +16,23 @@
     {
       "if": {
         "device": {
-          "category": "mouse",
-          "vendorID": "0x46d",
-          "productID": "0xb015",
-          "productName": "M720 Triathlon",
-          "serialNumber": "89014E9602FC6848"
+          "category": "mouse"
         }
       },
       "pointer": {
-        "speed": 0.0689655172413792768,
         "acceleration": 0.8,
-        "disableAcceleration": true
+        "disableAcceleration": true,
+        "speed": 0.0689655172413792768
       },
       "scrolling": {
-        "reverse": {
-          "vertical": false
-        },
+        "acceleration": 1,
         "distance": {
           "horizontal": 10,
           "vertical": "auto"
         },
-        "acceleration": 1,
+        "reverse": {
+          "vertical": false
+        },
         "speed": 0
       }
     }

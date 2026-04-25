@@ -1,0 +1,314 @@
+#!/usr/bin/env node
+/**
+ * Build and render Mermaid diagrams as editable Excalidraw canvases.
+ */
+
+import http from "node:http";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { exec, spawn, spawnSync } from "node:child_process";
+
+const SCRIPT_PATH = fileURLToPath(import.meta.url);
+const STORAGE_KEY = "mermaid-to-excalidraw-definition";
+const DEFAULT_REPO = "https://github.com/excalidraw/mermaid-to-excalidraw.git";
+const BASE_DIR = path.join(os.homedir(), ".local", "share", "mermaid-viz");
+const DIST_DIR = path.join(BASE_DIR, "dist");
+
+function printHelp() {
+  console.log(`Usage:
+  mermaid-viz [--no-open] [definition]
+  mermaid-viz build [--repo URL]
+
+Render a Mermaid diagram into a local Excalidraw playground and print the URL.
+
+Commands:
+  build       Clone the upstream mermaid-to-excalidraw repo, run yarn build, and install dist assets
+
+Options:
+  --no-open   Start the local server and print the URL without opening a browser
+  --repo URL  Override the git clone URL for the build command
+  -h, --help  Show this help
+
+Input:
+  Pass the Mermaid definition as the first argument or pipe it via stdin.
+
+Assets:
+  Built assets are stored under ${DIST_DIR}
+  If missing, run: mermaid-viz build
+`);
+}
+
+function parseArgs(argv) {
+  if (argv.includes("-h") || argv.includes("--help")) {
+    printHelp();
+    process.exit(0);
+  }
+
+  if (argv[0] === "build") {
+    let repo = DEFAULT_REPO;
+    for (let index = 1; index < argv.length; index += 1) {
+      const arg = argv[index];
+      if (arg === "--repo") {
+        repo = argv[index + 1];
+        index += 1;
+        continue;
+      }
+      throw new Error(`Unknown option for build: ${arg}`);
+    }
+    return { mode: "build", repo };
+  }
+
+  let noOpen = false;
+  const positional = [];
+  for (const arg of argv) {
+    if (arg === "--no-open") {
+      noOpen = true;
+      continue;
+    }
+    positional.push(arg);
+  }
+  return { mode: "render", noOpen, definitionArg: positional[0]?.trim() || "" };
+}
+
+function run(cmd, args, { cwd = undefined, stdio = "pipe", env = undefined } = {}) {
+  const result = spawnSync(cmd, args, {
+    cwd,
+    stdio,
+    env: env ? { ...process.env, ...env } : process.env,
+    encoding: "utf8",
+  });
+  if (result.status !== 0) {
+    const stderr = (result.stderr || "").trim();
+    throw new Error(stderr || `${cmd} exited with status ${result.status}`);
+  }
+  return result;
+}
+
+function ensureBuildPrereqs() {
+  for (const command of ["git", "yarn", "node"]) {
+    const result = spawnSync("command", ["-v", command], {
+      shell: true,
+      stdio: "ignore",
+    });
+    if (result.status !== 0) {
+      throw new Error(`Missing required command: ${command}`);
+    }
+  }
+}
+
+function buildFromSource(repo) {
+  ensureBuildPrereqs();
+  fs.mkdirSync(BASE_DIR, { recursive: true });
+  const tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), "mermaid-viz-build-"));
+  try {
+    run("git", ["clone", repo, tmpRoot], { stdio: "inherit" });
+    run("yarn", ["install", "--frozen-lockfile"], { cwd: tmpRoot, stdio: "inherit" });
+    run("yarn", ["build:playground"], { cwd: tmpRoot, stdio: "inherit" });
+    const builtDist = path.join(tmpRoot, "public");
+    if (!fs.existsSync(builtDist)) {
+      throw new Error(`Expected build output at ${builtDist}`);
+    }
+    fs.rmSync(DIST_DIR, { recursive: true, force: true });
+    fs.cpSync(builtDist, DIST_DIR, { recursive: true });
+    console.log(`Built Mermaid → Excalidraw assets at ${DIST_DIR}`);
+  } finally {
+    fs.rmSync(tmpRoot, { recursive: true, force: true });
+  }
+}
+
+async function readStdin() {
+  if (process.stdin.isTTY) {
+    return "";
+  }
+
+  return new Promise((resolve) => {
+    let data = "";
+    process.stdin.setEncoding("utf8");
+    process.stdin.on("data", (chunk) => (data += chunk));
+    process.stdin.on("end", () => resolve(data.trim()));
+  });
+}
+
+function serializeForInlineScript(value) {
+  return JSON.stringify(value)
+    .replace(/</g, "\\u003C")
+    .replace(/>/g, "\\u003E")
+    .replace(/&/g, "\\u0026")
+    .replace(/\u2028/g, "\\u2028")
+    .replace(/\u2029/g, "\\u2029");
+}
+
+function buildBootstrapScript(definition) {
+  const defJson = serializeForInlineScript(definition);
+  return `
+<script id="__mermaid_viz_bootstrap__">
+(function () {
+  const DEF = ${defJson};
+  const STORAGE_KEY = ${JSON.stringify(STORAGE_KEY)};
+
+  try { localStorage.setItem(STORAGE_KEY, DEF); } catch (error) {}
+
+  const pollRender = setInterval(function () {
+    const btn = document.getElementById("render-excalidraw-btn");
+    if (btn) {
+      clearInterval(pollRender);
+      btn.click();
+    }
+  }, 100);
+
+  window.addEventListener("load", function () {
+    var stopBtn = document.createElement("button");
+    stopBtn.textContent = "⏹ Stop Server";
+    stopBtn.style.cssText = [
+      "position:fixed", "top:12px", "right:16px", "z-index:99999",
+      "padding:8px 14px", "font-size:13px", "font-weight:600",
+      "border:none", "border-radius:8px", "background:#ef4444",
+      "color:#fff", "cursor:pointer", "box-shadow:0 2px 8px rgba(0,0,0,0.25)",
+      "font-family:system-ui,sans-serif"
+    ].join(";");
+    stopBtn.addEventListener("click", function () {
+      stopBtn.textContent = "Stopping…";
+      stopBtn.disabled = true;
+      fetch("/__shutdown").finally(function () { window.close(); });
+    });
+    document.body.appendChild(stopBtn);
+  });
+})();
+</script>`;
+}
+
+const MIME = {
+  ".html": "text/html",
+  ".js": "application/javascript",
+  ".css": "text/css",
+  ".svg": "image/svg+xml",
+  ".png": "image/png",
+  ".ico": "image/x-icon",
+  ".woff": "font/woff",
+  ".woff2": "font/woff2",
+  ".map": "application/json",
+  ".json": "application/json",
+};
+
+function renderDefinition(definition, { noOpen }) {
+  if (!fs.existsSync(DIST_DIR)) {
+    console.error(
+      `Error: dist/ not found at ${DIST_DIR}\n` +
+      "Run: mermaid-viz build",
+    );
+    process.exit(1);
+  }
+
+  if (!process.env.MERMAID_VIZ_DAEMON) {
+    let child;
+    try {
+      child = spawn(process.execPath, [SCRIPT_PATH, ...(noOpen ? ["--no-open"] : [])], {
+        detached: true,
+        stdio: ["pipe", "pipe", "ignore"],
+        env: { ...process.env, MERMAID_VIZ_DAEMON: "1" },
+      });
+    } catch (error) {
+      console.error(`Failed to start daemon: ${error.message}`);
+      process.exit(1);
+    }
+
+    child.on("error", (error) => {
+      console.error(`Failed to start daemon: ${error.message}`);
+      process.exit(1);
+    });
+
+    let out = "";
+    child.stdout.setEncoding("utf8");
+    child.stdout.on("data", (chunk) => (out += chunk));
+    child.stdout.on("end", () => {
+      process.stdout.write(out);
+      child.unref();
+      process.exit(0);
+    });
+
+    child.stdin.end(definition);
+    return;
+  }
+
+  const server = http.createServer((req, res) => {
+    let urlPath = (req.url || "/").split("?")[0];
+    try {
+      urlPath = decodeURIComponent(urlPath);
+    } catch (_) {}
+
+    if (urlPath === "/__shutdown") {
+      res.writeHead(200);
+      res.end("bye");
+      server.close(() => process.exit(0));
+      return;
+    }
+
+    const filePath = urlPath === "/" ? "index.html" : urlPath.replace(/^\/+/, "");
+    const fullPath = path.resolve(DIST_DIR, filePath);
+    const relativePath = path.relative(DIST_DIR, fullPath);
+
+    if (relativePath.startsWith("..") || path.isAbsolute(relativePath)) {
+      res.writeHead(403);
+      res.end("Forbidden");
+      return;
+    }
+
+    fs.readFile(fullPath, (err, data) => {
+      if (err) {
+        res.writeHead(404);
+        res.end("Not found");
+        return;
+      }
+
+      const ext = path.extname(filePath).toLowerCase();
+      const mime = MIME[ext] || "application/octet-stream";
+      let body = data;
+
+      if (filePath === "index.html") {
+        const html = data.toString("utf8");
+        const script = buildBootstrapScript(definition);
+        const injected = html.includes("</head>")
+          ? html.replace("</head>", script + "\n</head>")
+          : script + html;
+        body = Buffer.from(injected, "utf8");
+      }
+
+      res.writeHead(200, { "Content-Type": mime });
+      res.end(body);
+    });
+  });
+
+  server.listen(0, "127.0.0.1", () => {
+    const address = server.address();
+    const port = typeof address === "object" && address ? address.port : null;
+    const url = `http://127.0.0.1:${port}`;
+
+    if (!noOpen) {
+      const opener = process.platform === "darwin" ? "open" : "xdg-open";
+      exec(`${opener} "${url}"`);
+    }
+
+    process.stdout.write(`\nMermaid → Excalidraw\n  ${url}\n`);
+    process.stdout.end();
+  });
+}
+
+try {
+  const parsed = parseArgs(process.argv.slice(2));
+  if (parsed.mode === "build") {
+    buildFromSource(parsed.repo);
+    process.exit(0);
+  }
+
+  const definition = parsed.definitionArg || (await readStdin());
+  if (!definition) {
+    printHelp();
+    process.exit(1);
+  }
+  renderDefinition(definition, { noOpen: parsed.noOpen });
+} catch (error) {
+  console.error(error.message);
+  process.exit(1);
+}

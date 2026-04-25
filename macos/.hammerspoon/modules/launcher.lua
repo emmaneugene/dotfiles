@@ -13,18 +13,11 @@ local categories = {
       { name = "Ghostty", bundle = "com.mitchellh.ghostty" },
     }
   },
-  u = {
-    name = "Agents",
-    apps = {
-      { name = "Athas",            bundle = "com.code.athas" },
-      { name = "cmux",             bundle = "com.cmuxterm.app" },
-      { name = "OpenCode Desktop", bundle = "ai.opencode.desktop" },
-    }
-  },
   i = {
     name = "IDE",
     apps = {
       { name = "Cursor",   bundle = "com.todesktop.230313mzl4w4u92" },
+      { name = "VSCode",   bundle = "com.microsoft.VSCode" },
       { name = "IntelliJ", bundle = "com.jetbrains.intellij" },
       { name = "PyCharm",  bundle = "com.jetbrains.pycharm" },
     }
@@ -66,17 +59,22 @@ local categories = {
       { name = "WhatsApp", bundle = "net.whatsapp.WhatsApp" },
     }
   },
-  l = {
-    name = "LLM",
+  k = {
+    name = "ADE",
     apps = {
-      { name = "Claude", bundle = "com.anthropic.claudefordesktop" },
+      { name = "Codex", bundle = "com.openai.codex" },
+    }
+  },
+  l = {
+    name = "LLM chat",
+    apps = {
+      { name = "ChatGPT", bundle = "com.openai.chat" },
     }
   },
   x = {
-    name = "Code Editor",
+    name = "Editor",
     apps = {
-      { name = "VSCode", bundle = "com.microsoft.VSCode" },
-      { name = "Zed",    bundle = "dev.zed.Zed" },
+      { name = "Zed", bundle = "dev.zed.Zed" },
     }
   },
   c = {
@@ -93,7 +91,7 @@ local categories = {
     }
   },
   n = {
-    name = "Alt Browsers",
+    name = "Alt Browser",
     apps = {
       { name = "Chromium", bundle = "org.chromium.Chromium" },
       { name = "Helium",   bundle = "net.imput.helium" },
@@ -111,29 +109,60 @@ local categories = {
 function launcher.init()
   hs.hotkey.bind(hyper, "`", hs.reload)
 
+  local activeModal = nil
+  local activeAlertId = nil
+
+  local function dismissActive()
+    if activeAlertId then hs.alert.closeSpecific(activeAlertId) end
+    if activeModal then activeModal:exit() end
+    activeModal = nil
+    activeAlertId = nil
+  end
+
   function launchFromCategory(category)
+    dismissActive()
+
     if #category.apps == 1 then
       hs.application.launchOrFocusByBundleID(category.apps[1].bundle)
       return
     end
 
-    local choices = hs.fnutils.map(category.apps, function(app)
-      return { text = app.name, bundleId = app.bundle }
+    local index = 1
+    local modal = hs.hotkey.modal.new()
+    activeModal = modal
+
+    local function showCurrent()
+      if activeAlertId then hs.alert.closeSpecific(activeAlertId) end
+      local app = category.apps[index]
+      local label = "[" .. index .. "/" .. #category.apps .. "]: "
+          .. app.name
+      activeAlertId = hs.alert.show(label, hs.alert.defaultStyle, hs.screen.primaryScreen(), 999999)
+    end
+
+    local function dismiss()
+      dismissActive()
+    end
+
+    modal:bind("", "tab", function()
+      index = (index % #category.apps) + 1
+      showCurrent()
     end)
 
-    local chooser = hs.chooser.new(function(choice)
-      if choice then
-        hs.application.launchOrFocusByBundleID(choice.bundleId)
-      end
+    modal:bind("shift", "tab", function()
+      index = ((index - 2) % #category.apps) + 1
+      showCurrent()
     end)
 
-    chooser:choices(choices)
-    local primaryScreen = hs.screen.primaryScreen()
-    local primaryFrame = primaryScreen:frame()
-    chooser:show({
-      x = primaryFrame.x + primaryFrame.w * 0.3,
-      y = primaryFrame.y + primaryFrame.h * 0.2
-    })
+    modal:bind("", "return", function()
+      local bundle = category.apps[index].bundle
+      dismiss()
+      hs.application.launchOrFocusByBundleID(bundle)
+    end)
+
+    modal:bind("", "escape", dismiss)
+
+    modal:enter()
+    showCurrent()
   end
 
   for key, category in pairs(categories) do

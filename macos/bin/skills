@@ -7,62 +7,100 @@
 skills — load and track agent skills
 
 Usage:
-  skills load   [<name>] (--global | --project)
-  skills sync   [<name>] (--global | --project)
+  skills load   [<name> ...] [--all] (--global | --project)
+  skills sync   [<name> ...] [--all] (--global | --project)
   skills status
 """
 
-import argcomplete
 import argparse
 import fnmatch
 import hashlib
 import shlex
 import shutil
+import subprocess
 import sys
 from pathlib import Path
 
+import argcomplete
+
 # ── constants ─────────────────────────────────────────────────────────────────
 
-SOURCE_ROOT   = Path.home() / "config" / "agents"
+SOURCE_ROOT = Path.home() / "config" / "agents"
 GLOBAL_SKILLS = Path.home() / ".agents" / "skills"
 SKILLS_SUBDIR = "skills"
 
 # ── ansi ──────────────────────────────────────────────────────────────────────
 
-RESET  = "\033[0m"
-BOLD   = "\033[1m"
-DIM    = "\033[2m"
-RED    = "\033[31m"
-GREEN  = "\033[32m"
+RESET = "\033[0m"
+BOLD = "\033[1m"
+DIM = "\033[2m"
+RED = "\033[31m"
+GREEN = "\033[32m"
 YELLOW = "\033[33m"
-CYAN   = "\033[36m"
+CYAN = "\033[36m"
 
-def col(text, *codes): return "".join(codes) + str(text) + RESET
-def ok(msg):   print(col("✓", GREEN, BOLD), msg)
-def err(msg):  print(col("✗", RED,   BOLD), msg, file=sys.stderr)
-def warn(msg): print(col("!", YELLOW, BOLD), msg)
-def info(msg): print(col("·", CYAN), msg)
+
+def col(text, *codes):
+    return "".join(codes) + str(text) + RESET
+
+
+def ok(msg):
+    print(col("✓", GREEN, BOLD), msg)
+
+
+def err(msg):
+    print(col("✗", RED, BOLD), msg, file=sys.stderr)
+
+
+def warn(msg):
+    print(col("!", YELLOW, BOLD), msg)
+
+
+def info(msg):
+    print(col("·", CYAN), msg)
+
 
 # ── helpers ───────────────────────────────────────────────────────────────────
 
+
 def get_scope_dir(scope: str) -> Path:
-    if scope == "global":  return GLOBAL_SKILLS
-    if scope == "project": return Path.cwd() / ".agents" / "skills"
+    if scope == "global":
+        return GLOBAL_SKILLS
+    if scope == "project":
+        return Path.cwd() / ".agents" / "skills"
     raise ValueError(f"unknown scope: {scope}")
+
 
 def list_source_skills() -> list[str]:
     skills_dir = SOURCE_ROOT / SKILLS_SUBDIR
     if not skills_dir.exists():
         return []
-    return sorted(d.name for d in skills_dir.iterdir()
-                  if d.is_dir() and not d.name.startswith("."))
+    return sorted(
+        d.name
+        for d in skills_dir.iterdir()
+        if d.is_dir() and not d.name.startswith(".")
+    )
+
+
+def list_loaded_skills(scope: str) -> list[str]:
+    scope_dir = get_scope_dir(scope)
+    if not scope_dir.exists():
+        return []
+    return sorted(
+        d.name for d in scope_dir.iterdir() if d.is_dir() and not d.name.startswith(".")
+    )
+
 
 def gitignore_patterns(skill_path: Path) -> list[str]:
     gitignore = skill_path / ".gitignore"
     if not gitignore.exists():
         return []
-    return [line.rstrip("/") for line in gitignore.read_text().splitlines()
-            if line.strip() and not line.startswith("#")]
+    return [
+        line.rstrip("/")
+        for line in gitignore.read_text().splitlines()
+        if line.strip() and not line.startswith("#")
+    ]
+
 
 def hash_skill(skill_path: Path) -> str:
     h = hashlib.sha256()
@@ -77,8 +115,10 @@ def hash_skill(skill_path: Path) -> str:
         h.update(f.read_bytes())
     return h.hexdigest()[:16]
 
+
 def copy_skill(src: Path, dst: Path):
     shutil.copytree(src, dst)
+
 
 def remove_path(path: Path):
     if path.is_dir() and not path.is_symlink():
@@ -86,8 +126,10 @@ def remove_path(path: Path):
     else:
         path.unlink()
 
+
 def diff_command(source_path: Path, target_path: Path) -> str:
     return f"diff -ru {shlex.quote(str(source_path))} {shlex.quote(str(target_path))}"
+
 
 def prompt_choice(prompt: str, choices: list[str], default: int = 0) -> int:
     print(f"\n{col(prompt, BOLD)}")
@@ -96,7 +138,9 @@ def prompt_choice(prompt: str, choices: list[str], default: int = 0) -> int:
         print(f"  {marker} [{i + 1}] {c}")
     while True:
         try:
-            raw = input(f"\nChoice [1–{len(choices)}] (default {default + 1}): ").strip()
+            raw = input(
+                f"\nChoice [1–{len(choices)}] (default {default + 1}): "
+            ).strip()
         except (EOFError, KeyboardInterrupt):
             print()
             sys.exit(0)
@@ -110,70 +154,216 @@ def prompt_choice(prompt: str, choices: list[str], default: int = 0) -> int:
             pass
         print(col(f"  Enter a number between 1 and {len(choices)}", RED))
 
-def prompt_select_skill(skills: list[str]) -> str | None:
-    if not skills:
+
+def parse_choice_list(raw: str, size: int) -> list[int]:
+    selected: list[int] = []
+    seen: set[int] = set()
+
+    for chunk in raw.split(","):
+        part = chunk.strip()
+        if not part:
+            continue
+
+        if "-" in part:
+            start_raw, end_raw = (p.strip() for p in part.split("-", 1))
+            start = int(start_raw)
+            end = int(end_raw)
+            if start > end:
+                start, end = end, start
+            numbers = range(start, end + 1)
+        else:
+            numbers = [int(part)]
+
+        for number in numbers:
+            index = number - 1
+            if not 0 <= index < size:
+                raise ValueError(number)
+            if index not in seen:
+                selected.append(index)
+                seen.add(index)
+
+    if not selected:
+        raise ValueError("empty selection")
+
+    return selected
+
+
+def prompt_choices(prompt: str, choices: list[str], default: int = 0) -> list[int]:
+    print(f"\n{col(prompt, BOLD)}")
+    for i, c in enumerate(choices):
+        marker = col("▸", CYAN) if i == default else " "
+        print(f"  {marker} [{i + 1}] {c}")
+    while True:
+        try:
+            raw = input(
+                f"\nChoices [1–{len(choices)}] (comma-separated, ranges allowed, default {default + 1}): "
+            ).strip()
+        except (EOFError, KeyboardInterrupt):
+            print()
+            sys.exit(0)
+        if raw == "":
+            return [default]
+        try:
+            return parse_choice_list(raw, len(choices))
+        except ValueError:
+            print(col(f"  Enter one or more numbers between 1 and {len(choices)}", RED))
+
+
+def fzf_select_skills(
+    skills: list[str], prompt: str, *, multi: bool
+) -> list[str] | None:
+    cmd = [
+        "fzf",
+        "--height=60%",
+        "--layout=reverse",
+        "--border",
+        "--prompt=› ",
+        "--header",
+        (
+            f"{prompt} · type to fuzzy search · use arrow keys to navigate"
+            + (" · TAB to mark" if multi else "")
+        ),
+    ]
+    if multi:
+        cmd.extend(["--multi", "--bind=tab:toggle+down,btab:toggle+up"])
+
+    try:
+        result = subprocess.run(
+            cmd,
+            input="\n".join(skills),
+            text=True,
+            stdout=subprocess.PIPE,
+            check=False,
+        )
+    except OSError:
         return None
-    return skills[prompt_choice("Select a skill:", skills)]
+
+    if result.returncode == 0:
+        return [line for line in result.stdout.splitlines() if line.strip()]
+    if result.returncode in (1, 130):
+        return []
+
+    warn(f"fzf exited with status {result.returncode}; falling back to numbered prompt")
+    return None
+
+
+def prompt_select_skills(skills: list[str], prompt: str, *, multi: bool) -> list[str]:
+    if not skills:
+        return []
+
+    if shutil.which("fzf") and sys.stdin.isatty() and sys.stdout.isatty():
+        selected = fzf_select_skills(skills, prompt, multi=multi)
+        if selected is not None:
+            return selected
+
+    if multi:
+        return [skills[i] for i in prompt_choices(prompt, skills)]
+    return [skills[prompt_choice(prompt, skills)]]
+
 
 # ── commands ──────────────────────────────────────────────────────────────────
 
-def resolve_skill(name: str | None) -> str | None:
-    if name:
-        return name
-    skills = list_source_skills()
-    if not skills:
+
+def resolve_load_skills(args) -> list[str]:
+    source_skills = list_source_skills()
+    if not source_skills:
         err(f"No skills found in source ({SOURCE_ROOT / SKILLS_SUBDIR})")
         sys.exit(1)
-    return prompt_select_skill(skills)
+
+    loaded = set(list_loaded_skills(args.scope))
+
+    if args.all:
+        skills = [name for name in source_skills if name not in loaded]
+        if not skills:
+            info(f"All source skills are already loaded in {args.scope} scope")
+        return skills
+
+    if args.names:
+        return args.names
+
+    candidates = [name for name in source_skills if name not in loaded]
+    if not candidates:
+        info(f"All source skills are already loaded in {args.scope} scope")
+        return []
+
+    return prompt_select_skills(candidates, "Select skill(s) to load:", multi=True)
+
+
+def resolve_sync_skills(args) -> list[str]:
+    loaded = list_loaded_skills(args.scope)
+
+    if args.all:
+        if not loaded:
+            info(f"No skills are loaded in {args.scope} scope")
+        return loaded
+
+    if args.names:
+        return args.names
+
+    if not loaded:
+        info(f"No skills are loaded in {args.scope} scope")
+        return []
+
+    return prompt_select_skills(loaded, "Select skill(s) to sync:", multi=True)
+
+
+def load_skill(scope: str, name: str) -> bool:
+    scope_dir = get_scope_dir(scope)
+    source_path = SOURCE_ROOT / SKILLS_SUBDIR / name
+    target_path = scope_dir / name
+
+    if not source_path.exists():
+        err(f"Skill '{name}' not found in source ({source_path})")
+        return False
+
+    if target_path.exists():
+        warn(f"'{name}' already exists in {scope} scope — use sync to replace it")
+        return False
+
+    info(f"Loading '{name}' into {scope} scope...")
+    copy_skill(source_path, target_path)
+    ok(f"'{name}' loaded into {scope} scope")
+    return True
+
+
+def sync_skill(scope: str, name: str) -> bool:
+    scope_dir = get_scope_dir(scope)
+    source_path = SOURCE_ROOT / SKILLS_SUBDIR / name
+    target_path = scope_dir / name
+
+    if not source_path.exists():
+        err(f"Skill '{name}' not found in source ({source_path})")
+        return False
+
+    if not target_path.exists():
+        warn(f"'{name}' is not loaded in {scope} scope — use load first")
+        return False
+
+    info(f"Syncing '{name}' into {scope} scope...")
+    remove_path(target_path)
+    copy_skill(source_path, target_path)
+    ok(f"'{name}' synced into {scope} scope")
+    return True
 
 
 def cmd_load(args):
-    scope_dir = get_scope_dir(args.scope)
-    name = resolve_skill(args.name)
-    if not name:
-        return
-
-    source_path = SOURCE_ROOT / SKILLS_SUBDIR / name
-    target_path = scope_dir / name
-
-    if not source_path.exists():
-        err(f"Skill '{name}' not found in source ({source_path})")
+    failures = sum(
+        0 if load_skill(args.scope, name) else 1 for name in resolve_load_skills(args)
+    )
+    if failures:
         sys.exit(1)
-
-    if target_path.exists():
-        warn(f"'{name}' already exists in {args.scope} scope — use sync to replace it")
-        sys.exit(1)
-
-    info(f"Loading '{name}' into {args.scope} scope...")
-    copy_skill(source_path, target_path)
-    ok(f"'{name}' loaded into {args.scope} scope")
 
 
 def cmd_sync(args):
-    scope_dir = get_scope_dir(args.scope)
-    name = resolve_skill(args.name)
-    if not name:
-        return
-
-    source_path = SOURCE_ROOT / SKILLS_SUBDIR / name
-    target_path = scope_dir / name
-
-    if not source_path.exists():
-        err(f"Skill '{name}' not found in source ({source_path})")
+    failures = sum(
+        0 if sync_skill(args.scope, name) else 1 for name in resolve_sync_skills(args)
+    )
+    if failures:
         sys.exit(1)
-
-    if not target_path.exists():
-        warn(f"'{name}' is not loaded in {args.scope} scope — use load first")
-        sys.exit(1)
-
-    info(f"Syncing '{name}' into {args.scope} scope...")
-    remove_path(target_path)
-    copy_skill(source_path, target_path)
-    ok(f"'{name}' synced into {args.scope} scope")
 
 
 def cmd_status(_args):
-    global_dir  = GLOBAL_SKILLS
+    global_dir = GLOBAL_SKILLS
     project_dir = Path.cwd() / ".agents" / "skills"
 
     scopes = [("global", global_dir), ("project", project_dir)]
@@ -187,8 +377,11 @@ def cmd_status(_args):
             info("(scope directory does not exist)")
             continue
 
-        skills = sorted(d.name for d in scope_dir.iterdir()
-                        if d.is_dir() and not d.name.startswith("."))
+        skills = sorted(
+            d.name
+            for d in scope_dir.iterdir()
+            if d.is_dir() and not d.name.startswith(".")
+        )
         if not skills:
             info("(no skills loaded)")
             continue
@@ -196,32 +389,68 @@ def cmd_status(_args):
         for name in skills:
             source_path = SOURCE_ROOT / SKILLS_SUBDIR / name
             if not source_path.exists():
-                print(f"  {col('?', YELLOW, BOLD)} {col(name, BOLD)}  {col('not in source', YELLOW)}")
+                print(
+                    f"  {col('?', YELLOW, BOLD)} {col(name, BOLD)}  {col('not in source', YELLOW)}"
+                )
             elif hash_skill(source_path) == hash_skill(scope_dir / name):
-                print(f"  {col('✓', GREEN,  BOLD)} {col(name, BOLD)}  {col('up to date', GREEN)}")
+                print(
+                    f"  {col('✓', GREEN, BOLD)} {col(name, BOLD)}  {col('up to date', GREEN)}"
+                )
             else:
-                print(f"  {col('·', YELLOW, BOLD)} {col(name, BOLD)}  {col('differs from source — run skills sync after reviewing diff', YELLOW)}")
-                print(f"      {DIM}{diff_command(source_path, scope_dir / name)}{RESET}")
+                print(
+                    f"  {col('·', YELLOW, BOLD)} {col(name, BOLD)}  {col('differs from source — run skills sync after reviewing diff', YELLOW)}"
+                )
+                print(
+                    f"      {DIM}{diff_command(source_path, scope_dir / name)}{RESET}"
+                )
+
 
 # ── entry point ───────────────────────────────────────────────────────────────
 
+
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(prog="skills", description="Manage coding agent skills")
+    parser = argparse.ArgumentParser(
+        prog="skills", description="Manage coding agent skills"
+    )
     sub = parser.add_subparsers(dest="command", required=True)
 
     def add_scope(p):
         g = p.add_mutually_exclusive_group(required=True)
-        g.add_argument("--global",  dest="scope", action="store_const", const="global",
-                       help="Target global scope (~/.agents/skills)")
-        g.add_argument("--project", dest="scope", action="store_const", const="project",
-                       help="Target project scope ($PWD/.agents/skills)")
+        g.add_argument(
+            "--global",
+            dest="scope",
+            action="store_const",
+            const="global",
+            help="Target global scope (~/.agents/skills)",
+        )
+        g.add_argument(
+            "--project",
+            dest="scope",
+            action="store_const",
+            const="project",
+            help="Target project scope ($PWD/.agents/skills)",
+        )
 
-    p_load = sub.add_parser("load", help="Load a skill into a scope")
-    p_load.add_argument("name", nargs="?", help="Skill name (interactive picker if omitted)")
+    p_load = sub.add_parser("load", help="Load one or more skills into a scope")
+    p_load.add_argument(
+        "names", nargs="*", help="Skill names (interactive picker if omitted)"
+    )
+    p_load.add_argument(
+        "--all",
+        action="store_true",
+        help="Load all source skills not already present in the target scope",
+    )
     add_scope(p_load)
 
-    p_sync = sub.add_parser("sync", help="Replace a loaded skill with the source version")
-    p_sync.add_argument("name", nargs="?", help="Skill name (interactive picker if omitted)")
+    p_sync = sub.add_parser(
+        "sync", help="Replace one or more loaded skills with the source version"
+    )
+    p_sync.add_argument(
+        "names", nargs="*", help="Skill names (interactive picker if omitted)"
+    )
+    p_sync.add_argument(
+        "--all", action="store_true", help="Sync all loaded skills in the target scope"
+    )
     add_scope(p_sync)
 
     sub.add_parser("status", help="Show skill status across all scopes")
@@ -233,6 +462,10 @@ def main():
     parser = build_parser()
     argcomplete.autocomplete(parser)
     args = parser.parse_args()
+
+    if getattr(args, "all", False) and getattr(args, "names", []):
+        parser.error("cannot combine skill names with --all")
+
     {"load": cmd_load, "sync": cmd_sync, "status": cmd_status}[args.command](args)
 
 

@@ -1,0 +1,267 @@
+#!/usr/bin/env -S uv run --script
+# /// script
+# dependencies = ["argcomplete"]
+# ///
+# PYTHON_ARGCOMPLETE_OK
+
+"""
+Display status codes for various standards.
+Usage: status-codes <standard>
+
+Supported standards: process-exits, http, grpc, dns
+Example: status-codes http
+"""
+
+import argparse
+import os
+import signal
+import sys
+from typing import Dict
+
+import argcomplete
+
+SYSEXITS: Dict[str, str] = {
+    "EX_OK": "Success",
+    "EX_USAGE": "Command line usage error",
+    "EX_DATAERR": "Input data error",
+    "EX_NOINPUT": "Cannot open input",
+    "EX_NOUSER": "Addressee unknown",
+    "EX_NOHOST": "Host name unknown",
+    "EX_UNAVAILABLE": "Service unavailable",
+    "EX_SOFTWARE": "Internal software error",
+    "EX_OSERR": "System error",
+    "EX_OSFILE": "Critical OS file missing",
+    "EX_CANTCREAT": "Can't create output file",
+    "EX_IOERR": "Input/output error",
+    "EX_TEMPFAIL": "Temporary failure; retry later",
+    "EX_PROTOCOL": "Remote protocol error",
+    "EX_NOPERM": "Permission denied",
+    "EX_CONFIG": "Configuration error",
+}
+
+
+def process_exit_codes() -> str:
+    """Build common process exit codes for the current platform."""
+    codes: Dict[int, str] = {
+        0: "Success / EX_OK",
+        1: "General error",
+        2: "Misuse of shell command",
+        126: "Command invoked cannot execute",
+        127: "Command not found",
+    }
+
+    for name, description in SYSEXITS.items():
+        if name == "EX_OK" or not hasattr(os, name):
+            continue
+        codes[getattr(os, name)] = f"{name} {description}"
+
+    for sig in sorted(signal.Signals, key=lambda s: s.value):
+        if sig.value <= 0:
+            continue
+        desc = signal.strsignal(sig.value) or "Signal"
+        suffix = f": {sig.value}"
+        if desc.endswith(suffix):
+            desc = desc[: -len(suffix)]
+        if sig == signal.SIGINT:
+            desc = f"{desc} / Ctrl+C"
+        codes[128 + sig.value] = f"{sig.name} ({desc})"
+
+    return "\n".join(f"{code} {label}" for code, label in sorted(codes.items()))
+
+
+# Status code database for various standards
+CODES: Dict[str, str] = {
+    "process-exits": process_exit_codes(),
+    "http": """100 Continue
+101 Switching Protocols
+102 Processing
+103 Early Hints
+110 Response Is Stale
+111 Revalidation Failed
+112 Disconnected Operation
+113 Heuristic Expiration
+199 Miscellaneous Warning
+200 OK
+201 Created
+202 Accepted
+203 Non-Authoritative Information
+204 No Content
+205 Reset Content
+206 Partial Content
+207 Multi-Status
+208 Already Reported
+214 Transformation Applied
+218 This Is Fine
+226 IM Used
+299 Miscellaneous Persistent Warning
+300 Multiple Choices
+301 Moved Permanently
+302 Found
+303 See Other
+304 Not Modified
+305 Use Proxy
+306 Switch Proxy
+307 Temporary Redirect
+308 Permanent Redirect
+400 Bad Request
+401 Unauthorized
+402 Payment Required
+403 Forbidden
+404 Not Found
+405 Method Not Allowed
+406 Not Acceptable
+407 Proxy Authentication Required
+408 Request Timeout
+409 Conflict
+410 Gone
+411 Length Required
+412 Precondition Failed
+413 Content Too Large
+414 URI Too Long
+415 Unsupported Media Type
+416 Range Not Satisfiable
+417 Expectation Failed
+418 I'm a Teapot
+419 Page Expired
+420 Method Failure or Enhance Your Calm
+421 Misdirected Request
+422 Unprocessable Content
+423 Locked
+424 Failed Dependency
+425 Too Early
+426 Upgrade Required
+428 Precondition Required
+429 Too Many Requests
+430 Security Rejection
+431 Request Header Fields Too Large
+440 Login Time-Out
+444 No Response
+449 Retry With
+450 Blocked by Windows Parental Controls
+451 Unavailable for Legal Reasons
+460 Client Closed Connection Prematurely
+463 Too Many Forwarded IP Addresses
+464 Incompatible Protocol
+470 Request Denied
+492 User Access Forbidden
+493 Unsupported Browser
+494 Request Header Too Large
+495 SSL Certificate Error
+496 SSL Certificate Required
+497 HTTP Request Sent to HTTPS Port
+498 Invalid Token
+499 Token Required or Client Closed Request
+500 Internal Server Error
+501 Not Implemented
+502 Bad Gateway
+503 Service Unavailable
+504 Gateway Timeout
+505 HTTP Version Not Supported
+506 Variant Also Negotiates
+507 Insufficient Storage
+508 Loop Detected
+509 Bandwidth Limit Exceeded
+510 Not Extended
+511 Network Authentication Required
+520 Web Server Is Returning an Unknown Error
+521 Web Server Is Down
+522 Connection Timed Out
+523 Origin Is Unreachable
+524 a Timeout Occurred
+525 SSL Handshake Failed
+526 Invalid SSL Certificate
+527 Railgun Listener to Origin
+529 the Service Is Overloaded
+530 Site Frozen
+531 Upstream Connection Error
+532 Response Too Large
+533 Upstream TLS Error
+534 Application Error
+535 Unknown Application
+536 HTTP Response Timeout
+537 DNS Resolution Error
+538 Request Loop
+539 Serverless Timeout
+540 Temporarily Disabled
+541 Out of Workers
+542 Database Error / Header Overflow
+543 Communication Error / Upstream Timeout
+544 Management Error / Invalid Host Header
+545 Authentication Error / Component Not Ready
+546 Unknown Application / TLS Error
+547 No HTTP Response
+548 Invalid Response / DNS Resolution Error
+549 Authentication Gateway Error / Application Crash
+552 Application Unreachable
+553 Directory Service Error
+554 Authentication Token Error
+555 Application Does Not Support Kerberos
+556 Unexpected Authentication Challenge
+557 KDC Unreachable
+558 Connection Limit Stop
+561 Unauthorized
+562 Credential Error
+598 Network Read Timeout Error
+599 Network Connect Timeout Error
+600 Invalid Headers
+893 Load Balancing Overflow
+999 Unauthorized""",
+    "grpc": """0 OK
+1 CANCELLED
+2 UNKNOWN
+3 INVALID_ARGUMENT
+4 DEADLINE_EXCEEDED
+5 NOT_FOUND
+6 ALREADY_EXISTS
+7 PERMISSION_DENIED
+8 RESOURCE_EXHAUSTED
+9 FAILED_PRECONDITION
+10 ABORTED
+11 OUT_OF_RANGE
+12 UNIMPLEMENTED
+13 INTERNAL
+14 UNAVAILABLE
+15 DATA_LOSS
+16 UNAUTHENTICATED""",
+    "dns": """0 NOERROR
+1 FORMERR
+2 SERVFAIL
+3 NXDOMAIN
+4 NOTIMP
+5 REFUSED
+6 YXDOMAIN
+7 YXRRSET
+8 NXRRSET
+9 NOTAUTH
+10 NOTZONE
+11 DSOTYPENI
+16 BADVERS / BADSIG
+17 BADKEY
+18 BADTIME
+19 BADMODE
+20 BADNAME
+21 BADALG
+22 BADTRUNC
+23 BADCOOKIE""",
+}
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(
+        description="Display status codes for various standards.",
+    )
+    parser.add_argument(
+        "standard",
+        choices=list(CODES.keys()),
+        metavar="standard",
+        help="Standard to display. Choices: " + ", ".join(CODES.keys()),
+    )
+    argcomplete.autocomplete(parser)
+    args = parser.parse_args()
+
+    print(CODES[args.standard])
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

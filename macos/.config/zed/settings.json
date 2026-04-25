@@ -6,22 +6,41 @@
 // To see all of Zed's default settings without changing your
 // custom settings, run `zed: open default settings` from the
 // command palette (cmd-shift-p / ctrl-shift-p)
+//
+// VSCode migration reference:https://zed.dev/docs/migrate/vs-code
 {
-  "notification_panel": {
+  "cli_default_open_behavior": "new_window",
+  "collaboration_panel": {
+    "button": false,
     "dock": "left",
   },
-  "outline_panel": {
-    "dock": "right",
-  },
-  "agent_servers": {
-    "pi-acp": {
-      "type": "registry",
-    },
-    "amp-acp": {
-      "type": "registry",
-    },
-  },
+  "agent_ui_font_size": 12.0,
+  "agent_buffer_font_size": 12.0,
+  "buffer_line_height": "comfortable",
+  "buffer_font_weight": 400.0,
   "agent": {
+    "expand_edit_card": false,
+    "expand_terminal_card": false,
+    "button": true,
+    "default_model": {
+      "enable_thinking": false,
+      "model": "claude-sonnet-4.6",
+      "provider": "copilot_chat",
+    },
+    "dock": "left",
+    "favorite_models": [
+      {
+        "enable_thinking": false,
+        "model": "claude-sonnet-4.6",
+        "provider": "copilot_chat",
+      },
+    ],
+    "inline_assistant_model": {
+      "enable_thinking": false,
+      "model": "claude-sonnet-4.6",
+      "provider": "copilot_chat",
+    },
+    "model_parameters": [],
     "tool_permissions": {
       "default": "confirm",
       "tools": {
@@ -30,79 +49,119 @@
         },
       },
     },
-    "dock": "left",
-    "inline_assistant_model": {
-      "provider": "copilot_chat",
-      "model": "claude-sonnet-4.6",
-      "enable_thinking": false,
-    },
-    "default_model": {
-      "provider": "copilot_chat",
-      "model": "claude-sonnet-4.6",
-      "enable_thinking": false,
-    },
-    "favorite_models": [
-      {
-        "provider": "copilot_chat",
-        "model": "claude-sonnet-4.6",
-        "enable_thinking": false,
-      },
-    ],
-    "model_parameters": [],
   },
-  "ui_font_family": ".ZedSans",
+  "agent_servers": {
+    "pi-acp": {
+      "type": "registry",
+    },
+    "codex-acp": {
+      "type": "registry",
+    },
+  },
+  "autosave": "on_focus_change",
+  // Reference: https://github.com/zed-industries/zed/blob/main/assets/keymaps/default-macos.json
+  "base_keymap": "VSCode",
+  "buffer_font_fallbacks": [".ZedMono"],
+  "buffer_font_family": "Hack Nerd Font Mono",
+  "buffer_font_size": 11.5,
+  "colorize_brackets": false,
   "edit_predictions": {
+    "disabled_globs": [
+      "**/.env*",
+      "**/*.pem",
+      "**/*.key",
+      "**/*.cert",
+      "**/*.crt",
+      "**/secrets.yml",
+      "**/secrets.sh",
+    ],
     "mode": "subtle",
-    "provider": "copilot",
+    "provider": "zed",
   },
-  "use_system_window_tabs": true,
+  "ensure_final_newline_on_save": true,
+  "git": {
+    "inline_blame": {
+      "enabled": true,
+      "show_commit_summary": true,
+    },
+  },
   "git_panel": {
+    "default_width": 360,
+    "dock": "right",
+    "status_style": "icon",
     "tree_view": true,
-    "dock": "right",
   },
-  "project_panel": {
+  "gutter": {
+    "line_numbers": true,
+    "min_line_number_digits": 4,
+  },
+  "icon_theme": {
+    "dark": "Colored Zed Icons Theme Dark",
+    "light": "Colored Zed Icons Theme Light",
+    "mode": "dark",
+  },
+  "languages": {
+    "Markdown": {
+      "remove_trailing_whitespace_on_save": false,
+    },
+  },
+  "outline_panel": {
+    "button": true,
+    "auto_fold_dirs": true,
+    "auto_reveal_entries": true,
+    "default_width": 300,
     "dock": "right",
+    "indent_guides": {
+      "show": "always",
+    },
+  },
+  "preferred_line_length": 100,
+  "project_panel": {
+    "auto_fold_dirs": true,
+    "auto_reveal_entries": true,
+    "default_width": 280,
+    "dock": "right",
+    "indent_guides": {
+      "show": "always",
+    },
+    "show_diagnostics": "all",
+    "sort_mode": "directories_first",
+    "sticky_scroll": true,
   },
   "session": {
     "trust_all_worktrees": true,
   },
-  "terminal": {
-    "font_size": 12.0,
-    "max_scroll_history_lines": 99999,
+  "show_edit_predictions": true,
+  "show_whitespaces": "selection",
+  "show_wrap_guides": true,
+  "soft_wrap": "editor_width",
+  "sticky_scroll": {
+    "enabled": true,
   },
   "telemetry": {
     "diagnostics": false,
     "metrics": false,
   },
-  "git": {
-    "inline_blame": {
-      "show_commit_summary": true,
-      "enabled": true,
+  "terminal": {
+    "show_count_badge": true,
+    "dock": "bottom",
+    "font_family": "Hack Nerd Font Mono",
+    "font_size": 11.5,
+    "line_height": "comfortable",
+    "max_scroll_history_lines": 99999,
+  },
+  "theme": {
+    "dark": "One Dark",
+    "light": "One Light",
+    "mode": "dark",
+  },
+  "theme_overrides": {
+    "One Dark": {
+      "panel.indent_guide_active": "#00ff00",
     },
   },
-  "base_keymap": "VSCode",
-  "gutter": {
-    "line_numbers": true,
-  },
-  "autosave": "on_focus_change",
-  "buffer_font_fallbacks": [".ZedMono"],
-  "buffer_font_family": "Hack Nerd Font Mono",
-  "colorize_brackets": false,
-  "show_whitespaces": "selection",
-  "show_edit_predictions": true,
-  "ensure_final_newline_on_save": true,
-  "wrap_guides": [100],
-  "soft_wrap": "editor_width",
-  "icon_theme": {
-    "mode": "system",
-    "light": "Colored Zed Icons Theme Dark",
-    "dark": "Colored Zed Icons Theme Dark",
-  },
+  "ui_font_family": ".ZedSans",
   "ui_font_size": 13.0,
-  "buffer_font_size": 12.0,
-  "theme": {
-    "mode": "dark",
-    "light": "One Light",
-    "dark": "One Dark",
-  },
+  "use_system_window_tabs": true,
+  "wrap_guides": [100],
 }

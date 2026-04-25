@@ -18,12 +18,12 @@ DEFAULT_PORT=9222
 
 # Edit these values once, or override at runtime via the relevant env vars.
 #   Path to the Chrome/Chromium binary.
-CHROME_BIN="${CHROME_BIN:-/Applications/Chromium.app/Contents/MacOS/Chromium}"
+CHROME_BIN="${CHROME_BIN:-/Applications/Helium.app/Contents/MacOS/Helium}"
 #   Source profile dir, rsynced into the isolated profile on each start.
 #   Set this to your browser's real user data dir, e.g.:
-#     Chromium: ~/Library/Application Support/Chromium
 #     Chrome:   ~/Library/Application Support/Google/Chrome
-CHROME_USER_DATA_DIR="${CHROME_USER_DATA_DIR:-$HOME/Library/Application Support/Chromium}"
+#     Chromium: ~/Library/Application Support/Chromium
+CHROME_USER_DATA_DIR="${CHROME_USER_DATA_DIR:-$HOME/Library/Application Support/net.imput.helium}"
 
 # ─── Colors ──────────────────────────────────────────────────────────────────
 
@@ -66,9 +66,9 @@ ${BOLD}START OPTIONS${RESET}
 
 ${BOLD}ENVIRONMENT${RESET}
   CHROME_BIN              Path to Chrome/Chromium binary
-                          (default: /Applications/Chromium.app/Contents/MacOS/Chromium)
+                          (default: /Applications/Helium.app/Contents/MacOS/Helium)
   CHROME_USER_DATA_DIR    Source profile rsynced into the isolated profile on start
-                          (default: ~/Library/Application Support/Chromium)
+                          (default: ~/Library/Application Support/net.imput.helium)
 
 ${BOLD}STOP OPTIONS${RESET}
   -p, --port PORT     Stop instance on this port (default: $DEFAULT_PORT)

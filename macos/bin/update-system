@@ -68,6 +68,11 @@ if command -v brew &>/dev/null; then
   echo "Running brew cleanup..."
   brew autoremove
   brew cleanup
+
+  echo "\e[34m=== Desktop App Quarantine ===\e[0m"
+  confirm "Clear Gatekeeper quarantine flags from desktop apps?" \
+    "" \
+    "{ clear-app-quarantine }"
 fi
 
 if command -v mise &>/dev/null; then

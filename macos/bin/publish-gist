@@ -1,18 +1,13 @@
 #!/usr/bin/env -S uv run --script
 # /// script
-# dependencies = ["argcomplete"]
+# requires-python = ">=3.9"
 # ///
-# PYTHON_ARGCOMPLETE_OK
-"""Publish a markdown file as a GitHub Gist, embedding referenced local images and GIFs.
+"""Publish Markdown files to GitHub Gists with embedded local images."""
 
-Since `gh gist create` doesn't support binary files, this script creates the
-gist with just the markdown, then clones the gist's git repo, adds the image
-files, pushes, and rewrites the markdown to use raw GitHub URLs.
-"""
+from __future__ import annotations
 
-import argcomplete
 import argparse
-import datetime
+import datetime as dt
 import json
 import os
 import re
@@ -22,213 +17,569 @@ import sys
 import tempfile
 import urllib.parse
 import webbrowser
+from dataclasses import dataclass
+from pathlib import Path
+
+COMMANDS = {"doctor", "scan", "publish"}
 
 
-def run(cmd, check=True, cwd=None):
-    """Run a shell command and return stdout."""
+class CliError(Exception):
+    def __init__(
+        self, message: str, *, exit_code: int = 1, details: dict | None = None
+    ):
+        super().__init__(message)
+        self.message = message
+        self.exit_code = exit_code
+        self.details = details or {}
+
+
+@dataclass
+class Asset:
+    source: str
+    decoded: str
+    status: str
+    path: str | None = None
+    gist_filename: str | None = None
+    warning: str | None = None
+
+    def to_dict(self) -> dict:
+        return {
+            "source": self.source,
+            "decoded": self.decoded,
+            "status": self.status,
+            "path": self.path,
+            "gist_filename": self.gist_filename,
+            "warning": self.warning,
+        }
+
+
+@dataclass
+class PublishPlan:
+    markdown_path: Path
+    gist_filename: str
+    content: str
+    assets: list[Asset]
+
+    @property
+    def warnings(self) -> list[str]:
+        return [asset.warning for asset in self.assets if asset.warning]
+
+    @property
+    def resolved_assets(self) -> list[Asset]:
+        return [asset for asset in self.assets if asset.status == "resolved"]
+
+    def to_dict(self) -> dict:
+        return {
+            "markdown_path": str(self.markdown_path),
+            "gist_filename": self.gist_filename,
+            "asset_count": len(self.assets),
+            "resolved_asset_count": len(self.resolved_assets),
+            "warning_count": len(self.warnings),
+            "assets": [asset.to_dict() for asset in self.assets],
+            "warnings": self.warnings,
+        }
+
+
+def run(
+    cmd: list[str],
+    *,
+    cwd: str | None = None,
+    check: bool = True,
+) -> subprocess.CompletedProcess[str]:
     result = subprocess.run(cmd, capture_output=True, text=True, cwd=cwd)
     if check and result.returncode != 0:
-        print(f"Error running: {' '.join(cmd)}", file=sys.stderr)
-        if result.stderr:
-            print(result.stderr.strip(), file=sys.stderr)
-        sys.exit(1)
-    return result.stdout.strip()
+        raise CliError(
+            f"Command failed: {' '.join(cmd)}",
+            details={
+                "command": cmd,
+                "stdout": result.stdout.strip(),
+                "stderr": result.stderr.strip(),
+                "returncode": result.returncode,
+            },
+        )
+    return result
 
 
-def check_dependencies():
-    for cmd in ("gh", "git"):
-        if not shutil.which(cmd):
-            print(f"Error: '{cmd}' is required but not found.", file=sys.stderr)
-            sys.exit(1)
-    result = subprocess.run(["gh", "auth", "status"], capture_output=True)
-    if result.returncode != 0:
-        print("Error: Not authenticated with gh. Run 'gh auth login' first.", file=sys.stderr)
-        sys.exit(1)
+def normalize_args(argv: list[str]) -> tuple[list[str], bool]:
+    json_output = False
+    if argv and argv[0] == "--json":
+        json_output = True
+        argv = argv[1:]
+
+    if argv and argv[0] not in COMMANDS and not argv[0].startswith("-"):
+        argv = ["publish", *argv]
+
+    return argv, json_output
 
 
-def find_local_image_refs(content):
-    """Extract local image/gif paths from markdown and HTML img tags."""
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        prog="publish-gist",
+        description="Publish Markdown files to GitHub Gists with embedded local images.",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=(
+            "Typical workflow:\n"
+            "  publish-gist doctor                       # check gh CLI and authentication\n"
+            "  publish-gist scan report.md               # preview asset resolution without publishing\n"
+            "  publish-gist publish --dry-run report.md  # full dry run\n"
+            "  publish-gist publish report.md --web      # publish and open in browser"
+        ),
+    )
+    subparsers = parser.add_subparsers(dest="command", required=True)
+
+    doctor_parser = subparsers.add_parser(
+        "doctor",
+        help="Check local prerequisites and GitHub auth",
+        description="Verify that gh and git are installed, gh is authenticated, and the token has the 'gist' OAuth scope.",
+    )
+    doctor_parser.add_argument(
+        "--json",
+        action="store_true",
+        dest="json_output",
+        help="Emit machine-readable JSON",
+    )
+
+    scan_parser = subparsers.add_parser(
+        "scan",
+        help="Inspect a Markdown file and resolve local assets without publishing",
+        description="Resolve all local image references in the Markdown file and show which assets would be uploaded as gist attachments, without creating a gist.",
+    )
+    add_common_publish_args(scan_parser)
+    scan_parser.add_argument(
+        "--json",
+        action="store_true",
+        dest="json_output",
+        help="Emit machine-readable JSON",
+    )
+
+    publish_parser = subparsers.add_parser(
+        "publish",
+        help="Create or preview a gist for a Markdown file",
+        description="Create a GitHub Gist from a Markdown file, uploading any local images as gist attachments and rewriting their URLs to point at the raw gist content. Use --dry-run to preview without creating.",
+    )
+    add_common_publish_args(publish_parser)
+    publish_parser.add_argument(
+        "--public",
+        action="store_true",
+        help="Create a public gist instead of a secret gist",
+    )
+    publish_parser.add_argument(
+        "--desc",
+        help="Description to set on the gist",
+    )
+    publish_parser.add_argument(
+        "--web",
+        action="store_true",
+        help="Open the created gist in the browser",
+    )
+    publish_parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Show what would be published without creating a gist",
+    )
+    publish_parser.add_argument(
+        "--json",
+        action="store_true",
+        dest="json_output",
+        help="Emit machine-readable JSON",
+    )
+
+    return parser
+
+
+def add_common_publish_args(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument("markdown_file", help="Path to the Markdown file")
+    parser.add_argument(
+        "--name",
+        help=(
+            "Custom filename for the Markdown file in the gist. "
+            "'.md' is appended if missing."
+        ),
+    )
+
+
+def emit_text(data: dict) -> None:
+    command = data.get("command")
+    if command == "doctor":
+        print(f"Overall: {'ok' if data['ok'] else 'not ok'}")
+        for check in data["checks"]:
+            line = f"- {check['name']}: {'ok' if check['ok'] else 'missing'}"
+            if check.get("detail"):
+                line += f" ({check['detail']})"
+            print(line)
+        return
+
+    if command == "scan":
+        print(f"Markdown: {data['markdown_path']}")
+        print(f"Gist filename: {data['gist_filename']}")
+        print(f"Resolved assets: {data['resolved_asset_count']}/{data['asset_count']}")
+        for asset in data["assets"]:
+            line = f"- {asset['source']}: {asset['status']}"
+            if asset.get("gist_filename"):
+                line += f" -> {asset['gist_filename']}"
+            print(line)
+        for warning in data["warnings"]:
+            print(f"Warning: {warning}", file=sys.stderr)
+        return
+
+    if command == "publish":
+        if data.get("dry_run"):
+            print("Dry run only. No gist was created.")
+            emit_text(data["plan"])
+            return
+
+        print(f"Gist URL: {data['gist_url']}")
+        print(f"Gist ID: {data['gist_id']}")
+        print(f"Visibility: {'public' if data['public'] else 'secret'}")
+        print(f"Embedded assets: {data['embedded_asset_count']}")
+        return
+
+    raise CliError(f"Unknown output command: {command}")
+
+
+def emit_result(data: dict, *, json_output: bool) -> None:
+    if json_output:
+        print(json.dumps(data, indent=2, sort_keys=True))
+    else:
+        emit_text(data)
+
+
+def emit_error(error: CliError, *, json_output: bool) -> None:
+    if json_output:
+        payload = {
+            "ok": False,
+            "error": {
+                "message": error.message,
+                "details": error.details,
+            },
+        }
+        print(json.dumps(payload, indent=2, sort_keys=True), file=sys.stderr)
+    else:
+        print(f"Error: {error.message}", file=sys.stderr)
+        stderr = error.details.get("stderr")
+        if stderr:
+            print(stderr, file=sys.stderr)
+
+
+def doctor() -> dict:
+    checks = []
+
+    for command_name in ("gh", "git"):
+        path = shutil.which(command_name)
+        checks.append(
+            {
+                "name": command_name,
+                "ok": bool(path),
+                "detail": path,
+            }
+        )
+
+    auth_result = subprocess.run(
+        ["gh", "auth", "status"],
+        capture_output=True,
+        text=True,
+    )
+    auth_text = "\n".join(
+        part.strip()
+        for part in (auth_result.stdout, auth_result.stderr)
+        if part.strip()
+    )
+
+    login_match = re.search(r"Logged in to github\.com account ([^\s]+)", auth_text)
+    scopes_match = re.search(r"Token scopes:\s*(.+)", auth_text)
+    scopes = []
+    if scopes_match:
+        raw_scopes = scopes_match.group(1).strip().strip("'")
+        scopes = [
+            scope.strip().strip("'") for scope in raw_scopes.split(",") if scope.strip()
+        ]
+
+    checks.append(
+        {
+            "name": "gh_auth",
+            "ok": auth_result.returncode == 0,
+            "detail": login_match.group(1) if login_match else None,
+            "auth_source": "gh_cli",
+            "scopes": scopes,
+            "has_gist_scope": "gist" in scopes,
+        }
+    )
+
+    ok = (
+        all(check["ok"] for check in checks[:-1])
+        and checks[-1]["ok"]
+        and checks[-1]["has_gist_scope"]
+    )
+    return {
+        "ok": ok,
+        "command": "doctor",
+        "checks": checks,
+    }
+
+
+def build_gist_filename(markdown_path: Path, custom_name: str | None) -> str:
+    gist_name = custom_name or markdown_path.name
+    if not gist_name.endswith(".md"):
+        gist_name += ".md"
+    utc_prefix = dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H%M%SZ-")
+    return utc_prefix + gist_name
+
+
+def find_local_image_refs(content: str) -> list[str]:
     refs = []
-
-    # ![alt](path) -- but not URLs
-    for match in re.finditer(r'!\[[^\]]*\]\(([^)]+)\)', content):
+    for match in re.finditer(r"!\[[^\]]*\]\(([^)]+)\)", content):
         path = match.group(1)
         if not path.startswith(("http://", "https://")):
             refs.append(path)
 
-    # <img ... src="path" ...> -- but not URLs
-    for match in re.finditer(r'<img[^>]+src=["\']([^"\']+)["\']', content, re.IGNORECASE):
+    for match in re.finditer(
+        r'<img[^>]+src=["\']([^"\']+)["\']', content, re.IGNORECASE
+    ):
         path = match.group(1)
         if not path.startswith(("http://", "https://")):
             refs.append(path)
 
-    # Deduplicate while preserving order
+    unique_refs = []
     seen = set()
-    unique = []
     for ref in refs:
         if ref not in seen:
             seen.add(ref)
-            unique.append(ref)
-    return unique
+            unique_refs.append(ref)
+    return unique_refs
 
 
-def sanitize_filename(path, taken):
-    """Flatten a path to a gist-safe filename, handling collisions.
-
-    Prefixes with '_' so image files sort after the markdown file in the gist.
-    """
+def sanitize_filename(path: str, taken: set[str]) -> str:
     base = "_" + os.path.basename(path).replace(" ", "-")
     if base not in taken:
         taken.add(base)
         return base
+
     name, ext = os.path.splitext(base)
     counter = 2
     while f"{name}-{counter}{ext}" in taken:
         counter += 1
+
     result = f"{name}-{counter}{ext}"
     taken.add(result)
     return result
 
 
-def main():
-    parser = argparse.ArgumentParser(description="Publish a markdown file as a GitHub Gist with embedded images.")
-    parser.add_argument("markdown_file", help="Path to the markdown file").completer = argcomplete.completers.FilesCompleter(['md'])
-    parser.add_argument("--name", help="Custom filename for the gist (default: original filename). The gist title is the first filename alphabetically, so this controls what the gist is called.")
-    parser.add_argument("--public", action="store_true", help="Make the gist publicly listed (default: secret)")
-    parser.add_argument("--desc", help="Description for the gist")
-    parser.add_argument("--web", action="store_true", help="Open the gist in a browser after creation")
-    argcomplete.autocomplete(parser)
-    args = parser.parse_args()
+def build_plan(markdown_file: str, custom_name: str | None) -> PublishPlan:
+    markdown_path = Path(markdown_file).expanduser().resolve()
+    if not markdown_path.is_file():
+        raise CliError(f"File not found: {markdown_file}")
 
-    if not os.path.isfile(args.markdown_file):
-        print(f"Error: File not found: {args.markdown_file}", file=sys.stderr)
-        sys.exit(1)
+    content = markdown_path.read_text(encoding="utf-8")
+    gist_filename = build_gist_filename(markdown_path, custom_name)
+    taken_names: set[str] = set()
+    assets: list[Asset] = []
 
-    check_dependencies()
-
-    md_dir = os.path.dirname(os.path.abspath(args.markdown_file))
-    md_basename = os.path.basename(args.markdown_file)
-    gist_md_name = args.name if args.name else md_basename
-    # Ensure the gist filename ends with .md so GitHub renders it as markdown
-    if not gist_md_name.endswith(".md"):
-        gist_md_name += ".md"
-    # Prepend a datetime stamp so the markdown file sorts first alphabetically.
-    # GitHub uses the first filename as the gist title, and digits sort before letters.
-    utc_prefix = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H%M%SZ-")
-    gist_md_name = utc_prefix + gist_md_name
-    with open(args.markdown_file, encoding="utf-8") as handle:
-        content = handle.read()
-    image_refs = find_local_image_refs(content)
-
-    print(f"Processing: {args.markdown_file}")
-    if gist_md_name != md_basename:
-        print(f"Gist filename: {gist_md_name}")
-    print(f"Found {len(image_refs)} local image reference(s)")
-
-    # Resolve image paths and build rewrite map
-    rewrite_map = {}  # original_ref -> sanitized_filename
-    resolved_images = {}  # sanitized_filename -> absolute_path
-    taken_names = set()
-
-    for ref in image_refs:
-        # Decode percent-encoded paths (e.g. %20 -> space) for filesystem lookup
+    for ref in find_local_image_refs(content):
         decoded_ref = urllib.parse.unquote(ref)
-        full_path = os.path.abspath(os.path.join(md_dir, decoded_ref))
-        if os.path.commonpath([md_dir, full_path]) != md_dir:
-            print(
-                f"  Warning: Referenced image outside markdown directory, skipping: {ref}",
-                file=sys.stderr,
+        full_path = (markdown_path.parent / decoded_ref).resolve()
+
+        try:
+            full_path.relative_to(markdown_path.parent)
+        except ValueError:
+            assets.append(
+                Asset(
+                    source=ref,
+                    decoded=decoded_ref,
+                    status="outside_root",
+                    warning=f"Referenced image outside markdown directory: {ref}",
+                )
             )
             continue
-        if not os.path.isfile(full_path):
-            print(f"  Warning: Referenced image not found, skipping: {ref}", file=sys.stderr)
+
+        if not full_path.is_file():
+            assets.append(
+                Asset(
+                    source=ref,
+                    decoded=decoded_ref,
+                    status="missing",
+                    path=str(full_path),
+                    warning=f"Referenced image not found: {ref}",
+                )
+            )
             continue
-        sanitized = sanitize_filename(decoded_ref, taken_names)
-        rewrite_map[ref] = sanitized
-        resolved_images[sanitized] = full_path
-        print(f"  {ref} -> {sanitized}")
 
-    # Step 1: Create the gist with just the markdown (using the desired filename)
-    print("\nCreating gist...")
+        assets.append(
+            Asset(
+                source=ref,
+                decoded=decoded_ref,
+                status="resolved",
+                path=str(full_path),
+                gist_filename=sanitize_filename(decoded_ref, taken_names),
+            )
+        )
+
+    return PublishPlan(
+        markdown_path=markdown_path,
+        gist_filename=gist_filename,
+        content=content,
+        assets=assets,
+    )
+
+
+def rewrite_markdown(
+    content: str, gist_id: str, owner: str, assets: list[Asset]
+) -> str:
+    rewritten = content
+    for asset in assets:
+        encoded_name = urllib.parse.quote(asset.gist_filename or "")
+        raw_url = (
+            f"https://gist.githubusercontent.com/{owner}/{gist_id}/raw/{encoded_name}"
+        )
+        escaped_ref = re.escape(asset.source)
+        rewritten = re.sub(
+            rf"(!\[[^\]]*\]\()({escaped_ref})(\))",
+            rf"\1{raw_url}\3",
+            rewritten,
+        )
+        rewritten = re.sub(
+            rf"(<img[^>]+src=[\"\'])({escaped_ref})([\"\'])",
+            rf"\1{raw_url}\3",
+            rewritten,
+            flags=re.IGNORECASE,
+        )
+    return rewritten
+
+
+def do_scan(args: argparse.Namespace) -> dict:
+    plan = build_plan(args.markdown_file, args.name)
+    return {
+        "ok": True,
+        "command": "scan",
+        **plan.to_dict(),
+    }
+
+
+def ensure_ready_to_publish() -> None:
+    result = doctor()
+    if result["ok"]:
+        return
+    raise CliError(
+        "publish-gist doctor failed",
+        details={"doctor": result},
+    )
+
+
+def do_publish(args: argparse.Namespace) -> dict:
+    plan = build_plan(args.markdown_file, args.name)
+
+    if args.dry_run:
+        return {
+            "ok": True,
+            "command": "publish",
+            "dry_run": True,
+            "plan": {
+                "ok": True,
+                "command": "scan",
+                **plan.to_dict(),
+            },
+            "public": bool(args.public),
+            "description": args.desc,
+        }
+
+    ensure_ready_to_publish()
+
     with tempfile.TemporaryDirectory() as staging:
-        staged_md = os.path.join(staging, gist_md_name)
-        shutil.copy2(os.path.abspath(args.markdown_file), staged_md)
+        staged_md = Path(staging) / plan.gist_filename
+        shutil.copy2(plan.markdown_path, staged_md)
 
-        cmd = ["gh", "gist", "create"]
+        create_cmd = ["gh", "gist", "create"]
         if args.public:
-            cmd.append("--public")
+            create_cmd.append("--public")
         if args.desc:
-            cmd.extend(["--desc", args.desc])
-        cmd.append(staged_md)
+            create_cmd.extend(["--desc", args.desc])
+        create_cmd.append(str(staged_md))
 
-        gist_url = run(cmd)
+        gist_url = run(create_cmd).stdout.strip()
 
     if "gist.github.com" not in gist_url:
-        print(f"Error: Unexpected response from gh: {gist_url}", file=sys.stderr)
-        sys.exit(1)
+        raise CliError(
+            "Unexpected response from gh gist create",
+            details={"gist_url": gist_url},
+        )
 
     gist_id = gist_url.rstrip("/").split("/")[-1]
-    print(f"Gist created: {gist_url}")
 
-    # Step 2: If there are images, clone the gist repo, add them, push, then rewrite URLs
-    if rewrite_map:
-        clone_dir = tempfile.mkdtemp()
+    if plan.resolved_assets:
+        clone_dir = Path(tempfile.mkdtemp())
         try:
-            print("Cloning gist repo...")
-            run(["gh", "gist", "clone", gist_id, clone_dir])
+            run(["gh", "gist", "clone", gist_id, str(clone_dir)])
 
-            # Copy images into the cloned repo
-            for sanitized, src_path in resolved_images.items():
-                shutil.copy2(src_path, os.path.join(clone_dir, sanitized))
+            for asset in plan.resolved_assets:
+                shutil.copy2(asset.path, clone_dir / (asset.gist_filename or ""))
 
-            # Commit and push
-            run(["git", "add", "."], cwd=clone_dir)
-            run(["git", "commit", "-m", "Add images"], cwd=clone_dir)
+            run(["git", "add", "."], cwd=str(clone_dir))
+            run(["git", "commit", "-m", "Add images"], cwd=str(clone_dir))
+            run(["git", "push"], cwd=str(clone_dir))
 
-            print("Pushing images to gist...")
-            run(["git", "push"], cwd=clone_dir)
-
-            # Get the gist owner for constructing raw URLs
-            gist_json = json.loads(run(["gh", "api", f"gists/{gist_id}"]))
+            gist_json = json.loads(run(["gh", "api", f"gists/{gist_id}"]).stdout)
             owner = gist_json.get("owner", {}).get("login", "")
 
-            # Rewrite markdown with raw URLs
-            rewritten = content
-            for orig_ref, sanitized in rewrite_map.items():
-                # Stable raw URL format (no commit SHA, always serves latest)
-                encoded_name = urllib.parse.quote(sanitized)
-                raw_url = f"https://gist.githubusercontent.com/{owner}/{gist_id}/raw/{encoded_name}"
-                escaped_ref = re.escape(orig_ref)
-                rewritten = re.sub(
-                    rf"(!\[[^\]]*\]\()({escaped_ref})(\))",
-                    rf"\1{raw_url}\3",
-                    rewritten,
-                )
-                rewritten = re.sub(
-                    rf"(<img[^>]+src=[\"\'])({escaped_ref})([\"\'])",
-                    rf"\1{raw_url}\3",
-                    rewritten,
-                    flags=re.IGNORECASE,
-                )
-
-            # Write the rewritten markdown and update the gist
-            rewritten_path = os.path.join(clone_dir, gist_md_name)
-            with open(rewritten_path, "w", encoding="utf-8") as handle:
-                handle.write(rewritten)
-
-            print("Updating markdown with image URLs...")
-            run(["gh", "gist", "edit", gist_id, "-f", gist_md_name, rewritten_path])
-            print("Gist updated with embedded image URLs")
-
+            rewritten = rewrite_markdown(
+                plan.content, gist_id, owner, plan.resolved_assets
+            )
+            rewritten_path = clone_dir / plan.gist_filename
+            rewritten_path.write_text(rewritten, encoding="utf-8")
+            run(
+                [
+                    "gh",
+                    "gist",
+                    "edit",
+                    gist_id,
+                    "-f",
+                    plan.gist_filename,
+                    str(rewritten_path),
+                ]
+            )
         finally:
             shutil.rmtree(clone_dir, ignore_errors=True)
 
-    print(f"\nDone! Gist URL: {gist_url}")
-
     if args.web:
-        print("Opening in browser...")
         webbrowser.open(gist_url)
+
+    return {
+        "ok": True,
+        "command": "publish",
+        "dry_run": False,
+        "gist_url": gist_url,
+        "gist_id": gist_id,
+        "public": bool(args.public),
+        "description": args.desc,
+        "embedded_asset_count": len(plan.resolved_assets),
+        "warning_count": len(plan.warnings),
+        "warnings": plan.warnings,
+        "markdown_path": str(plan.markdown_path),
+        "gist_filename": plan.gist_filename,
+    }
+
+
+def main(argv: list[str] | None = None) -> int:
+    argv = list(sys.argv[1:] if argv is None else argv)
+    argv, global_json_output = normalize_args(argv)
+    parser = build_parser()
+    args = parser.parse_args(argv)
+    json_output = global_json_output or getattr(args, "json_output", False)
+
+    try:
+        if args.command == "doctor":
+            result = doctor()
+        elif args.command == "scan":
+            result = do_scan(args)
+        elif args.command == "publish":
+            result = do_publish(args)
+        else:
+            raise CliError(f"Unsupported command: {args.command}")
+
+        emit_result(result, json_output=json_output)
+        return 0
+    except CliError as error:
+        emit_error(error, json_output=json_output)
+        return error.exit_code
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
