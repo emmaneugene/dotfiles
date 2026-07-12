@@ -1,0 +1,152 @@
+#!/usr/bin/env zsh
+
+# Update system packages and tools (oh-my-zsh, homebrew, mise, mas, tmux plugins, pi & extensions, coding agent configs)
+# Supports both interactive mode (prompts for each update) and auto-approve mode (-y flag)
+#
+# Usage: update-system [OPTIONS]
+#   -y    Auto-approve all updates without prompting
+#
+# Examples:
+#   update-system           # Interactive mode - prompts for each update
+#   update-system -y        # Auto-approve all updates
+
+# Default to interactive mode
+AUTO_APPROVE=false
+
+case "${1:-}" in
+  -y)
+    AUTO_APPROVE=true
+    echo "Running in non-interactive mode. All updates will be applied automatically."
+    ;;
+  -h|--help)
+    sed -n '3,11p' "$0"
+    exit 0
+    ;;
+  "")
+    ;;
+  *)
+    echo "Unknown option: $1" >&2
+    sed -n '3,11p' "$0" >&2
+    exit 1
+    ;;
+esac
+
+# Prompt user for confirmation
+confirm() {
+  local prompt="$1"
+  local check_command="$2"
+  local action="$3"
+
+  if $AUTO_APPROVE; then
+    eval "$action"
+    return
+  fi
+
+  if [[ -n "$check_command" ]]; then
+    eval "$check_command"
+  fi
+
+  echo -n "\e[33m$prompt\e[0m [Y/n]: "
+  read -r response
+
+  if [[ "$response" =~ ^[Nn]$ ]]; then
+    echo "Skipping this step..."
+  else
+    eval "$action"
+  fi
+}
+
+# Fast-forward pull a git repo, logging and continuing on failure.
+pull_repo() {
+  local repo="$1"
+
+  if [[ ! -d "$repo/.git" ]]; then
+    return
+  fi
+
+  echo "\e[34m=== ${repo/#$HOME/\~} ===\e[0m"
+  if ! git -C "$repo" pull --ff-only; then
+    echo "\a\e[31mERROR: Failed to pull ${repo/#$HOME/\~}. Skipping.\e[0m" >&2
+  fi
+}
+
+# Oh-My-Zsh
+if [[ -n "$ZSH" && -f "$ZSH/tools/upgrade.sh" ]]; then
+  echo "\e[34m=== Oh-My-Zsh ===\e[0m"
+  confirm "Update oh-my-zsh?" \
+    "" \
+    "{ $ZSH/tools/upgrade.sh }"
+fi
+
+# Homebrew
+if command -v brew &>/dev/null; then
+  echo "\e[34m=== Homebrew ===\e[0m"
+  brew update
+  confirm "Update brew formulae?" \
+    "{
+      echo '\e[33mFreshest brew formulae\e[0m:';
+      brew outdated --formula;
+    }" \
+    "{ brew upgrade --formula --yes }"
+  # Skip self-updating apps
+  confirm "Update brew casks?" \
+    "{
+      echo '\e[33mFreshest brew casks\e[0m:';
+      HOMEBREW_NO_UPGRADE_AUTO_UPDATES_CASKS=1 brew outdated --cask;
+    }" \
+    "{ HOMEBREW_NO_UPGRADE_AUTO_UPDATES_CASKS=1 brew upgrade --cask --yes; }"
+  brew autoremove
+  brew cleanup
+
+  if command -v clear-app-quarantine &>/dev/null; then
+    echo "\e[34m=== Desktop App Quarantine ===\e[0m"
+    confirm "Clear Gatekeeper quarantine flags from desktop apps?" \
+      "" \
+      "{ clear-app-quarantine }"
+  fi
+fi
+
+# Mise
+if command -v mise &>/dev/null; then
+  echo "\e[34m=== mise ===\e[0m"
+  confirm "Update mise-managed tools?" \
+    "{
+      echo '\e[33mUpgradable mise tools\e[0m:';
+      mise outdated || true;
+    }" \
+    "{ mise upgrade }"
+fi
+
+# Mac App Store
+if command -v mas &>/dev/null; then
+  echo "\e[34m=== Mac App Store ===\e[0m"
+  confirm "Update Mac App Store apps?" \
+    "{
+      echo '\e[33mOutdated apps\e[0m:';
+      mas outdated
+    }" \
+    "{ mas update }"
+fi
+
+# tmux plugin manager
+if [[ -x "$HOME/.tmux/plugins/tpm/bin/update_plugins" ]]; then
+  echo "\e[34m=== tmux plugins ===\e[0m"
+  confirm "Update tmux plugins?" \
+    "" \
+    "{ ~/.tmux/plugins/tpm/bin/update_plugins all }"
+fi
+
+# pi and extensions
+if command -v pi &>/dev/null; then
+  echo "\e[34m=== pi ===\e[0m"
+  confirm "Update pi and pi extensions?" \
+    "" \
+    "{ pi update --all; }"
+fi
+
+# Coding agent configs
+for repo in "$HOME/.pi" "$HOME/.codex" "$HOME/.claude"; do
+  pull_repo "$repo"
+done
+
+echo "\e[32mSystem update complete!\e[0m"

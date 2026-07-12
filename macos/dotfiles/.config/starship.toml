@@ -1,0 +1,91 @@
+# Line 1: dir + vcs on the left, contextual segments pushed to the far right via $fill
+#         (matching p10k, whose right segments sit on the same row as the directory).
+# Line 2: prompt char only.
+
+format = """$username$hostname$directory$git_branch$git_status$fill$status$cmd_duration$jobs$direnv$mise$python$nodejs$ruby$golang$kubernetes$terraform$aws$gcloud$line_break$character"""
+
+add_newline = false
+
+[fill]
+symbol = " "
+
+# Username + hostname — only shown over SSH, like p10k's context segment.
+[username]
+show_always = false
+style_user = "bold yellow"
+style_root = "bold red"
+format = "[$user]($style)"
+
+[hostname]
+ssh_only = true
+style = "bold yellow"
+format = "[@$hostname]($style) "
+
+[directory]
+# Full path from $HOME, like p10k. The repo root (last segment) is bold,
+# the leading path is regular blue — matching p10k's bold-last-folder look.
+truncation_length = 0
+truncate_to_repo = false
+truncation_symbol = ""
+style = "bold blue"
+before_repo_root_style = "blue"
+repo_root_style = "bold blue"
+format = "[$path]($style)[$read_only]($read_only_style) "
+repo_root_format = "[$before_root_path]($before_repo_root_style)[$repo_root]($repo_root_style)[$path]($style)[$read_only]($read_only_style) "
+
+[git_branch]
+# Plain branch name, no icon and no "on " prefix, matching p10k's lean vcs.
+symbol = ""
+style = "green"
+format = "[$branch]($style) "
+
+[git_status]
+# Ahead/behind first (green, like the branch), then file-status counts
+# (yellow), no surrounding brackets — e.g. ↓4↑5 !1, like p10k.
+format = '([$ahead_behind](green) )([$all_status](yellow) )'
+conflicted = "=${count} "
+ahead = "↑${count}"
+behind = "↓${count}"
+diverged = "↓${behind_count}↑${ahead_count}"
+untracked = "?${count} "
+stashed = "*${count} "
+modified = "!${count} "
+staged = "+${count} "
+renamed = "»${count} "
+deleted = "✘${count} "
+
+# Prompt char — vi-mode aware (❯ insert / ❮ normal / V visual).
+[character]
+success_symbol = "[❯](bold green)"
+error_symbol = "[❯](bold red)"
+vimcmd_symbol = "[❮](bold green)"
+vimcmd_visual_symbol = "[V](bold green)"
+vimcmd_replace_symbol = "[❮](bold purple)"
+vimcmd_replace_one_symbol = "[❮](bold purple)"
+
+[status]
+disabled = false
+format = "[$symbol]($style) "
+symbol = "✘"
+success_symbol = ""
+
+# Command duration — no "took" prefix.
+[cmd_duration]
+format = "[$duration]($style) "
+
+# Language/runtime modules — keep default symbols, drop the "via" prefix.
+[python]
+format = '[$symbol($version )(\($virtualenv\) )]($style)'
+
+[nodejs]
+format = "[$symbol($version )]($style)"
+
+[ruby]
+format = "[$symbol($version )]($style)"
+
+[golang]
+format = "[$symbol($version )]($style)"
+
+[kubernetes]
+disabled = false
+format = "[$symbol$context( \\($namespace\\))]($style) "

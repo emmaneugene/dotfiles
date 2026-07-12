@@ -1,0 +1,129 @@
+{
+  "cursorpyright.analysis.typeCheckingMode": "standard",
+  "diffEditor.ignoreTrimWhitespace": false,
+  "editor.accessibilitySupport": "off",
+  "editor.bracketPairColorization.enabled": false,
+  "editor.cursorWidth": 4,
+  "editor.detectIndentation": true,
+  "editor.fontFamily": "'Hack Nerd Font Mono', monospace",
+  "editor.fontSize": 13,
+  "editor.fontLigatures": false,
+  "editor.guides.bracketPairs": true,
+  "editor.hover.delay": 500,
+  "editor.inlineSuggest.enabled": true,
+  "editor.insertSpaces": true,
+  "editor.indentSize": 4,
+  "editor.lineNumbers": "on",
+  "editor.minimap.enabled": false,
+  "editor.occurrencesHighlight": "off",
+  "editor.selectionHighlight": false,
+  "editor.renderWhitespace": "selection",
+  "editor.rulers": [100],
+  "editor.suggestSelection": "first",
+  "editor.tabSize": 4,
+  "editor.wordWrap": "on",
+  "editorconfig.template": "~/.editorconfig",
+  "explorer.confirmDelete": false,
+  "explorer.confirmDragAndDrop": false,
+  "explorer.confirmPasteNative": false,
+  "extensions.autoUpdate": "off",
+  "extensions.ignoreRecommendations": true,
+  "files.eol": "\n",
+  "files.autoSave": "onFocusChange",
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true,
+  "git.blame.editorDecoration.enabled": true,
+  "git.blame.editorDecoration.template": "${authorName} (${authorDateAgo}) - ${subject}",
+  "git.blame.statusBarItem.enabled": true,
+  "git.enableSmartCommit": true,
+  "git.confirmSync": false,
+  "git.ignoreMissingGitWarning": true,
+  "git.inputValidationSubjectLength": 72,
+  "git.mergeEditor": true,
+  "git.openRepositoryInParentFolders": "always",
+  "javascript.updateImportsOnFileMove.enabled": "always",
+  "jupyter.askForKernelRestart": false,
+  "makefile.configureOnOpen": false,
+  "notebook.cellToolbarLocation": {
+    "default": "right"
+  },
+  "notebook.codeActionsOnSave": {
+    "source.fixAll": "explicit",
+    "source.organizeImports": "explicit"
+  },
+  "notebook.formatOnSave.enabled": true,
+  "notebook.confirmDeleteRunningCell": false,
+  "python.defaultInterpreterPath": "${env:HOME}/.local/bin/python3",
+  "python.terminal.activateEnvironment": true,
+  "python.languageServer": "None",
+  "ruff.nativeServer": "auto",
+  "security.workspace.trust.untrustedFiles": "open",
+  "search.useIgnoreFiles": false,
+  "search.exclude": {
+    "**/dist": true,
+    "**/.git": true,
+    "**/node_modules": true,
+    "**/bower_components": true,
+    "**/*.code-search": true
+  },
+  "terminal.integrated.enableMultiLinePasteWarning": "never",
+  "terminal.integrated.fontSize": 14,
+  "terminal.integrated.fontWeightBold": "normal",
+  "terminal.integrated.gpuAcceleration": "auto",
+  "terminal.integrated.scrollback": 99999,
+  "terminal.integrated.shellIntegration.enabled": false,
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "update.showReleaseNotes": false,
+  "window.confirmSaveUntitledWorkspace": false,
+  "window.nativeTabs": true,
+  "window.systemColorTheme": "light",
+  "window.zoomLevel": -1,
+  "workbench.colorCustomizations": {
+    "tree.indentGuidesStroke": "#00ff00"
+  },
+  "workbench.colorTheme": "Light 2026",
+  "workbench.editor.empty.hint": "hidden",
+  "workbench.editorAssociations": {
+    "*.ipynb": "jupyter-notebook"
+  },
+  "workbench.iconTheme": "material-icon-theme",
+  "workbench.sideBar.location": "right",
+  "workbench.startupEditor": "none",
+  "workbench.tree.indent": 16,
+  "remote.SSH.useLocalServer": true,
+  "[c][cpp]": {
+    "editor.wordBasedSuggestions": "off",
+    "editor.semanticHighlighting.enabled": true,
+    "editor.suggest.insertMode": "replace"
+  },
+  "[html][javascript][javascriptreact][typescript][typescriptreact][json][jsonc][yaml]": {
+    "editor.tabSize": 2,
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[go]": {
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": "explicit"
+    },
+    "editor.formatOnSave": true,
+    "editor.insertSpaces": false
+  },
+  "[lua]": {
+    "editor.tabSize": 2,
+    "editor.quickSuggestions": {
+      "comments": "inline",
+      "other": "on",
+      "strings": "on"
+    },
+    "editor.semanticHighlighting.enabled": true
+  },
+  "[markdown]": {
+    "editor.defaultFormatter": "DavidAnson.vscode-markdownlint"
+  },
+  "[python]": {
+    "editor.defaultFormatter": "charliermarsh.ruff"
+  },
+  "[shellscript]": {
+    "editor.tabSize": 2
+  },
+  "workbench.preferredDarkColorTheme": "Abyss"
+}

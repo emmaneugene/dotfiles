@@ -1,0 +1,70 @@
+[user]
+	name = Emmanuel Oh
+	email = emmaneugene@outlook.com
+	signingkey = F5F48893A923E7F2!
+[branch]
+	sort = -committerdate
+[column]
+	ui = never
+[commit]
+	template = ~/.config/git/message
+	verbose = true
+[core]
+	autocrlf = false
+	editor = nvim
+	hooksPath = .githooks
+	ignorecase = false
+[diff]
+	tool = difftastic
+	algorithm = histogram
+	colorMoved = plain
+[difftool]
+	prompt = false
+[difftool "difftastic"]
+	cmd = difft "$LOCAL" "$REMOTE"
+[difftool "sourcetree"]
+	cmd = opendiff \"$LOCAL\" \"$REMOTE\"
+	path =
+[fetch]
+	prune = true
+	pruneTags = true
+	all = true
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
+[help]
+	autocorrect = prompt
+[init]
+	defaultBranch = main
+[log]
+	date = local
+[merge]
+	conflictstyle = zdiff3
+	tool = nvimdiff
+[merge "mergiraf"]
+    name = mergiraf
+    driver = mergiraf merge --git %O %A %B -s %S -x %X -y %Y -p %P -l %L
+[mergetool "sourcetree"]
+	cmd = /Applications/Sourcetree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
+	trustExitCode = true
+[pager]
+	difftool = true
+[pull]
+	rebase = true
+[push]
+	autoSetupRemote = true
+	default = current
+	followTags = true
+[rebase]
+	autoSquash = true
+	autoStash = true
+	updateRefs = true
+[rerere]
+	enabled = true
+	autoupdate = true
+[safe]
+	bareRepository = explicit
+[tag]
+	sort = -creatordate

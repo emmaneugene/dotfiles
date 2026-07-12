@@ -1,0 +1,146 @@
+<keymap version="1" name="VSCode (macOS) custom" parent="VSCode OSX">
+  <action id="$Cut">
+    <keyboard-shortcut first-keystroke="meta x" />
+  </action>
+  <action id="$Redo">
+    <keyboard-shortcut first-keystroke="shift meta z" />
+  </action>
+  <action id=":cursive.actions.paredit/close-curly-and-newline" />
+  <action id=":cursive.actions.paredit/close-paren-and-newline" />
+  <action id=":cursive.actions.paredit/close-square-and-newline" />
+  <action id=":cursive.actions.paredit/wrap-curly" />
+  <action id=":cursive.actions.paredit/wrap-paren" />
+  <action id=":cursive.actions.paredit/wrap-quotes" />
+  <action id=":cursive.actions.paredit/wrap-square" />
+  <action id="ActivateBigDataToolWindowToolWindow">
+    <keyboard-shortcut first-keystroke="shift ctrl meta b" />
+  </action>
+  <action id="ActivateBookmarksToolWindow" />
+  <action id="ActivateCommitToolWindow">
+    <keyboard-shortcut first-keystroke="shift alt 3" />
+  </action>
+  <action id="ActivateDebugToolWindow">
+    <keyboard-shortcut first-keystroke="shift meta d" />
+  </action>
+  <action id="ActivateFindToolWindow" />
+  <action id="ActivateProjectToolWindow">
+    <keyboard-shortcut first-keystroke="shift meta e" />
+    <keyboard-shortcut first-keystroke="shift alt 1" />
+  </action>
+  <action id="ActivateRunToolWindow">
+    <keyboard-shortcut first-keystroke="shift alt r" />
+  </action>
+  <action id="ActivateServicesToolWindow" />
+  <action id="ActivateStructureToolWindow">
+    <keyboard-shortcut first-keystroke="shift alt 2" />
+  </action>
+  <action id="ActivateVersionControlToolWindow">
+    <keyboard-shortcut first-keystroke="shift alt g" />
+  </action>
+  <action id="Back">
+    <keyboard-shortcut first-keystroke="ctrl minus" />
+    <mouse-shortcut keystroke="button4" />
+    <keyboard-shortcut first-keystroke="meta open_bracket" />
+  </action>
+  <action id="ChangesView.UnshelveSilently" />
+  <action id="CodeCompletion">
+    <keyboard-shortcut first-keystroke="meta i" />
+    <keyboard-shortcut first-keystroke="alt escape" />
+  </action>
+  <action id="Console.TableResult.SetDefault" />
+  <action id="Diff.NextChange">
+    <keyboard-shortcut first-keystroke="meta close_bracket" />
+  </action>
+  <action id="Diff.PrevChange">
+    <keyboard-shortcut first-keystroke="meta open_bracket" />
+  </action>
+  <action id="EditSource">
+    <keyboard-shortcut first-keystroke="alt s" />
+    <mouse-shortcut keystroke="meta button1" />
+  </action>
+  <action id="EditorIndentLineOrSelection">
+    <keyboard-shortcut first-keystroke="tab" />
+  </action>
+  <action id="EditorSelectWord">
+    <keyboard-shortcut first-keystroke="shift ctrl right" />
+  </action>
+  <action id="EditorUnSelectWord">
+    <keyboard-shortcut first-keystroke="shift ctrl left" />
+  </action>
+  <action id="EditorUnindentSelection">
+    <keyboard-shortcut first-keystroke="shift tab" />
+  </action>
+  <action id="FileStructurePopup">
+    <keyboard-shortcut first-keystroke="meta alt o" />
+  </action>
+  <action id="FindUsages">
+    <keyboard-shortcut first-keystroke="meta alt u" />
+  </action>
+  <action id="Forward">
+    <keyboard-shortcut first-keystroke="shift ctrl minus" />
+    <mouse-shortcut keystroke="button5" />
+    <keyboard-shortcut first-keystroke="meta close_bracket" />
+  </action>
+  <action id="GotoAction">
+    <keyboard-shortcut first-keystroke="f1" />
+    <keyboard-shortcut first-keystroke="shift meta p" />
+  </action>
+  <action id="GotoImplementation">
+    <keyboard-shortcut first-keystroke="meta alt b" />
+  </action>
+  <action id="NextDiff">
+    <keyboard-shortcut first-keystroke="meta down" />
+  </action>
+  <action id="NextEditorTab" />
+  <action id="NextTab">
+    <keyboard-shortcut first-keystroke="meta alt right" />
+  </action>
+  <action id="PreviousDiff">
+    <keyboard-shortcut first-keystroke="meta up" />
+  </action>
+  <action id="PreviousEditorTab" />
+  <action id="PreviousTab">
+    <keyboard-shortcut first-keystroke="meta alt left" />
+  </action>
+  <action id="RecentChanges" />
+  <action id="Scala.Desugar" />
+  <action id="Scala.ShowImplicitArguments" />
+  <action id="Scala.ShowImplicits">
+    <keyboard-shortcut first-keystroke="shift ctrl alt equals" />
+    <keyboard-shortcut first-keystroke="shift ctrl alt add" />
+  </action>
+  <action id="SelectAllOccurrences">
+    <keyboard-shortcut first-keystroke="meta f2" />
+    <keyboard-shortcut first-keystroke="shift meta l" />
+  </action>
+  <action id="ShowUmlDiagramPopup" />
+  <action id="SmartSelect" />
+  <action id="SmartUnSelect" />
+  <action id="SplitChooser.Actions">
+    <keyboard-shortcut first-keystroke="ctrl meta back_slash" />
+  </action>
+  <action id="StepInto">
+    <keyboard-shortcut first-keystroke="f11" />
+  </action>
+  <action id="StepOut">
+    <keyboard-shortcut first-keystroke="f9" />
+  </action>
+  <action id="TableResult.SelectColumn">
+    <keyboard-shortcut first-keystroke="shift ctrl meta right" />
+  </action>
+  <action id="ToggleInlayHintsGloballyAction">
+    <keyboard-shortcut first-keystroke="shift ctrl slash" />
+  </action>
+  <action id="ToggleLineBreakpoint" />
+  <action id="TypeHierarchy">
+    <keyboard-shortcut first-keystroke="shift ctrl h" />
+  </action>
+  <action id="Vcs.ShowTabbedFileHistory">
+    <keyboard-shortcut first-keystroke="ctrl h" />
+  </action>
+  <action id="ViewBreakpoints">
+    <keyboard-shortcut first-keystroke="shift meta f8" />
+    <keyboard-shortcut first-keystroke="meta alt 8" />
+  </action>
+  <action id="hg4idea.QGotoFromPatches" />
+</keymap>

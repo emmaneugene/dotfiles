@@ -1,0 +1,13 @@
+# Common defaults
+*.bak
+.DS_Store
+.env
+.env.*
+!*.example
+.worktrees/
+build/
+target/
+tmp/
+logs/
+node_modules/
+__pycache__/

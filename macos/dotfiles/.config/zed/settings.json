@@ -1,0 +1,218 @@
+// Zed settings
+//
+// For information on how to configure Zed, see the Zed
+// documentation: https://zed.dev/docs/configuring-zed
+//
+// To see all of Zed's default settings without changing your
+// custom settings, run `zed: open default settings` from the
+// command palette (cmd-shift-p / ctrl-shift-p)
+//
+// VSCode migration reference:https://zed.dev/docs/migrate/vs-code
+{
+  "scroll_sensitivity": 2.0,
+  "cli_default_open_behavior": "new_window",
+  "collaboration_panel": {
+    "button": false,
+    "dock": "left",
+  },
+  "agent_ui_font_size": 12.0,
+  "agent_buffer_font_size": 12.0,
+  "buffer_line_height": "comfortable",
+  "buffer_font_weight": 400.0,
+  "agent": {
+    "expand_edit_card": false,
+    "expand_terminal_card": false,
+    "button": true,
+    "default_model": {
+      "effort": "medium",
+      "enable_thinking": true,
+      "model": "gpt-5.4",
+      "provider": "openai-subscribed",
+    },
+    "dock": "left",
+    "favorite_models": [
+      {
+        "provider": "openai-subscribed",
+        "model": "gpt-5.5",
+        "enable_thinking": true,
+        "effort": "medium",
+      },
+      {
+        "provider": "openai-subscribed",
+        "model": "gpt-5.4",
+        "enable_thinking": true,
+        "effort": "medium",
+      },
+      {
+        "provider": "openai-subscribed",
+        "model": "gpt-5.3-codex",
+        "enable_thinking": true,
+        "effort": "medium",
+      },
+      {
+        "provider": "opencode",
+        "model": "go/kimi-k2.6",
+        "enable_thinking": false,
+      },
+      {
+        "provider": "opencode",
+        "model": "go/glm-5.1",
+        "enable_thinking": false,
+      },
+      {
+        "provider": "opencode",
+        "model": "go/deepseek-v4-pro",
+        "enable_thinking": true,
+        "effort": "max",
+      },
+      {
+        "provider": "opencode",
+        "model": "go/deepseek-v4-flash",
+        "enable_thinking": true,
+        "effort": "max",
+      },
+    ],
+    "inline_assistant_model": {
+      "enable_thinking": false,
+      "model": "claude-sonnet-4.6",
+      "provider": "copilot_chat",
+    },
+    "model_parameters": [],
+    "tool_permissions": {
+      "default": "confirm",
+      "tools": {
+        "terminal": {
+          "default": "allow",
+        },
+      },
+    },
+  },
+  "agent_servers": {
+    "pi-acp": {
+      "type": "registry",
+    },
+    "codex-acp": {
+      "type": "registry",
+    },
+  },
+  "auto_install_extensions": {
+    "colored-zed-icons-theme": true,
+    "git-firefly": true,
+    "html": true,
+    "log": true,
+    "latex": true,
+    "lua": true,
+    "make": true,
+    "nix": true,
+    "sql": true,
+    "toml": true,
+    "xml": true,
+  },
+  "autosave": "on_focus_change",
+  // Reference: https://github.com/zed-industries/zed/blob/main/assets/keymaps/default-macos.json
+  "base_keymap": "VSCode",
+  "buffer_font_fallbacks": [".ZedMono"],
+  "buffer_font_family": "Hack Nerd Font Mono",
+  "buffer_font_size": 11.5,
+  "colorize_brackets": false,
+  "edit_predictions": {
+    "disabled_globs": [
+      "**/.env*",
+      "**/*.pem",
+      "**/*.key",
+      "**/*.cert",
+      "**/*.crt",
+      "**/secrets.yml",
+      "**/secrets.sh",
+    ],
+    "mode": "subtle",
+    "provider": "zed",
+  },
+  "ensure_final_newline_on_save": true,
+  "git": {
+    "inline_blame": {
+      "enabled": true,
+      "show_commit_summary": true,
+    },
+  },
+  "git_panel": {
+    "default_width": 360,
+    "dock": "right",
+    "status_style": "icon",
+    "tree_view": true,
+  },
+  "gutter": {
+    "line_numbers": true,
+    "min_line_number_digits": 4,
+  },
+  "icon_theme": {
+    "dark": "Colored Zed Icons Theme Dark",
+    "light": "Colored Zed Icons Theme Light",
+    "mode": "light",
+  },
+  "languages": {
+    "Markdown": {
+      "remove_trailing_whitespace_on_save": false,
+    },
+  },
+  "outline_panel": {
+    "button": true,
+    "auto_fold_dirs": true,
+    "auto_reveal_entries": true,
+    "default_width": 300,
+    "dock": "right",
+    "indent_guides": {
+      "show": "always",
+    },
+  },
+  "preferred_line_length": 100,
+  "project_panel": {
+    "auto_fold_dirs": true,
+    "auto_reveal_entries": true,
+    "default_width": 280,
+    "dock": "right",
+    "indent_guides": {
+      "show": "always",
+    },
+    "show_diagnostics": "all",
+    "sort_mode": "directories_first",
+    "sticky_scroll": true,
+  },
+  "session": {
+    "trust_all_worktrees": true,
+  },
+  "show_edit_predictions": true,
+  "show_whitespaces": "selection",
+  "show_wrap_guides": true,
+  "soft_wrap": "editor_width",
+  "sticky_scroll": {
+    "enabled": true,
+  },
+  "telemetry": {
+    "diagnostics": false,
+    "metrics": false,
+  },
+  "terminal": {
+    "alternate_scroll": "on",
+    "show_count_badge": true,
+    "dock": "bottom",
+    "font_family": "Hack Nerd Font Mono",
+    "font_size": 11.5,
+    "line_height": "comfortable",
+    "max_scroll_history_lines": 99999,
+  },
+  "theme": {
+    "dark": "One Dark",
+    "light": "One Light",
+    "mode": "light",
+  },
+  "theme_overrides": {
+    "One Dark": {
+      "panel.indent_guide_active": "#00ff00",
+    },
+  },
+  "ui_font_family": ".ZedSans",
+  "ui_font_size": 13.0,
+  "use_system_window_tabs": true,
+  "wrap_guides": [100],
+}

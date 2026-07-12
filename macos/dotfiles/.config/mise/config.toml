@@ -1,0 +1,45 @@
+[tools]
+go = "1.26.0"
+"go:github.com/Gelio/go-global-update" = "latest"
+"go:github.com/x-motemen/gore/cmd/gore" = "latest"
+"go:golang.org/x/tools/gopls" = "latest"
+"go:honnef.co/go/tools/cmd/staticcheck" = "latest"
+java = "liberica-21"
+lua = "5.1"
+node = "26.3.0"
+"npm:@earendil-works/pi-ai" = "latest"
+"npm:@earendil-works/pi-coding-agent" = "latest"
+"npm:@earendil-works/pi-tui" = "latest"
+"npm:@tobilu/qmd" = "latest"
+"npm:ccusage" = "latest"
+"npm:dev-browser" = { version = "latest", npm_args = "--ignore-scripts=false" }
+"npm:editorconfig" = "latest"
+"npm:forever" = "latest"
+"npm:hunkdiff" = "latest"
+"npm:live-server" = "latest"
+"npm:markdownlint-cli2" = "latest"
+"npm:neovim" = "latest"
+"npm:playwright" = "latest"
+"npm:prettier" = "latest"
+"npm:quicktype" = "latest"
+"npm:uglify-js" = "latest"
+ruby = "4.0.1"
+"gem:tmuxinator" = "latest"
+rust = "1.95.0"
+"cargo:cargo-cache" = "latest"
+"cargo:cargo-update" = "latest"
+"cargo:tree-sitter-cli" = "latest"
+uv = "0.11.12"
+# mise's pipx backend uses uv/uvx automatically when uv is available.
+# but note that these deps will not show up with `uv tool list`
+# https://mise.jdx.dev/dev-tools/backends/pipx.html
+"pipx:argcomplete" = "latest"
+"pipx:ipython" = { version = "latest", uvx_args = "--with numpy --with pandas" }
+"pipx:llm" = { version = "latest", uvx_args = "--with llm-anthropic --with llm-gemini" }
+"pipx:git+https://github.com/emmaneugene/llmeter.git" = "latest"
+"pipx:markitdown" = { version = "latest", extras = "all", uvx_args = "--prerelease=allow" }
+"pipx:mkdocs" = "latest"
+"pipx:poetry" = "latest"
+"pipx:pre-commit" = "latest"
+"pipx:ruff" = "latest"
+"pipx:sqlfluff" = "latest"

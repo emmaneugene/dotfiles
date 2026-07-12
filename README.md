@@ -8,9 +8,6 @@ There is a handy script to symlink them directly to your home directory. It play
 
 ```bash
 # If you want the macos stuff
-./symlink.sh macos
+cd macos
+./symlink.py
 ```
-
-### Misc
-
-- `templates/`: I like to keep track of defaults for bootstrapping projects because idk, I'm old-fashioned.

@@ -1,0 +1,158 @@
+#compdef pi
+# Source: Generated from pi --help and subcommand help
+# Regenerate: Manually update based on `pi --help` and subcommand help output
+
+_pi_models() {
+  _message 'model pattern or provider/model[:thinking]'
+}
+
+_pi_tools() {
+  local -a tools
+  tools=(read bash edit write grep find ls)
+  _describe -t tools 'tool' tools
+}
+
+_pi_thinking_levels() {
+  local -a levels
+  levels=(off minimal low medium high xhigh)
+  _describe -t thinking-levels 'thinking level' levels
+}
+
+_pi_modes() {
+  local -a modes
+  modes=(text json rpc)
+  _describe -t output-modes 'output mode' modes
+}
+
+_pi_providers() {
+  local -a providers
+  providers=(anthropic openai azure-openai deepseek gemini groq cerebras xai fireworks together openrouter ai-gateway zai mistral minimax moonshot opencode kimi cloudflare aws-bedrock google github-copilot)
+  _describe -t providers 'provider' providers
+}
+
+_pi_sources() {
+  # Package sources may be npm package names, git URLs, HTTPS/SSH URLs, or local paths.
+  local -a schemes
+  schemes=(
+    'npm\::npm package (npm:@scope/name)'
+    'git\::git source (git:github.com/user/repo)'
+    'https\://:https git URL'
+    'ssh\://:ssh git URL'
+  )
+  _describe -t source-schemes 'source scheme' schemes
+  _files
+}
+
+_pi_sessions() {
+  _files -g '*.(jsonl|json)(-.)'
+}
+
+_pi_commands() {
+  local -a commands
+  commands=(
+    'install:Install extension source and add to settings'
+    'remove:Remove extension source from settings'
+    'uninstall:Alias for remove'
+    'update:Update pi and installed extensions'
+    'list:List installed extensions from settings'
+    'config:Open TUI to enable/disable package resources'
+  )
+  _describe -t commands 'pi command' commands
+}
+
+_pi_global_args=(
+  '--provider[Provider name]:provider:_pi_providers'
+  '--model[Model pattern or ID]:model:_pi_models'
+  '--api-key[API key]:api key:'
+  '--system-prompt[System prompt text]:prompt:'
+  '*--append-system-prompt[Append text or file contents to the system prompt]:text or file:_files'
+  '--mode[Output mode]:mode:_pi_modes'
+  '(-p --print)'{-p,--print}'[Non-interactive mode: process prompt and exit]'
+  '(-c --continue)'{-c,--continue}'[Continue previous session]'
+  '(-r --resume)'{-r,--resume}'[Select a session to resume]'
+  '--session[Use specific session file or partial UUID]:session:_pi_sessions'
+  '--fork[Fork specific session file or partial UUID into a new session]:session:_pi_sessions'
+  '--session-dir[Directory for session storage and lookup]:directory:_files -/'
+  '--no-session[Do not save session]'
+  '--models[Comma-separated model patterns for Ctrl+P cycling]:models:_pi_models'
+  '(-nt --no-tools)'{-nt,--no-tools}'[Disable all tools by default]'
+  '(-nbt --no-builtin-tools)'{-nbt,--no-builtin-tools}'[Disable built-in tools by default]'
+  '(-t --tools)'{-t,--tools}'[Comma-separated allowlist of tool names to enable]:tools:_pi_tools'
+  '--thinking[Set thinking level]:thinking level:_pi_thinking_levels'
+  '*'{-e,--extension}'[Load an extension file]:extension file:_files'
+  '(-ne --no-extensions)'{-ne,--no-extensions}'[Disable extension discovery]'
+  '*--skill[Load a skill file or directory]:skill path:_files'
+  '(-ns --no-skills)'{-ns,--no-skills}'[Disable skills discovery and loading]'
+  '*--prompt-template[Load a prompt template file or directory]:prompt template:_files'
+  '(-np --no-prompt-templates)'{-np,--no-prompt-templates}'[Disable prompt template discovery and loading]'
+  '*--theme[Load a theme file or directory]:theme path:_files'
+  '--no-themes[Disable theme discovery and loading]'
+  '(-nc --no-context-files)'{-nc,--no-context-files}'[Disable AGENTS.md and CLAUDE.md discovery and loading]'
+  '--export[Export session file to HTML and exit]:session file:_pi_sessions'
+  '--list-models[List available models, optionally filtered]:search:'
+  '--verbose[Force verbose startup]'
+  '--offline[Disable startup network operations]'
+  '(-h --help)'{-h,--help}'[Show help]'
+  '(-v --version)'{-v,--version}'[Show version number]'
+  '--mcp-config[Path to MCP config file]:config file:_files'
+  '--plan[Start in plan mode]'
+)
+
+_pi_install_remove_args=(
+  '(-l --local)'{-l,--local}'[Use local/project settings]'
+  '(-h --help)'{-h,--help}'[Show help]'
+)
+
+_pi_update_targets() {
+  local -a targets
+  targets=(self pi)
+  _describe -t update-targets 'update target' targets
+  _pi_sources
+}
+
+_pi_update_args=(
+  '--self[Update pi only]'
+  '--extensions[Update installed packages only]'
+  '--extension[Update one package only]:source:_pi_sources'
+  '--force[Reinstall pi even if the current version is latest]'
+  '(-h --help)'{-h,--help}'[Show help]'
+)
+
+_pi() {
+  local curcontext="$curcontext" state line expl
+  typeset -A opt_args
+
+  if (( CURRENT == 2 )); then
+    _arguments -C \
+      '1:command:_pi_commands' \
+      "$_pi_global_args[@]" \
+      '*:message or file:_files' && return
+  fi
+
+  case ${words[2]} in
+    install|remove|uninstall)
+      _arguments -C \
+        "$_pi_install_remove_args[@]" \
+        '1:extension source:_pi_sources' && return
+      ;;
+    update)
+      _arguments -C \
+        "$_pi_update_args[@]" \
+        '1:update target or source:_pi_update_targets' && return
+      ;;
+    list)
+      _arguments -C \
+        '(-h --help)'{-h,--help}'[Show help]' && return
+      ;;
+    config)
+      _message 'no arguments' && return
+      ;;
+  esac
+
+  _arguments -C \
+    "$_pi_global_args[@]" \
+    '1:command:_pi_commands' \
+    '*:message or file:_files'
+}
+
+_pi "$@"

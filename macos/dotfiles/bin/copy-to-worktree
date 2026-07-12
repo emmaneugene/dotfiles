@@ -1,0 +1,300 @@
+#!/usr/bin/env python3
+
+"""Copy current working tree changes into another branch's worktree.
+
+The destination is discovered automatically via `git worktree list`: it defaults
+to the worktree on the `main` branch, or the branch supplied with `--branch`.
+
+By default, this mirrors all changed files from the current repo into that
+worktree, using the same relative paths. It includes:
+- modified tracked files (staged and unstaged)
+- added tracked files
+- untracked files
+- deletions and rename-away paths, which delete the counterpart in the
+  destination worktree
+
+Examples:
+  copy-to-worktree
+  copy-to-worktree dotfiles
+  copy-to-worktree src/foo.py src/bar.py
+"""
+
+from __future__ import annotations
+
+import argparse
+import os
+import shutil
+import subprocess
+import sys
+from pathlib import Path
+
+RESET = "\033[0m"
+GREEN = "\033[32m"
+RED = "\033[31m"
+YELLOW = "\033[33m"
+BOLD = "\033[1m"
+
+DEFAULT_BRANCH = "main"
+
+
+def run_git(repo_root: Path, args: list[str]) -> str:
+    result = subprocess.run(
+        ["git", "-C", str(repo_root), *args],
+        capture_output=True,
+        check=False,
+        text=True,
+        encoding="utf-8",
+        errors="surrogateescape",
+    )
+    if result.returncode != 0:
+        raise RuntimeError(f"git {' '.join(args)} failed: {result.stderr.strip()}")
+    return result.stdout
+
+
+def find_repo_root(cwd: Path) -> Path:
+    """Return current Git worktree root."""
+    result = subprocess.run(
+        ["git", "-C", str(cwd), "rev-parse", "--show-toplevel"],
+        capture_output=True,
+        check=False,
+        text=True,
+        encoding="utf-8",
+        errors="surrogateescape",
+    )
+    if result.returncode != 0:
+        raise RuntimeError("not inside a Git worktree")
+    return Path(result.stdout.strip()).resolve()
+
+
+def find_branch_worktree(repo_root: Path, branch_name: str) -> Path:
+    """Return the worktree path for the requested branch."""
+    worktrees: list[tuple[Path, str]] = []
+
+    for block in (
+        run_git(repo_root, ["worktree", "list", "--porcelain"]).strip().split("\n\n")
+    ):
+        fields = {}
+        for line in block.splitlines():
+            key, _, value = line.partition(" ")
+            if value:
+                fields[key] = value.strip()
+
+        path = fields.get("worktree")
+        branch = fields.get("branch", "").removeprefix("refs/heads/")
+        if path and branch:
+            worktrees.append((Path(path), branch))
+
+    for path, branch in worktrees:
+        if branch == branch_name:
+            return path
+
+    raise RuntimeError(
+        f"No worktree found for branch '{branch_name}'.\n"
+        f"Known worktrees: {[str(branch) for _, branch in worktrees]}"
+    )
+
+
+def parse_name_status_z(output: str) -> set[Path]:
+    paths: set[Path] = set()
+    if not output:
+        return paths
+
+    fields = output.split("\0")
+    if fields and fields[-1] == "":
+        fields.pop()
+
+    i = 0
+    while i < len(fields):
+        status = fields[i]
+        i += 1
+
+        if i >= len(fields):
+            raise RuntimeError(f"Missing path for status entry: {status!r}")
+
+        paths.add(Path(fields[i]))
+        i += 1
+
+        if status.startswith(("R", "C")):
+            if i >= len(fields):
+                raise RuntimeError(
+                    f"Missing second path for rename/copy entry: {status!r}"
+                )
+            paths.add(Path(fields[i]))
+            i += 1
+
+    return paths
+
+
+def get_changed_paths(repo_root: Path) -> list[Path]:
+    changed: set[Path] = set()
+
+    changed |= parse_name_status_z(
+        run_git(repo_root, ["diff", "--name-status", "-z", "--diff-filter=ACDMRTUXB"])
+    )
+    changed |= parse_name_status_z(
+        run_git(
+            repo_root,
+            ["diff", "--cached", "--name-status", "-z", "--diff-filter=ACDMRTUXB"],
+        )
+    )
+
+    untracked = run_git(repo_root, ["ls-files", "-o", "--exclude-standard", "-z"])
+    if untracked:
+        changed |= {Path(path) for path in untracked.split("\0") if path}
+
+    return [
+        path
+        for path in sorted(changed)
+        if not path.is_absolute() and (not path.parts or path.parts[0] != ".git")
+    ]
+
+
+def prune_empty_parents(start: Path, stop: Path) -> None:
+    for parent in start.parents:
+        if parent == stop:
+            return
+
+        try:
+            parent.rmdir()
+        except OSError:
+            return
+
+
+def copy_entry(src: Path, dst: Path) -> None:
+    dst.parent.mkdir(parents=True, exist_ok=True)
+
+    if dst.exists() or dst.is_symlink():
+        if dst.is_dir() and not dst.is_symlink():
+            try:
+                dst.rmdir()
+            except OSError:
+                raise RuntimeError(f"Destination is a non-empty directory: {dst}")
+        else:
+            dst.unlink()
+
+    if src.is_symlink():
+        target = os.readlink(src)
+        dst.symlink_to(target)
+    elif src.is_file():
+        shutil.copy2(src, dst)
+    else:
+        raise RuntimeError(f"Changed path is not a regular file or symlink: {src}")
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(
+        description="Copy current working tree changes into another branch's worktree"
+    )
+    parser.add_argument(
+        "-b",
+        "--branch",
+        default=DEFAULT_BRANCH,
+        help=f"destination branch worktree to use (default: {DEFAULT_BRANCH})",
+    )
+    parser.add_argument(
+        "files",
+        nargs="*",
+        metavar="PATH",
+        help="specific files/directories to copy (default: all changed files)",
+    )
+    args = parser.parse_args()
+
+    try:
+        repo_root = find_repo_root(Path.cwd())
+        dest_root = find_branch_worktree(repo_root, args.branch)
+    except RuntimeError as exc:
+        print(f"{RED}error:{RESET} {exc}", file=sys.stderr)
+        return 1
+
+    if not dest_root.exists():
+        print(
+            f"{RED}error:{RESET} destination worktree path does not exist: {dest_root}",
+            file=sys.stderr,
+        )
+        return 1
+
+    if repo_root.resolve() == dest_root.resolve():
+        print(
+            f"{RED}error:{RESET} destination worktree is the current worktree ({args.branch})",
+            file=sys.stderr,
+        )
+        return 1
+
+    try:
+        changed_paths = get_changed_paths(repo_root)
+
+        if args.files:
+            requested: set[Path] = set()
+            for raw_path in args.files:
+                resolved = (
+                    Path(raw_path).resolve()
+                    if Path(raw_path).is_absolute()
+                    else (Path.cwd() / raw_path).resolve()
+                )
+                try:
+                    requested.add(resolved.relative_to(repo_root))
+                except ValueError as exc:
+                    raise RuntimeError(
+                        f"path is outside the repo root: {raw_path}"
+                    ) from exc
+
+            changed_paths = [
+                path
+                for path in changed_paths
+                if any(path == req or req in path.parents for req in requested)
+            ]
+    except RuntimeError as exc:
+        print(f"{RED}error:{RESET} {exc}", file=sys.stderr)
+        return 1
+
+    if not changed_paths:
+        print(f"{YELLOW}No changed files to copy.{RESET}")
+        return 0
+
+    copied = 0
+    deleted = 0
+    skipped = 0
+
+    print(f"{BOLD}Source:{RESET}      {repo_root}")
+    print(f"{BOLD}Destination:{RESET} {dest_root}")
+    print(f"{BOLD}Paths:{RESET}       {len(changed_paths)}\n")
+
+    for rel_path in changed_paths:
+        src = repo_root / rel_path
+        dst = dest_root / rel_path
+
+        try:
+            if src.exists() or src.is_symlink():
+                copy_entry(src, dst)
+                print(f"{GREEN}[COPY]{RESET} {rel_path} -> {dst}")
+                copied += 1
+            else:
+                if dst.exists() or dst.is_symlink():
+                    if dst.is_symlink() or dst.is_file():
+                        dst.unlink()
+                    elif dst.is_dir():
+                        try:
+                            dst.rmdir()
+                        except OSError:
+                            raise RuntimeError(
+                                f"Refusing to remove non-empty directory: {dst}"
+                            )
+
+                    prune_empty_parents(dst, dest_root)
+                    print(f"{RED}[DELETE]{RESET} {rel_path}")
+                    deleted += 1
+                else:
+                    print(
+                        f"{YELLOW}[SKIP]{RESET} {rel_path} (already absent in destination)"
+                    )
+                    skipped += 1
+        except Exception as exc:
+            print(f"{RED}[ERROR]{RESET} {rel_path}: {exc}", file=sys.stderr)
+            return 1
+
+    print(f"\n{BOLD}Done.{RESET} copied={copied} deleted={deleted} skipped={skipped}")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

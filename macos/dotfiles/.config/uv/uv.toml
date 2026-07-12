@@ -1,0 +1,8 @@
+# Dependency cooldown: ignore distributions uploaded in the last 24 hours.
+# This approximates a minimum release age for uv-managed global tools and projects.
+exclude-newer = "1 day"
+
+# Refuse source distribution builds by default.
+# Building sdists executes package build code; prefer pre-built wheels for global CLIs.
+# Override one-off with: UV_NO_BUILD=false uv tool install <package>
+# no-build = true
